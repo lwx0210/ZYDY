@@ -120,6 +120,26 @@ typedef NS_ENUM(NSInteger, MediaType) {
 - (void)setIsDYYYCustomGroup:(BOOL)isCustom;
 @end
 
+@interface AWEModernLongPressHorizontalSettingCell : UITableViewCell
+@property (nonatomic, strong) UICollectionView *collectionView;
+@property (nonatomic, strong) NSArray *dataArray;
+@property (nonatomic, strong) AWELongPressPanelViewGroupModel *longPressViewGroupModel;
+
+- (void)setupCustomLayout;
+- (CGFloat)widthForText:(NSString *)text;
+@end
+
+@interface AWEModernLongPressHorizontalSettingItemCell : UICollectionViewCell
+@property (nonatomic, strong) UIView *contentView;
+@property (nonatomic, strong) UIImageView *buttonIcon;
+@property (nonatomic, strong) UILabel *buttonLabel;
+@property (nonatomic, strong) UIView *separator;
+@property (nonatomic, strong) AWELongPressPanelBaseViewModel *longPressPanelVM;
+
+- (void)updateUI:(AWELongPressPanelBaseViewModel *)viewModel;
+@end
+
+
 @interface AWELongPressPanelManager : NSObject
 + (instancetype)shareInstance;
 - (void)dismissWithAnimation:(BOOL)animated completion:(void (^)(void))completion;
@@ -319,25 +339,6 @@ typedef NS_ENUM(NSInteger, MediaType) {
 @property (nonatomic, strong) AWEAwemeModel *awemeModel;
 @end
 
-@interface AWEModernLongPressHorizontalSettingCell : UITableViewCell
-@property (nonatomic, strong) UICollectionView *collectionView;
-@property (nonatomic, strong) NSArray *dataArray;
-@property (nonatomic, strong) AWELongPressPanelViewGroupModel *longPressViewGroupModel;
-
-- (void)setupCustomLayout;
-- (CGFloat)widthForText:(NSString *)text;
-@end
-
-@interface AWEModernLongPressHorizontalSettingItemCell : UICollectionViewCell
-@property (nonatomic, strong) UIView *contentView;
-@property (nonatomic, strong) UIImageView *buttonIcon;
-@property (nonatomic, strong) UILabel *buttonLabel;
-@property (nonatomic, strong) UIView *separator;
-@property (nonatomic, strong) AWELongPressPanelBaseViewModel *longPressPanelVM;
-
-- (void)updateUI:(AWELongPressPanelBaseViewModel *)viewModel;
-@end
-
 @interface DYYYSettingViewController : UIViewController
 @end
 
@@ -434,9 +435,53 @@ typedef NS_ENUM(NSInteger, MediaType) {
 @property (nonatomic, assign, getter=isHidden) BOOL hidden;
 @end
 
+@interface AWELuckyCatBannerView : UIView
+@end
+
+//AI搜索
+@interface AWESearchKeyboardVoiceSearchEntranceView : UIView
+@end
+
+// 隐藏每日精选
 @interface AWETemplateTagsCommonView : UIView
-@property (nonatomic, strong, readonly) UIView *superview;
-@property (nonatomic, assign, getter=isHidden) BOOL hidden;
+@end
+
+// 隐藏清屏横线
+@interface AWELoadingAndVolumeView : UIView
+@end
+
+//评论区大家搜
+@interface AWECommentSearchAnchorView : UIView
+- (void)setHidden:(BOOL)hidden;
+- (BOOL)isHidden;
+- (void)layoutSubviews;
+@end
+
+//评论区免费去看短剧
+@interface AWEShowPlayletCommentHeaderView : UIView
+- (void)setHidden:(BOOL)hidden;
+- (BOOL)isHidden;
+- (void)layoutSubviews;
+@end
+
+//评论区定位头部
+@interface AWEPOIEntryAnchorView : UIView
+- (void)setHidden:(BOOL)hidden;
+- (BOOL)isHidden;
+- (void)layoutSubviews;
+- (void)p_processModels:(id)models withPOIName:(id)poiName;
+@end
+
+//评论区去汽水听
+@interface AWECommentGuideLunaAnchorView : UIView
+- (void)setHidden:(BOOL)hidden;
+- (BOOL)isHidden;
+- (void)layoutSubviews;
+@end
+
+//隐藏评论区大家都在搜留白
+@interface AWESearchAnchorListModel : NSObject
+- (id)init;
 @end
 
 @interface AFDSkylightCellBubble : UIView
@@ -584,24 +629,6 @@ typedef NS_ENUM(NSInteger, MediaType) {
 
 @interface IESLiveActivityBannnerView : UIView
 @end
-@interface AWECommentSearchAnchorView : UIView
-- (void)setHidden:(BOOL)hidden;
-- (BOOL)isHidden;
-- (void)layoutSubviews;
-@end
-
-@interface AWEPOIEntryAnchorView : UIView
-- (void)setHidden:(BOOL)hidden;
-- (BOOL)isHidden;
-- (void)layoutSubviews;
-- (void)p_processModels:(id)models withPOIName:(id)poiName;
-@end
-
-@interface AWECommentGuideLunaAnchorView : UIView
-- (void)setHidden:(BOOL)hidden;
-- (BOOL)isHidden;
-- (void)layoutSubviews;
-@end
 
 @interface AWEFeedTopBarContainer : UIView
 - (void)applyDYYYTransparency; 
@@ -656,10 +683,6 @@ typedef NS_ENUM(NSInteger, MediaType) {
 @property (nonatomic, assign, getter=isHidden) BOOL hidden;
 - (void)layoutSubviews; 
 - (void)updateIndicatorWithPageCount:(NSInteger)count; 
-@end
-
-@interface AWESearchAnchorListModel : NSObject
-- (id)init;
 @end
 
 @interface AWEPlayInteractionAvatarView : UIView
@@ -848,9 +871,6 @@ typedef NS_ENUM(NSInteger, MediaType) {
 - (void)setShouldShowToggle:(BOOL)arg1;
 - (NSUInteger)animationStyle;
 - (NSUInteger)viewStyle;
-@end
-
-@interface AWELoadingAndVolumeView : UIView
 @end
 
 @interface BDImageView : UIImageView
