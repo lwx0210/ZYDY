@@ -1,8 +1,12 @@
 #import "AwemeHeaders.h"
-#import "DYYYManager.h"
-#import "DYYYKeywordListView.h"
-#import "DYYYFilterSettingsView.h"
 #import "DYYYBottomAlertView.h"
+#import "DYYYFilterSettingsView.h"
+#import "DYYYKeywordListView.h"
+#import "DYYYManager.h"
+
+%hook AWELongPressPanelViewGroupModel
+%property(nonatomic, assign) BOOL isDYYYCustomGroup;
+%end
 
 %hook AWEModernLongPressPanelTableViewController
 
@@ -18,9 +22,9 @@
 	}
 
 	AWELongPressPanelViewGroupModel *newGroupModel = [[%c(AWELongPressPanelViewGroupModel) alloc] init];
-	[newGroupModel setIsDYYYCustomGroup:YES];
-    newGroupModel.groupType = 12;
-    newGroupModel.isModern = YES;
+	newGroupModel.isDYYYCustomGroup = YES;
+	newGroupModel.groupType = 12;
+	newGroupModel.isModern = YES;
 
 	NSMutableArray *viewModels = [NSMutableArray array];
 
@@ -212,14 +216,51 @@
 		}
 	}
 
+	if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYCopyText"]) {
+		AWELongPressPanelBaseViewModel *copyText = [[%c(AWELongPressPanelBaseViewModel) alloc] init];
+		copyText.awemeModel = self.awemeModel;
+		copyText.actionType = 671;
+		copyText.duxIconName = @"ic_xiaoxihuazhonghua_outlined";
+		copyText.describeString = @"复制文案";
+
+		copyText.action = ^{
+		  NSString *descText = [self.awemeModel valueForKey:@"descriptionString"];
+		  [[UIPasteboard generalPasteboard] setString:descText];
+		  [DYYYManager showToast:@"文案已复制到剪贴板"];
+
+		  AWELongPressPanelManager *panelManager = [%c(AWELongPressPanelManager) shareInstance];
+		  [panelManager dismissWithAnimation:YES completion:nil];
+		};
+
+		[viewModels addObject:copyText];
+
+		// 新增复制分享链接
+		AWELongPressPanelBaseViewModel *copyShareLink = [[%c(AWELongPressPanelBaseViewModel) alloc] init];
+		copyShareLink.awemeModel = self.awemeModel;
+		copyShareLink.actionType = 672;
+		copyShareLink.duxIconName = @"ic_share_outlined";
+		copyShareLink.describeString = @"复制链接";
+
+		copyShareLink.action = ^{
+		  NSString *shareLink = [self.awemeModel valueForKey:@"shareURL"];
+		  [[UIPasteboard generalPasteboard] setString:shareLink];
+		  [DYYYManager showToast:@"分享链接已复制到剪贴板"];
+
+		  AWELongPressPanelManager *panelManager = [%c(AWELongPressPanelManager) shareInstance];
+		  [panelManager dismissWithAnimation:YES completion:nil];
+		};
+
+		[viewModels addObject:copyShareLink];
+	}
+
 	// 添加接口保存功能
 	NSString *apiKey = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYInterfaceDownload"];
 	if (apiKey.length > 0) {
 		AWELongPressPanelBaseViewModel *apiDownload = [[%c(AWELongPressPanelBaseViewModel) alloc] init];
 		apiDownload.awemeModel = self.awemeModel;
-		apiDownload.actionType = 671;
+		apiDownload.actionType = 673;
 		apiDownload.duxIconName = @"ic_cloudarrowdown_outlined_20";
-		apiDownload.describeString = @"接口解析";
+		apiDownload.describeString = @"接口保存";
 
 		apiDownload.action = ^{
 		  NSString *shareLink = [self.awemeModel valueForKey:@"shareURL"];
@@ -237,52 +278,13 @@
 
 		[viewModels addObject:apiDownload];
 	}
-
-	if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYCopyText"]) {
-		AWELongPressPanelBaseViewModel *copyText = [[%c(AWELongPressPanelBaseViewModel) alloc] init];
-		copyText.awemeModel = self.awemeModel;
-		copyText.actionType = 672;
-		copyText.duxIconName = @"ic_xiaoxihuazhonghua_outlined";
-		copyText.describeString = @"复制视频文案";
-
-		copyText.action = ^{
-		  NSString *descText = [self.awemeModel valueForKey:@"descriptionString"];
-		  [[UIPasteboard generalPasteboard] setString:descText];
-		  [DYYYManager showToast:@"文案已复制到剪贴板"];
-
-		  AWELongPressPanelManager *panelManager = [%c(AWELongPressPanelManager) shareInstance];
-		  [panelManager dismissWithAnimation:YES completion:nil];
-		};
-
-		[viewModels addObject:copyText];
-
-		// 新增复制分享链接
-		AWELongPressPanelBaseViewModel *copyShareLink = [[%c(AWELongPressPanelBaseViewModel) alloc] init];
-		copyShareLink.awemeModel = self.awemeModel;
-		copyShareLink.actionType = 673;
-		copyShareLink.duxIconName = @"ic_share_outlined";
-		copyShareLink.describeString = @"复制视频链接";
-
-		copyShareLink.action = ^{
-		  NSString *shareLink = [self.awemeModel valueForKey:@"shareURL"];
-		  [[UIPasteboard generalPasteboard] setString:shareLink];
-		  [DYYYManager showToast:@"分享链接已复制到剪贴板"];
-
-		  AWELongPressPanelManager *panelManager = [%c(AWELongPressPanelManager) shareInstance];
-		  [panelManager dismissWithAnimation:YES completion:nil];
-		};
-
-		[viewModels addObject:copyShareLink];
-	}
-
-
 	if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYLongPressFilterUser"]) {
 		// 新增修改过滤规则功能
 		AWELongPressPanelBaseViewModel *filterKeywords = [[%c(AWELongPressPanelBaseViewModel) alloc] init];
 		filterKeywords.awemeModel = self.awemeModel;
 		filterKeywords.actionType = 674;
 		filterKeywords.duxIconName = @"ic_userban_outlined_20";
-		filterKeywords.describeString = @"过滤视频作者";
+		filterKeywords.describeString = @"过滤用户";
 
 		filterKeywords.action = ^{
 		  // 获取当前视频作者信息
@@ -311,13 +313,13 @@
 		  }
 		  NSString *actionButtonText = userExists ? @"取消过滤" : @"添加过滤";
 
-		  [DYYYBottomAlertView showAlertWithTitle:@"过滤视频作者"
+		  [DYYYBottomAlertView showAlertWithTitle:@"过滤用户视频"
 		      message:[NSString stringWithFormat:@"用户: %@ (ID: %@)", nickname, shortId]
 		      cancelButtonText:@"管理过滤列表"
 		      confirmButtonText:actionButtonText
 		      cancelAction:^{
 			// 创建并显示关键词列表视图
-			DYYYKeywordListView *keywordListView = [[DYYYKeywordListView alloc] initWithTitle:@"已过滤的视频作者" keywords:userArray];
+			DYYYKeywordListView *keywordListView = [[DYYYKeywordListView alloc] initWithTitle:@"过滤用户列表" keywords:userArray];
 			// 设置确认回调
 			keywordListView.onConfirm = ^(NSArray *users) {
 			  // 将用户数组转换为逗号分隔的字符串
@@ -328,7 +330,7 @@
 			  [[NSUserDefaults standardUserDefaults] synchronize];
 
 			  // 显示提示
-			  [DYYYManager showToast:@"过滤作者列表已更新"];
+			  [DYYYManager showToast:@"过滤用户列表已更新"];
 			};
 
 			[keywordListView show];
@@ -350,11 +352,11 @@
 					}
 				}
 				[updatedUsers removeObjectsInArray:toRemove];
-				[DYYYManager showToast:@"已从过滤列表中移除此作者"];
+				[DYYYManager showToast:@"已从过滤列表中移除此用户"];
 			} else {
 				// 添加用户
 				[updatedUsers addObject:currentUserFilter];
-				[DYYYManager showToast:@"已添加此作者到过滤列表"];
+				[DYYYManager showToast:@"已添加此用户到过滤列表"];
 			}
 
 			// 保存更新后的列表
@@ -373,12 +375,12 @@
 		filterKeywords.awemeModel = self.awemeModel;
 		filterKeywords.actionType = 675;
 		filterKeywords.duxIconName = @"ic_funnel_outlined_20";
-		filterKeywords.describeString = @"过滤视频文案";
+		filterKeywords.describeString = @"过滤文案";
 
 		filterKeywords.action = ^{
 		  NSString *descText = [self.awemeModel valueForKey:@"descriptionString"];
 
-		  DYYYFilterSettingsView *filterView = [[DYYYFilterSettingsView alloc] initWithTitle:@"选择需要过滤的文案" text:descText];
+		  DYYYFilterSettingsView *filterView = [[DYYYFilterSettingsView alloc] initWithTitle:@"过滤关键词调整" text:descText];
 		  filterView.onConfirm = ^(NSString *selectedText) {
 		    if (selectedText.length > 0) {
 			    NSString *currentKeywords = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYfilterKeywords"] ?: @"";
@@ -392,7 +394,7 @@
 
 			    [[NSUserDefaults standardUserDefaults] setObject:newKeywords forKey:@"DYYYfilterKeywords"];
 			    [[NSUserDefaults standardUserDefaults] synchronize];
-			    [DYYYManager showToast:[NSString stringWithFormat:@"已添加到过滤文案: %@", selectedText]];
+			    [DYYYManager showToast:[NSString stringWithFormat:@"已添加过滤词: %@", selectedText]];
 		    }
 		  };
 
@@ -403,7 +405,7 @@
 		    NSArray *keywordArray = [savedKeywords length] > 0 ? [savedKeywords componentsSeparatedByString:@","] : @[];
 
 		    // 创建并显示关键词列表视图
-		    DYYYKeywordListView *keywordListView = [[DYYYKeywordListView alloc] initWithTitle:@"已过滤的视频文案" keywords:keywordArray];
+		    DYYYKeywordListView *keywordListView = [[DYYYKeywordListView alloc] initWithTitle:@"设置过滤关键词" keywords:keywordArray];
 
 		    // 设置确认回调
 		    keywordListView.onConfirm = ^(NSArray *keywords) {
@@ -415,7 +417,7 @@
 		      [[NSUserDefaults standardUserDefaults] synchronize];
 
 		      // 显示提示
-		      [DYYYManager showToast:@"过滤文案已更新"];
+		      [DYYYManager showToast:@"过滤关键词已更新"];
 		    };
 
 		    // 显示关键词列表视图
@@ -431,164 +433,67 @@
 		[viewModels addObject:filterKeywords];
 	}
 
-    NSMutableArray<AWELongPressPanelViewGroupModel *> *customGroups = [NSMutableArray array];
-    NSInteger maxPerGroup = 4;
-    for (NSInteger i = 0; i < viewModels.count; i += maxPerGroup) {
-        NSRange range = NSMakeRange(i, MIN(maxPerGroup, viewModels.count - i));
-        NSArray<AWELongPressPanelBaseViewModel *> *subArr = [viewModels subarrayWithRange:range];
-        AWELongPressPanelViewGroupModel *groupModel = [[%c(AWELongPressPanelViewGroupModel) alloc] init];
-        [groupModel setIsDYYYCustomGroup:YES];
-        groupModel.groupType = 12;
-        groupModel.isModern = YES;
-        groupModel.groupArr = subArr;
-        [customGroups addObject:groupModel];
-    }
+	NSMutableArray<AWELongPressPanelViewGroupModel *> *customGroups = [NSMutableArray array];
+	NSInteger maxPerGroup = 4;
+	int groupIndex = 0;
+	for (NSInteger i = 0; i < viewModels.count; i += maxPerGroup) {
+		NSRange range = NSMakeRange(i, MIN(maxPerGroup, viewModels.count - i));
+		NSArray<AWELongPressPanelBaseViewModel *> *subArr = [viewModels subarrayWithRange:range];
+		AWELongPressPanelViewGroupModel *groupModel = [[%c(AWELongPressPanelViewGroupModel) alloc] init];
+		groupModel.isDYYYCustomGroup = YES;
 
-    // 返回自定义分组拼接原始分组
-    return [customGroups arrayByAddingObjectsFromArray:originalArray];
-}
+		// 如果是第二列（索引为1）且元素数量小于4个，则设置groupType为11
+		if (groupIndex == 1 && subArr.count < 4) {
+			groupModel.groupType = 11;
+		} else {
+			groupModel.groupType = 12;
+		}
 
-%end
-
-%hook AWELongPressPanelViewGroupModel
-
-%new
-- (void)setIsDYYYCustomGroup:(BOOL)isCustom {
-    objc_setAssociatedObject(self, @selector(isDYYYCustomGroup), @(isCustom), OBJC_ASSOCIATION_RETAIN_NONATOMIC);
-}
-
-%new
-- (BOOL)isDYYYCustomGroup {
-    NSNumber *value = objc_getAssociatedObject(self, @selector(isDYYYCustomGroup));
-    return [value boolValue];
+		groupModel.isModern = YES;
+		groupModel.groupArr = subArr;
+		[customGroups addObject:groupModel];
+		groupIndex++;
+	}
+	return [customGroups arrayByAddingObjectsFromArray:originalArray];
 }
 
 %end
 
 %hook AWEModernLongPressHorizontalSettingCell
 
-- (void)setLongPressViewGroupModel:(AWELongPressPanelViewGroupModel *)groupModel {
-    %orig;
-    
-    if (groupModel && [groupModel isDYYYCustomGroup]) {
-        [self setupCustomLayout];
-    }
-}
-%new
-- (void)setupCustomLayout {
-    if (self.collectionView) {
-        UICollectionViewFlowLayout *layout = (UICollectionViewFlowLayout *)self.collectionView.collectionViewLayout;
-        if (layout) {
-            layout.scrollDirection = UICollectionViewScrollDirectionHorizontal;
-            
-            // 根据组索引应用不同的间距
-            NSInteger groupIndex = [self.longPressViewGroupModel groupType];
-            
-            if (groupIndex == 12) {
-                // 第一排 - 均匀分布
-                layout.minimumInteritemSpacing = 0;
-                layout.minimumLineSpacing = 0;
-            } else {
-                // 第二排 - 卡片样式，带间距（类似第三排）
-                layout.minimumInteritemSpacing = 10;
-                layout.minimumLineSpacing = 10;
-                layout.sectionInset = UIEdgeInsetsMake(0, 10, 0, 10);
-            }
-            
-            [self.collectionView setCollectionViewLayout:layout animated:NO];
-        }
-    }
-}
 - (CGSize)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout *)layout sizeForItemAtIndexPath:(NSIndexPath *)indexPath {
-    if (self.longPressViewGroupModel && [self.longPressViewGroupModel isDYYYCustomGroup]) {
-        if (self.dataArray && indexPath.item < self.dataArray.count) {
-            // 根据组索引设置不同尺寸
-            NSInteger groupIndex = [self.longPressViewGroupModel groupType];
-            
-            if (groupIndex == 12) {
-                // 第一排 - 均等分割
-                CGFloat totalWidth = collectionView.bounds.size.width;
-                NSInteger itemCount = self.dataArray.count;
-                CGFloat itemWidth = totalWidth / itemCount;
-                return CGSizeMake(itemWidth, 75);
-            } else {
-                // 第二排 - 卡片样式，类似第三排
-                AWELongPressPanelBaseViewModel *model = self.dataArray[indexPath.item];
-                NSString *text = model.describeString;
-                
-                // 根据文本计算宽度，但确保至少有最小宽度
-                CGFloat textWidth = [self widthForText:text];
-                CGFloat cardWidth = MAX(100, textWidth + 30); 
-                
-                return CGSizeMake(cardWidth, 75);
-            }
-        }
-        return CGSizeMake(75, 75);
-    }
-    
-    return %orig;
-}
+	if (self.longPressViewGroupModel && [self.longPressViewGroupModel isDYYYCustomGroup]) {
+		if (self.dataArray && indexPath.item < self.dataArray.count) {
+			CGFloat totalWidth = collectionView.bounds.size.width;
+			NSInteger itemCount = self.dataArray.count;
+			CGFloat itemWidth = totalWidth / itemCount;
+			return CGSizeMake(itemWidth, 73);
+		}
+		return CGSizeMake(73, 73);
+	}
 
-
-%new
-- (CGFloat)widthForText:(NSString *)text {
-    if (!text || text.length == 0) {
-        return 0;
-    }
-    
-    UIFont *font = [UIFont systemFontOfSize:12];
-    NSDictionary *attributes = @{NSFontAttributeName: font};
-    CGSize textSize = [text boundingRectWithSize:CGSizeMake(MAXFLOAT, 20)
-                                        options:NSStringDrawingUsesLineFragmentOrigin
-                                     attributes:attributes
-                                        context:nil].size;
-    return textSize.width;
+	return %orig;
 }
 
 %end
 
-%hook AWEModernLongPressHorizontalSettingItemCell
+%hook AWEModernLongPressInteractiveCell
 
-- (void)updateUI:(AWELongPressPanelBaseViewModel *)viewModel {
-    %orig;
-    
-    if (viewModel && viewModel.actionType >= 666 && viewModel.actionType <= 680) {
-        // 获取组索引以应用不同的样式
-        NSInteger groupIndex = 12; // 默认为第一组
-        if ([self.superview.superview isKindOfClass:%c(AWEModernLongPressHorizontalSettingCell)]) {
-            AWEModernLongPressHorizontalSettingCell *parentCell = (AWEModernLongPressHorizontalSettingCell *)self.superview.superview;
-            groupIndex = [parentCell.longPressViewGroupModel groupType];
-        }
-        
-        CGFloat padding = 0;
-        CGFloat contentWidth = self.contentView.bounds.size.width;
-        
-        CGRect iconFrame = self.buttonIcon.frame;
-        iconFrame.origin.x = (contentWidth - iconFrame.size.width) / 2;
-        iconFrame.origin.y = padding;
-        self.buttonIcon.frame = iconFrame;
-        
-        CGFloat labelY = CGRectGetMaxY(iconFrame) + 4;
-        CGFloat labelWidth = contentWidth;
-        CGFloat labelHeight = self.contentView.bounds.size.height - labelY - padding;
-        
-        self.buttonLabel.frame = CGRectMake(padding, labelY, labelWidth, labelHeight);
-        self.buttonLabel.textAlignment = NSTextAlignmentCenter;
-        self.buttonLabel.numberOfLines = 2;
-        self.buttonLabel.font = [UIFont systemFontOfSize:12];
-        
-        if (self.separator) {
-            // 对于第一排，显示分隔符；对于第二排，隐藏分隔符
-            self.separator.hidden = (groupIndex != 12);
-        }
-    }
+- (CGSize)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout *)layout sizeForItemAtIndexPath:(NSIndexPath *)indexPath {
+	if (self.longPressViewGroupModel && [self.longPressViewGroupModel isDYYYCustomGroup]) {
+		if (self.dataArray && indexPath.item < self.dataArray.count) {
+
+			NSInteger itemCount = self.dataArray.count;
+			CGFloat totalWidth = collectionView.bounds.size.width - 12 * (itemCount - 1);
+			CGFloat itemWidth = totalWidth / itemCount;
+			return CGSizeMake(itemWidth, 73);
+		}
+		return CGSizeMake(73, 73);
+	}
+
+	return %orig;
 }
-- (void)layoutSubviews {
-    %orig;
-    if (self.longPressPanelVM && self.longPressPanelVM.actionType >= 666 && self.longPressPanelVM.actionType <= 680) {
-        [self updateUI:self.longPressPanelVM];
-    }
-}
+
 %end
 
 %hook AWELongPressPanelTableViewController
@@ -802,9 +707,9 @@
 	if (apiKey.length > 0) {
 		AWELongPressPanelBaseViewModel *apiDownload = [[%c(AWELongPressPanelBaseViewModel) alloc] init];
 		apiDownload.awemeModel = self.awemeModel;
-		apiDownload.actionType = 671;
+		apiDownload.actionType = 673;
 		apiDownload.duxIconName = @"ic_cloudarrowdown_outlined_20";
-		apiDownload.describeString = @"接口解析";
+		apiDownload.describeString = @"接口保存";
 
 		apiDownload.action = ^{
 		  NSString *shareLink = [self.awemeModel valueForKey:@"shareURL"];
@@ -826,9 +731,9 @@
 	if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYCopyText"]) {
 		AWELongPressPanelBaseViewModel *copyText = [[%c(AWELongPressPanelBaseViewModel) alloc] init];
 		copyText.awemeModel = self.awemeModel;
-		copyText.actionType = 672;
+		copyText.actionType = 671;
 		copyText.duxIconName = @"ic_xiaoxihuazhonghua_outlined";
-		copyText.describeString = @"复制视频文案";
+		copyText.describeString = @"复制文案";
 
 		copyText.action = ^{
 		  NSString *descText = [self.awemeModel valueForKey:@"descriptionString"];
@@ -844,9 +749,9 @@
 		// 新增复制分享链接
 		AWELongPressPanelBaseViewModel *copyShareLink = [[%c(AWELongPressPanelBaseViewModel) alloc] init];
 		copyShareLink.awemeModel = self.awemeModel;
-		copyShareLink.actionType = 673;
+		copyShareLink.actionType = 672;
 		copyShareLink.duxIconName = @"ic_share_outlined";
-		copyShareLink.describeString = @"复制视频链接";
+		copyShareLink.describeString = @"复制链接";
 
 		copyShareLink.action = ^{
 		  NSString *shareLink = [self.awemeModel valueForKey:@"shareURL"];
@@ -866,7 +771,7 @@
 		filterKeywords.awemeModel = self.awemeModel;
 		filterKeywords.actionType = 674;
 		filterKeywords.duxIconName = @"ic_userban_outlined_20";
-		filterKeywords.describeString = @"过滤视频作者";
+		filterKeywords.describeString = @"过滤用户视频";
 
 		filterKeywords.action = ^{
 		  // 获取当前视频作者信息
@@ -895,13 +800,13 @@
 		  }
 		  NSString *actionButtonText = userExists ? @"取消过滤" : @"添加过滤";
 
-		  [DYYYBottomAlertView showAlertWithTitle:@"过滤视频作者"
+		  [DYYYBottomAlertView showAlertWithTitle:@"过滤用户视频"
 		      message:[NSString stringWithFormat:@"用户: %@ (ID: %@)", nickname, shortId]
 		      cancelButtonText:@"管理过滤列表"
 		      confirmButtonText:actionButtonText
 		      cancelAction:^{
 			// 创建并显示关键词列表视图
-			DYYYKeywordListView *keywordListView = [[DYYYKeywordListView alloc] initWithTitle:@"已过滤的视频作者" keywords:userArray];
+			DYYYKeywordListView *keywordListView = [[DYYYKeywordListView alloc] initWithTitle:@"过滤用户列表" keywords:userArray];
 			// 设置确认回调
 			keywordListView.onConfirm = ^(NSArray *users) {
 			  // 将用户数组转换为逗号分隔的字符串
@@ -912,7 +817,7 @@
 			  [[NSUserDefaults standardUserDefaults] synchronize];
 
 			  // 显示提示
-			  [DYYYManager showToast:@"过滤作者列表已更新"];
+			  [DYYYManager showToast:@"过滤用户列表已更新"];
 			};
 
 			[keywordListView show];
@@ -934,11 +839,11 @@
 					}
 				}
 				[updatedUsers removeObjectsInArray:toRemove];
-				[DYYYManager showToast:@"已从过滤列表中移除此作者"];
+				[DYYYManager showToast:@"已从过滤列表中移除此用户"];
 			} else {
 				// 添加用户
 				[updatedUsers addObject:currentUserFilter];
-				[DYYYManager showToast:@"已添加此作者到过滤列表"];
+				[DYYYManager showToast:@"已添加此用户到过滤列表"];
 			}
 
 			// 保存更新后的列表
@@ -957,12 +862,12 @@
 		filterKeywords.awemeModel = self.awemeModel;
 		filterKeywords.actionType = 675;
 		filterKeywords.duxIconName = @"ic_funnel_outlined_20";
-		filterKeywords.describeString = @"过滤视频文案";
+		filterKeywords.describeString = @"过滤关键词调整";
 
 		filterKeywords.action = ^{
 		  NSString *descText = [self.awemeModel valueForKey:@"descriptionString"];
 
-		  DYYYFilterSettingsView *filterView = [[DYYYFilterSettingsView alloc] initWithTitle:@"选择需要过滤的文案" text:descText];
+		  DYYYFilterSettingsView *filterView = [[DYYYFilterSettingsView alloc] initWithTitle:@"过滤关键词调整" text:descText];
 		  filterView.onConfirm = ^(NSString *selectedText) {
 		    if (selectedText.length > 0) {
 			    NSString *currentKeywords = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYfilterKeywords"] ?: @"";
@@ -976,7 +881,7 @@
 
 			    [[NSUserDefaults standardUserDefaults] setObject:newKeywords forKey:@"DYYYfilterKeywords"];
 			    [[NSUserDefaults standardUserDefaults] synchronize];
-			    [DYYYManager showToast:[NSString stringWithFormat:@"已添加到过滤文案: %@", selectedText]];
+			    [DYYYManager showToast:[NSString stringWithFormat:@"已添加过滤词: %@", selectedText]];
 		    }
 		  };
 
@@ -987,7 +892,7 @@
 		    NSArray *keywordArray = [savedKeywords length] > 0 ? [savedKeywords componentsSeparatedByString:@","] : @[];
 
 		    // 创建并显示关键词列表视图
-		    DYYYKeywordListView *keywordListView = [[DYYYKeywordListView alloc] initWithTitle:@"已过滤的视频文案" keywords:keywordArray];
+		    DYYYKeywordListView *keywordListView = [[DYYYKeywordListView alloc] initWithTitle:@"设置过滤关键词" keywords:keywordArray];
 
 		    // 设置确认回调
 		    keywordListView.onConfirm = ^(NSArray *keywords) {
@@ -999,7 +904,7 @@
 		      [[NSUserDefaults standardUserDefaults] synchronize];
 
 		      // 显示提示
-		      [DYYYManager showToast:@"过滤文案已更新"];
+		      [DYYYManager showToast:@"过滤关键词已更新"];
 		    };
 
 		    // 显示关键词列表视图
