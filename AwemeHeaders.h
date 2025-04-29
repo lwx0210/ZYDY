@@ -49,6 +49,13 @@ typedef NS_ENUM(NSInteger, MediaType) {
 @interface AWESearchAwemeExtraModel : NSObject
 @end
 
+@interface AWEModernLongPressInteractiveCell : UITableViewCell
+@property (nonatomic, strong) UICollectionView *collectionView;
+@property (nonatomic, strong) AWELongPressPanelViewGroupModel *longPressViewGroupModel;
+@property (nonatomic, strong) NSArray *dataArray;
+@property (nonatomic, assign) BOOL isAppearing;
+@end
+
 @interface AWEAwemeTextExtraModel : NSObject
 @property (nonatomic, copy) NSString *hashtagName;
 @property (nonatomic, copy) NSString *hashtagId;
@@ -117,16 +124,12 @@ typedef NS_ENUM(NSInteger, MediaType) {
 @property (nonatomic) BOOL hasMore;
 @property (nonatomic) BOOL isModern;
 @property (nonatomic) BOOL isDYYYCustomGroup;
-- (void)setIsDYYYCustomGroup:(BOOL)isCustom;
 @end
 
 @interface AWEModernLongPressHorizontalSettingCell : UITableViewCell
 @property (nonatomic, strong) UICollectionView *collectionView;
 @property (nonatomic, strong) NSArray *dataArray;
 @property (nonatomic, strong) AWELongPressPanelViewGroupModel *longPressViewGroupModel;
-
-- (void)setupCustomLayout;
-- (CGFloat)widthForText:(NSString *)text;
 @end
 
 @interface AWEModernLongPressHorizontalSettingItemCell : UICollectionViewCell
