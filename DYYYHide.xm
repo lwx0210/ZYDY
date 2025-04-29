@@ -32,6 +32,17 @@
 }
 %end
 
+// 移除隐藏大家都在搜后留白
+%hook AWESearchAnchorListModel
+
+- (BOOL)hideWords {
+  return [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHideCommentViews"];
+}
+
+%end
+
+
+
 // 首页头像隐藏和透明
 %hook AWEAdAvatarView
 - (void)layoutSubviews {
