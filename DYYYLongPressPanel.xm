@@ -257,16 +257,15 @@
 		[viewModels addObject:copyText];
 
 		// 新增复制分享链接
-       if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHideShareButton"]) {
-		AWELongPressPanelBaseViewModel *ShareButton = [[%c(AWELongPressPanelBaseViewModel) alloc] init];
-		ShareButton.awemeModel = self.awemeModel;
-		ShareButton.actionType = 673;
-		ShareButton.duxIconName = @"ic_share_outlined";
-		ShareButton.describeString = @"复制视频链接";
+		AWELongPressPanelBaseViewModel *copyShareLink = [[%c(AWELongPressPanelBaseViewModel) alloc] init];
+		copyShareLink.awemeModel = self.awemeModel;
+		copyShareLink.actionType = 673;
+		copyShareLink.duxIconName = @"ic_share_outlined";
+		copyShareLink.describeString = @"复制视频链接";
 
-		ShareButton.action = ^{
-		  NSString *shareLink = [self.awemeModel valueForKey:@"ShareButton"];
-		  [[UIPasteboard generalPasteboard] setString:ShareButton];
+		copyShareLink.action = ^{
+		  NSString *shareLink = [self.awemeModel valueForKey:@"shareURL"];
+		  [[UIPasteboard generalPasteboard] setString:shareLink];
 		  [DYYYManager showToast:@"分享链接已复制到剪贴板"];
 
 		  AWELongPressPanelManager *panelManager = [%c(AWELongPressPanelManager) shareInstance];
@@ -276,7 +275,7 @@
 		[viewModels addObject:copyShareLink];
 	}
 
-}
+
 	if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYLongPressFilterUser"]) {
 		// 新增修改过滤规则功能
 		AWELongPressPanelBaseViewModel *filterKeywords = [[%c(AWELongPressPanelBaseViewModel) alloc] init];
