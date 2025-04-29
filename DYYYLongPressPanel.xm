@@ -317,7 +317,7 @@
 		      confirmButtonText:actionButtonText
 		      cancelAction:^{
 			// 创建并显示关键词列表视图
-			DYYYKeywordListView *keywordListView = [[DYYYKeywordListView alloc] initWithTitle:@"已过滤的作者列表" keywords:userArray];
+			DYYYKeywordListView *keywordListView = [[DYYYKeywordListView alloc] initWithTitle:@"已过滤的视频作者" keywords:userArray];
 			// 设置确认回调
 			keywordListView.onConfirm = ^(NSArray *users) {
 			  // 将用户数组转换为逗号分隔的字符串
@@ -901,7 +901,7 @@
 		      confirmButtonText:actionButtonText
 		      cancelAction:^{
 			// 创建并显示关键词列表视图
-			DYYYKeywordListView *keywordListView = [[DYYYKeywordListView alloc] initWithTitle:@"已过滤的作者列表" keywords:userArray];
+			DYYYKeywordListView *keywordListView = [[DYYYKeywordListView alloc] initWithTitle:@"已过滤的视频作者" keywords:userArray];
 			// 设置确认回调
 			keywordListView.onConfirm = ^(NSArray *users) {
 			  // 将用户数组转换为逗号分隔的字符串
@@ -987,7 +987,7 @@
 		    NSArray *keywordArray = [savedKeywords length] > 0 ? [savedKeywords componentsSeparatedByString:@","] : @[];
 
 		    // 创建并显示关键词列表视图
-		    DYYYKeywordListView *keywordListView = [[DYYYKeywordListView alloc] initWithTitle:@"已过滤的文案" keywords:keywordArray];
+		    DYYYKeywordListView *keywordListView = [[DYYYKeywordListView alloc] initWithTitle:@"已过滤的视频文案" keywords:keywordArray];
 
 		    // 设置确认回调
 		    keywordListView.onConfirm = ^(NSArray *keywords) {
