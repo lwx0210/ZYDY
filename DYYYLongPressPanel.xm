@@ -276,7 +276,7 @@
 		[viewModels addObject:copyShareLink];
 	}
 
-
+}
 	if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYLongPressFilterUser"]) {
 		// 新增修改过滤规则功能
 		AWELongPressPanelBaseViewModel *filterKeywords = [[%c(AWELongPressPanelBaseViewModel) alloc] init];
