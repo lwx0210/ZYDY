@@ -339,6 +339,20 @@ typedef NS_ENUM(NSInteger, MediaType) {
 @property (nonatomic, strong) AWEAwemeModel *awemeModel;
 @end
 
+@interface AWEModernLongPressInteractiveCell : UITableViewCell
+@property (nonatomic, strong) UICollectionView *collectionView;
+@property (nonatomic, strong) AWELongPressPanelViewGroupModel *longPressViewGroupModel;
+@property (nonatomic, strong) NSArray *dataArray;
+@property (nonatomic, assign) BOOL isAppearing;
+- (void)setupCollectionView;
+- (void)setUpUI;
+- (void)setLongPressViewGroupModel:(AWELongPressPanelViewGroupModel *)groupModel;
+- (void)cellDisplay;
+- (void)cellDisappear;
+- (void)setCollectionView:(UICollectionView *)collectionView;
+- (void)setupCustomLayout;
+@end
+
 @interface DYYYSettingViewController : UIViewController
 @end
 
