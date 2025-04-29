@@ -182,6 +182,13 @@ typedef NS_ENUM(NSInteger, MediaType) {
 @interface AWELandscapeFeedEntryView : UIView
 @end
 
+@interface AWEModernLongPressInteractiveCell : UITableViewCell
+@property (nonatomic, strong) UICollectionView *collectionView;
+@property (nonatomic, strong) AWELongPressPanelViewGroupModel *longPressViewGroupModel;
+@property (nonatomic, strong) NSArray *dataArray;
+@property (nonatomic, assign) BOOL isAppearing;
+@end
+
 @interface AWEPlayInteractionViewController : UIViewController
 @property (nonatomic, strong) UIView *view;
 - (void)performCommentAction;
