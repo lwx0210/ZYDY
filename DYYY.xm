@@ -2048,10 +2048,11 @@ static CGFloat currentScale = 1.0;
 %hook AWEUserActionSheetView
 
 - (void)layoutSubviews {
+if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYismaoboli"]){
  %orig;
     [self applyBlurEffectAndWhiteText];
   }
-
+}
 %new
 - (void)applyBlurEffectAndWhiteText {
     // 应用毛玻璃效果到容器视图
@@ -2068,7 +2069,7 @@ static CGFloat currentScale = 1.0;
         UIVisualEffectView *blurEffectView = [[UIVisualEffectView alloc] initWithEffect:blurEffect];
         blurEffectView.frame = self.containerView.bounds;
         blurEffectView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
-        blurEffectView.alpha = 0.85; 
+        blurEffectView.alpha = 0.95; 
         blurEffectView.tag = 9999;
 
         [self.containerView insertSubview:blurEffectView atIndex:0];
