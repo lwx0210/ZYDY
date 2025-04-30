@@ -2055,6 +2055,7 @@ if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYismaoboli"]){
 }
 %new
 - (void)applyBlurEffectAndWhiteText {
+if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYismaoboli"]){
     // 应用毛玻璃效果到容器视图
     if (self.containerView) {
         self.containerView.backgroundColor = [UIColor clearColor];
@@ -2064,12 +2065,13 @@ if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYismaoboli"]){
                 [subview removeFromSuperview];
             }
         }
-
+    }
+}
         UIBlurEffect *blurEffect = [UIBlurEffect effectWithStyle:UIBlurEffectStyleDark];
         UIVisualEffectView *blurEffectView = [[UIVisualEffectView alloc] initWithEffect:blurEffect];
         blurEffectView.frame = self.containerView.bounds;
         blurEffectView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
-        blurEffectView.alpha = 0.95; 
+        blurEffectView.alpha = 1.0; 
         blurEffectView.tag = 9999;
 
         [self.containerView insertSubview:blurEffectView atIndex:0];
@@ -2081,11 +2083,13 @@ if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYismaoboli"]){
 
 %new
 - (void)setTextColorWhiteRecursivelyInView:(UIView *)view {
+if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYismaoboli"]){
     for (UIView *subview in view.subviews) {
         if (![subview isKindOfClass:[UIVisualEffectView class]]) {
             subview.backgroundColor = [UIColor clearColor];
         }
-
+}
+}
         if ([subview isKindOfClass:[UILabel class]]) {
             UILabel *label = (UILabel *)subview;
             label.textColor = [UIColor whiteColor];
