@@ -432,61 +432,22 @@
 	}
 
     NSMutableArray<AWELongPressPanelViewGroupModel *> *customGroups = [NSMutableArray array];
-NSInteger totalButtons = viewModels.count；
-        // 根据按钮总数确定每行的按钮数
-        NSInteger firstRowCount = 0；
-        NSInteger secondRowCount = 0；
-        如果（总按钮>= 9）{
-第一行计数=5；
-secondRowCount = totalButtons - firstRowCount；
-} else if (totalButtons == 8) {
-第一行计数=4；
-第二行计数=4；
-} else if (totalButtons == 7) {
-第一行计数=4；
-第二行计数=3；
-}否则如果（总按钮==6）{
-第一行计数=4；
-第二行计数=2；
-}否则如果（总按钮==5）{
-第一行计数=3；
-第二行计数=2；
-} 否则如果（总按钮 == 4）{
-第一行计数=2；
-第二行计数=2；
-} 否则如果（总按钮 == 3）{
-第一行计数=2；
-第二行计数=1；
-} else if (totalButtons <= 2) {
-firstRowCount = totalButtons；
-第二行计数=0；
-}
-        // 创建第一行
-        如果（firstRowCount > 0）{
-            NSRange firstRowRange = NSMakeRange（0，firstRowCount）；
-            NSArray<AWELongPressPanelBaseViewModel *> *firstRowButtons = [viewModels subarrayWithRange:firstRowRange]；
+    NSInteger maxPerGroup = 4;
+    for (NSInteger i = 0; i < viewModels.count; i += maxPerGroup) {
+        NSRange range = NSMakeRange(i, MIN(maxPerGroup, viewModels.count - i));
+        NSArray<AWELongPressPanelBaseViewModel *> *subArr = [viewModels subarrayWithRange:range];
+        AWELongPressPanelViewGroupModel *groupModel = [[%c(AWELongPressPanelViewGroupModel) alloc] init];
+        [groupModel setIsDYYYCustomGroup:YES];
+        groupModel.groupType = 12;
+        groupModel.isModern = YES;
+        groupModel.groupArr = subArr;
+        [customGroups addObject:groupModel];
+    }
 
-AWELongPressPanelViewGroupModel *firstRowGroup = [[%c(AWELongPressPanelViewGroupModel) alloc] init];
-firstRowGroup.isDYYYCustomGroup = 是；
-firstRowGroup.groupType =（firstRowCount <= 3）？11：12；
-firstRowGroup.isModern = 是；
-firstRowGroup.groupArr = firstRowButtons；
-[自定义组添加对象：第一排组]；
+    // 返回自定义分组拼接原始分组
+    return [customGroups arrayByAddingObjectsFromArray:originalArray];
 }
-        // 创建第二行
-        如果（第二排数>0）{
-            NSRange secondRowRange = NSMakeRange（firstRowCount，secondRowCount）；
-            NSArray<AWELongPressPanelBaseViewModel *> *secondRowButtons = [viewModels subarrayWithRange:secondRowRange];
 
-AWELongPressPanelViewGroupModel *secondRowGroup = [[%c(AWELongPressPanelViewGroupModel) alloc] init];
-secondRowGroup.isDYYYCustomGroup = 是；
-secondRowGroup.groupType =（secondRowCount <= 3）？11：12；
-secondRowGroup.isModern = 是；
-secondRowGroup.groupArr = secondRowButtons；
-[自定义组添加对象：secondRowGroup]；
-}
-        返回[customGroups arrayByAddingObjectsFromArray:originalArray]；
-}
 %end
 
 %hook AWELongPressPanelViewGroupModel
