@@ -357,7 +357,7 @@ NSString *apiKey = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYInt
               confirmButtonText:actionButtonText
               cancelAction:^{
             // 创建并显示关键词列表视图
-            DYYYKeywordListView *keywordListView = [[DYYYKeywordListView alloc] initWithTitle:@已过滤的视频作者" keywords:userArray];
+            DYYYKeywordListView *keywordListView = [[DYYYKeywordListView alloc] initWithTitle:@"已过滤的视频作者" keywords:userArray];
             // 设置确认回调
             keywordListView.onConfirm = ^(NSArray *users) {
               // 将用户数组转换为逗号分隔的字符串
