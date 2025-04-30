@@ -2048,12 +2048,9 @@ static CGFloat currentScale = 1.0;
 %hook AWEUserActionSheetView
 
 - (void)layoutSubviews {
-if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYismaoboli"]){
-    %orig;
+ %orig;
     [self applyBlurEffectAndWhiteText];
   }
-}
-
 
 %new
 - (void)applyBlurEffectAndWhiteText {
