@@ -164,7 +164,7 @@ static AWESettingItemModel *createIconCustomizationItem(NSString *identifier, NS
 		picker.mediaTypes = @[ @"public.image" ];
 
 		// 创建并设置代理
-                  		DYYYImagePickerDelegate *pickerDelegate = [[DYYYImagePickerDelegate alloc] init];
+                DYYYImagePickerDelegate *pickerDelegate = [[DYYYImagePickerDelegate alloc] init];
 		pickerDelegate.completionBlock = ^(NSDictionary *info) {
 		  // 1. 正确声明变量，作用域在块内
 		  NSURL *originalImageURL = info[UIImagePickerControllerImageURL];
@@ -208,23 +208,24 @@ static AWESettingItemModel *createIconCustomizationItem(NSString *identifier, NS
 						    }
 					    }
 					    if (tableView) {
-						    [tableView 
+						    [tableView reloadData];
 					    }
 				    }
 				  });
 			  }
 		  }
-		};;
+		};
+
 		static char kDYYYPickerDelegateKey;
 		picker.delegate = pickerDelegate;
 		objc_setAssociatedObject(picker, &kDYYYPickerDelegateKey, pickerDelegate, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
 		[topVC presentViewController:picker animated:YES completion:nil];
-	      })
 	      });
 	};
 
 	return item;
 }
+
 // 显示自定义关于弹窗
 static void showAboutDialog(NSString *title, NSString *message, void (^onConfirm)(void)) {
 	DYYYAboutDialogView *aboutDialog = [[DYYYAboutDialogView alloc] initWithTitle:title message:message];
