@@ -1,8 +1,12 @@
 #import "AwemeHeaders.h"
-#import "DYYYManager.h"
-#import "DYYYKeywordListView.h"
-#import "DYYYFilterSettingsView.h"
 #import "DYYYBottomAlertView.h"
+#import "DYYYFilterSettingsView.h"
+#import "DYYYKeywordListView.h"
+#import "DYYYManager.h"
+
+%hook AWELongPressPanelViewGroupModel
+%property(nonatomic, assign) BOOL isDYYYCustomGroup;
+%end
 
 %hook AWEModernLongPressPanelTableViewController
 
@@ -18,13 +22,13 @@
 	}
 
 	AWELongPressPanelViewGroupModel *newGroupModel = [[%c(AWELongPressPanelViewGroupModel) alloc] init];
-	[newGroupModel setIsDYYYCustomGroup:YES];
-    newGroupModel.groupType = 12;
-    newGroupModel.isModern = YES;
+	newGroupModel.isDYYYCustomGroup = YES;
+	newGroupModel.groupType = 12;
+	newGroupModel.isModern = YES;
 
 	NSMutableArray *viewModels = [NSMutableArray array];
 
-	if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYLongPressDownload"]) {
+if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYLongPressDownload"]) {
 		if (self.awemeModel.awemeType != 68) {
 			AWELongPressPanelBaseViewModel *downloadViewModel = [[%c(AWELongPressPanelBaseViewModel) alloc] init];
 			downloadViewModel.awemeModel = self.awemeModel;
@@ -431,164 +435,113 @@
 		[viewModels addObject:filterKeywords];
 	}
 
-    NSMutableArray<AWELongPressPanelViewGroupModel *> *customGroups = [NSMutableArray array];
-    NSInteger maxPerGroup = 4;
-    for (NSInteger i = 0; i < viewModels.count; i += maxPerGroup) {
-        NSRange range = NSMakeRange(i, MIN(maxPerGroup, viewModels.count - i));
-        NSArray<AWELongPressPanelBaseViewModel *> *subArr = [viewModels subarrayWithRange:range];
-        AWELongPressPanelViewGroupModel *groupModel = [[%c(AWELongPressPanelViewGroupModel) alloc] init];
-        [groupModel setIsDYYYCustomGroup:YES];
-        groupModel.groupType = 12;
-        groupModel.isModern = YES;
-        groupModel.groupArr = subArr;
-        [customGroups addObject:groupModel];
-    }
-
-    // 返回自定义分组拼接原始分组
-    return [customGroups arrayByAddingObjectsFromArray:originalArray];
-}
-
-%end
-
-%hook AWELongPressPanelViewGroupModel
-
-%new
-- (void)setIsDYYYCustomGroup:(BOOL)isCustom {
-    objc_setAssociatedObject(self, @selector(isDYYYCustomGroup), @(isCustom), OBJC_ASSOCIATION_RETAIN_NONATOMIC);
-}
-
-%new
-- (BOOL)isDYYYCustomGroup {
-    NSNumber *value = objc_getAssociatedObject(self, @selector(isDYYYCustomGroup));
-    return [value boolValue];
-}
-
+	NSMutableArray<AWELongPressPanelViewGroupModel *> *customGroups = [NSMutableArray array];
+        NSInteger totalButtons = viewModels.count;
+        // 根据按钮总数确定每行的按钮数
+        NSInteger firstRowCount = 0;
+        NSInteger secondRowCount = 0;
+        if (totalButtons >= 9) {
+            firstRowCount = 5;
+            secondRowCount = totalButtons - firstRowCount;
+        } else if (totalButtons == 8) {
+            firstRowCount = 4;
+            secondRowCount = 4;
+        } else if (totalButtons == 7) {
+            firstRowCount = 4;
+            secondRowCount = 3;
+        } else if (totalButtons == 6) {
+            firstRowCount = 4;
+            secondRowCount = 2;
+        } else if (totalButtons == 5) {
+            firstRowCount = 3;
+            secondRowCount = 2;
+        } else if (totalButtons == 4) {
+            firstRowCount = 2;
+            secondRowCount = 2;
+        } else if (totalButtons == 3) {
+            firstRowCount = 2;
+            secondRowCount = 1;
+        } else if (totalButtons <= 2) {
+            firstRowCount = totalButtons;
+            secondRowCount = 0;
+        }
+        // 创建第一行
+        if (firstRowCount > 0) {
+            NSRange firstRowRange = NSMakeRange(0, firstRowCount);
+            NSArray<AWELongPressPanelBaseViewModel *> *firstRowButtons = [viewModels subarrayWithRange:firstRowRange];
+            
+            AWELongPressPanelViewGroupModel *firstRowGroup = [[%c(AWELongPressPanelViewGroupModel) alloc] init];
+            firstRowGroup.isDYYYCustomGroup = YES;
+            firstRowGroup.groupType = (firstRowCount <= 3) ? 11 : 12;
+            firstRowGroup.isModern = YES;
+            firstRowGroup.groupArr = firstRowButtons;
+            [customGroups addObject:firstRowGroup];
+        }
+        // 创建第二行
+        if (secondRowCount > 0) {
+            NSRange secondRowRange = NSMakeRange(firstRowCount, secondRowCount);
+            NSArray<AWELongPressPanelBaseViewModel *> *secondRowButtons = [viewModels subarrayWithRange:secondRowRange];
+            
+            AWELongPressPanelViewGroupModel *secondRowGroup = [[%c(AWELongPressPanelViewGroupModel) alloc] init];
+            secondRowGroup.isDYYYCustomGroup = YES;
+            secondRowGroup.groupType = (secondRowCount <= 3) ? 11 : 12;
+            secondRowGroup.isModern = YES;
+            secondRowGroup.groupArr = secondRowButtons;
+            [customGroups addObject:secondRowGroup];
+        }
+		static BOOL hasProcessedArray = NO;
+		if ((originalArray.count > 0 && !hasProcessedArray) && [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHidePanelDaily"]) {
+			NSMutableArray *modifiedArray = [originalArray mutableCopy];
+			AWELongPressPanelViewGroupModel *firstGroup = modifiedArray[0];
+			if (firstGroup.groupArr.count > 1) {
+				NSMutableArray *groupArray = [firstGroup.groupArr mutableCopy];
+				[groupArray removeObjectAtIndex:1];
+				firstGroup.groupArr = groupArray;
+				modifiedArray[0] = firstGroup;
+			}
+			originalArray = modifiedArray;
+			hasProcessedArray = YES;
+		}
+        return [customGroups arrayByAddingObjectsFromArray:originalArray];
+        }
+        
 %end
 
 %hook AWEModernLongPressHorizontalSettingCell
 
-- (void)setLongPressViewGroupModel:(AWELongPressPanelViewGroupModel *)groupModel {
-    %orig;
-    
-    if (groupModel && [groupModel isDYYYCustomGroup]) {
-        [self setupCustomLayout];
-    }
-}
-%new
-- (void)setupCustomLayout {
-    if (self.collectionView) {
-        UICollectionViewFlowLayout *layout = (UICollectionViewFlowLayout *)self.collectionView.collectionViewLayout;
-        if (layout) {
-            layout.scrollDirection = UICollectionViewScrollDirectionHorizontal;
-            
-            // 根据组索引应用不同的间距
-            NSInteger groupIndex = [self.longPressViewGroupModel groupType];
-            
-            if (groupIndex == 12) {
-                // 第一排 - 均匀分布
-                layout.minimumInteritemSpacing = 0;
-                layout.minimumLineSpacing = 0;
-            } else {
-                // 第二排 - 卡片样式，带间距（类似第三排）
-                layout.minimumInteritemSpacing = 10;
-                layout.minimumLineSpacing = 10;
-                layout.sectionInset = UIEdgeInsetsMake(0, 10, 0, 10);
-            }
-            
-            [self.collectionView setCollectionViewLayout:layout animated:NO];
-        }
-    }
-}
 - (CGSize)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout *)layout sizeForItemAtIndexPath:(NSIndexPath *)indexPath {
-    if (self.longPressViewGroupModel && [self.longPressViewGroupModel isDYYYCustomGroup]) {
-        if (self.dataArray && indexPath.item < self.dataArray.count) {
-            // 根据组索引设置不同尺寸
-            NSInteger groupIndex = [self.longPressViewGroupModel groupType];
-            
-            if (groupIndex == 12) {
-                // 第一排 - 均等分割
-                CGFloat totalWidth = collectionView.bounds.size.width;
-                NSInteger itemCount = self.dataArray.count;
-                CGFloat itemWidth = totalWidth / itemCount;
-                return CGSizeMake(itemWidth, 75);
-            } else {
-                // 第二排 - 卡片样式，类似第三排
-                AWELongPressPanelBaseViewModel *model = self.dataArray[indexPath.item];
-                NSString *text = model.describeString;
-                
-                // 根据文本计算宽度，但确保至少有最小宽度
-                CGFloat textWidth = [self widthForText:text];
-                CGFloat cardWidth = MAX(100, textWidth + 30); 
-                
-                return CGSizeMake(cardWidth, 75);
-            }
-        }
-        return CGSizeMake(75, 75);
-    }
-    
-    return %orig;
-}
+	if (self.longPressViewGroupModel && [self.longPressViewGroupModel isDYYYCustomGroup]) {
+		if (self.dataArray && indexPath.item < self.dataArray.count) {
+			CGFloat totalWidth = collectionView.bounds.size.width;
+			NSInteger itemCount = self.dataArray.count;
+			CGFloat itemWidth = totalWidth / itemCount;
+			return CGSizeMake(itemWidth, 73);
+		}
+		return CGSizeMake(73, 73);
+	}
 
-
-%new
-- (CGFloat)widthForText:(NSString *)text {
-    if (!text || text.length == 0) {
-        return 0;
-    }
-    
-    UIFont *font = [UIFont systemFontOfSize:12];
-    NSDictionary *attributes = @{NSFontAttributeName: font};
-    CGSize textSize = [text boundingRectWithSize:CGSizeMake(MAXFLOAT, 20)
-                                        options:NSStringDrawingUsesLineFragmentOrigin
-                                     attributes:attributes
-                                        context:nil].size;
-    return textSize.width;
+	return %orig;
 }
 
 %end
 
-%hook AWEModernLongPressHorizontalSettingItemCell
+%hook AWEModernLongPressInteractiveCell
 
-- (void)updateUI:(AWELongPressPanelBaseViewModel *)viewModel {
-    %orig;
-    
-    if (viewModel && viewModel.actionType >= 666 && viewModel.actionType <= 680) {
-        // 获取组索引以应用不同的样式
-        NSInteger groupIndex = 12; // 默认为第一组
-        if ([self.superview.superview isKindOfClass:%c(AWEModernLongPressHorizontalSettingCell)]) {
-            AWEModernLongPressHorizontalSettingCell *parentCell = (AWEModernLongPressHorizontalSettingCell *)self.superview.superview;
-            groupIndex = [parentCell.longPressViewGroupModel groupType];
-        }
-        
-        CGFloat padding = 0;
-        CGFloat contentWidth = self.contentView.bounds.size.width;
-        
-        CGRect iconFrame = self.buttonIcon.frame;
-        iconFrame.origin.x = (contentWidth - iconFrame.size.width) / 2;
-        iconFrame.origin.y = padding;
-        self.buttonIcon.frame = iconFrame;
-        
-        CGFloat labelY = CGRectGetMaxY(iconFrame) + 4;
-        CGFloat labelWidth = contentWidth;
-        CGFloat labelHeight = self.contentView.bounds.size.height - labelY - padding;
-        
-        self.buttonLabel.frame = CGRectMake(padding, labelY, labelWidth, labelHeight);
-        self.buttonLabel.textAlignment = NSTextAlignmentCenter;
-        self.buttonLabel.numberOfLines = 2;
-        self.buttonLabel.font = [UIFont systemFontOfSize:12];
-        
-        if (self.separator) {
-            // 对于第一排，显示分隔符；对于第二排，隐藏分隔符
-            self.separator.hidden = (groupIndex != 12);
-        }
-    }
+- (CGSize)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout *)layout sizeForItemAtIndexPath:(NSIndexPath *)indexPath {
+	if (self.longPressViewGroupModel && [self.longPressViewGroupModel isDYYYCustomGroup]) {
+		if (self.dataArray && indexPath.item < self.dataArray.count) {
+
+			NSInteger itemCount = self.dataArray.count;
+			CGFloat totalWidth = collectionView.bounds.size.width - 12 * (itemCount - 1);
+			CGFloat itemWidth = totalWidth / itemCount;
+			return CGSizeMake(itemWidth, 73);
+		}
+		return CGSizeMake(73, 73);
+	}
+
+	return %orig;
 }
-- (void)layoutSubviews {
-    %orig;
-    if (self.longPressPanelVM && self.longPressPanelVM.actionType >= 666 && self.longPressPanelVM.actionType <= 680) {
-        [self updateUI:self.longPressPanelVM];
-    }
-}
+
 %end
 
 %hook AWELongPressPanelTableViewController
@@ -609,8 +562,8 @@
 
 	NSMutableArray *viewModels = [NSMutableArray array];
 
-	if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYLongPressDownload"]) {
-		if (self.awemeModel.awemeType != 68) {
+        if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYLongPressDownload"]) {
+                        if (self.awemeModel.awemeType != 68) {
 			AWELongPressPanelBaseViewModel *downloadViewModel = [[%c(AWELongPressPanelBaseViewModel) alloc] init];
 			downloadViewModel.awemeModel = self.awemeModel;
 			downloadViewModel.actionType = 666;
