@@ -583,6 +583,21 @@
         }
     }
 }
+
+if ((originalArray.count > 0 && [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHidePanelDaily"])) {
+			NSMutableArray *modifiedArray = [originalArray mutableCopy];
+			AWELongPressPanelViewGroupModel *firstGroup = modifiedArray[0];
+			if (firstGroup.groupArr.count > 1) {
+				NSMutableArray *groupArray = [firstGroup.groupArr mutableCopy];
+				if ([[groupArray[1] valueForKey:@"describeString"] isEqualToString:@"转发到日常"]) {
+					[groupArray removeObjectAtIndex:1];
+				}
+				firstGroup.groupArr = groupArray;
+				modifiedArray[0] = firstGroup;
+			}
+			originalArray = modifiedArray;
+		}
+
 - (void)layoutSubviews {
     %orig;
     if (self.longPressPanelVM && self.longPressPanelVM.actionType >= 666 && self.longPressPanelVM.actionType <= 680) {
