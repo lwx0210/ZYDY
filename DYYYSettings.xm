@@ -1646,6 +1646,11 @@ static void showUserAgreementAlert() {
 			      @"title" : @"保存评论区表情包",
 			      @"detail" : @"",
 			      @"cellType" : @6,
+			      @"imageName" : @"ic_emoji_outlined"},
+                              @{@"identifier" : @"DYYYForceDownloadPreviewEmotion",
+			      @"title" : @"保存预览页表情包",
+			      @"detail" : @"",
+			      @"cellType" : @6,
 			      @"imageName" : @"ic_emoji_outlined"}
 		    ];
 
