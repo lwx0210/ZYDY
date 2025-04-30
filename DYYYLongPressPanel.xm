@@ -58,6 +58,7 @@
     NSMutableArray *viewModels = [NSMutableArray array];
 
     // 视频下载功能
+NSString *apiKey = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYdownloadViewModel"];
     if (enableSaveVideo && self.awemeModel.awemeType != 68) {
         AWELongPressPanelBaseViewModel *downloadViewModel = [[%c(AWELongPressPanelBaseViewModel) alloc] init];
         downloadViewModel.awemeModel = self.awemeModel;
@@ -86,6 +87,7 @@
     }
 
     // 封面下载功能
+NSString *apiKey = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYcoverViewModel"];
     if (enableSaveCover && self.awemeModel.awemeType != 68) {
         AWELongPressPanelBaseViewModel *coverViewModel = [[%c(AWELongPressPanelBaseViewModel) alloc] init];
         coverViewModel.awemeModel = self.awemeModel;
@@ -114,6 +116,7 @@
     }
 
     // 音频下载功能
+NSString *apiKey = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYaudioViewModel"];
     if (enableSaveAudio) {
         AWELongPressPanelBaseViewModel *audioViewModel = [[%c(AWELongPressPanelBaseViewModel) alloc] init];
         audioViewModel.awemeModel = self.awemeModel;
@@ -138,6 +141,7 @@
     }
 
     // 当前图片/实况下载功能
+NSString *apiKey = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYimageViewModel"];
     if (enableSaveCurrentImage && self.awemeModel.awemeType == 68 && self.awemeModel.albumImages.count > 0) {
         AWELongPressPanelBaseViewModel *imageViewModel = [[%c(AWELongPressPanelBaseViewModel) alloc] init];
         imageViewModel.awemeModel = self.awemeModel;
