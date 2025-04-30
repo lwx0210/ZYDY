@@ -1579,29 +1579,9 @@ static void showUserAgreementAlert() {
 		  enhanceSettingItem.cellTappedBlock = ^{
 		    // 创建增强设置二级界面的设置项
 
-		    // 【复制功能】分类
-		    NSMutableArray<AWESettingItemModel *> *copyItems = [NSMutableArray array];
-		    NSArray *copySettings = @[
-			    @{@"identifier" : @"DYYYCopyText",
-			      @"title" : @"长按面板复制功能",
-			      @"detail" : @"",
-			      @"cellType" : @6,
-			      @"imageName" : @"ic_rectangleonrectangleup_outlined_20"},
-			    @{@"identifier" : @"DYYYCommentCopyText",
-			      @"title" : @"长按评论复制文案",
-			      @"detail" : @"",
-			      @"cellType" : @6,
-			      @"imageName" : @"ic_at_outlined_20"}
-		    ];
-
-		    for (NSDictionary *dict in copySettings) {
-			    AWESettingItemModel *item = [self createSettingItem:dict];
-			    [copyItems addObject:item];
-		    }
-
-		    // 【面板设置】分类
-		    NSMutableArray<AWESettingItemModel *> *filterItems = [NSMutableArray array];
-		    NSArray *filterSettings = @[
+                   // 【面板设置】分类
+		   NSMutableArray<AWESettingItemModel *> *longPressItems = [NSMutableArray array];
+		    NSArray *longPressSettings = @[
 			  @{@"identifier" : @"DYYYLongPressDownload",
 			      @"title" : @"长按面板保存媒体",
 			      @"detail" : @"",
@@ -1658,21 +1638,15 @@ static void showUserAgreementAlert() {
 			      @"cellType" : @6,
 			      @"imageName" : @"ic_funnel_outlined_20"}
 		    ];
-
-		    for (NSDictionary *dict in filterSettings) {
+                            for (NSDictionary *dict in longPressSettings) {
 			    AWESettingItemModel *item = [self createSettingItem:dict];
-			    [filterItems addObject:item];
+			    [longPressItems addObject:item];
 		    }
 
 		    // 【媒体保存】分类
 		    NSMutableArray<AWESettingItemModel *> *downloadItems = [NSMutableArray array];
 		    NSArray *downloadSettings = @[
-			    @{@"identifier" : @"DYYYLongPressDownload",
-			      @"title" : @"长按面板保存媒体",
-			      @"detail" : @"无水印保存",
-			      @"cellType" : @6,
-			      @"imageName" : @"ic_boxarrowdown_outlined"},
-			    @{@"identifier" : @"DYYYInterfaceDownload",
+	                      @{@"identifier" : @"DYYYInterfaceDownload",
 			      @"title" : @"接口解析保存媒体",
 			      @"detail" : @"不填关闭",
 			      @"cellType" : @26,
