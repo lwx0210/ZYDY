@@ -2049,23 +2049,26 @@ static CGFloat currentScale = 1.0;
 
 - (void)layoutSubviews {
 if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYismaoboli"]){
- %orig;
+    %orig;
     [self applyBlurEffectAndWhiteText];
-  }
+ }
 }
+
+
 %new
 - (void)applyBlurEffectAndWhiteText {
 if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYismaoboli"]){
     // 应用毛玻璃效果到容器视图
     if (self.containerView) {
         self.containerView.backgroundColor = [UIColor clearColor];
-        
+        }
+ }
         for (UIView *subview in self.containerView.subviews) {
             if ([subview isKindOfClass:[UIVisualEffectView class]] && subview.tag == 9999) {
                 [subview removeFromSuperview];
             }
         }
-    }
+
         UIBlurEffect *blurEffect = [UIBlurEffect effectWithStyle:UIBlurEffectStyleDark];
         UIVisualEffectView *blurEffectView = [[UIVisualEffectView alloc] initWithEffect:blurEffect];
         blurEffectView.frame = self.containerView.bounds;
@@ -2082,13 +2085,11 @@ if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYismaoboli"]){
 
 %new
 - (void)setTextColorWhiteRecursivelyInView:(UIView *)view {
-if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYismaoboli"]){
     for (UIView *subview in view.subviews) {
         if (![subview isKindOfClass:[UIVisualEffectView class]]) {
             subview.backgroundColor = [UIColor clearColor];
         }
-}
-}
+
         if ([subview isKindOfClass:[UILabel class]]) {
             UILabel *label = (UILabel *)subview;
             label.textColor = [UIColor whiteColor];
@@ -2101,7 +2102,7 @@ if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYismaoboli"]){
         
         [self setTextColorWhiteRecursivelyInView:subview];
     }
-
+}
 %end
 
 %hook _TtC33AWECommentLongPressPanelSwiftImpl32CommentLongPressPanelCopyElement
