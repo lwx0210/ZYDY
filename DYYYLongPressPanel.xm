@@ -58,7 +58,6 @@
     NSMutableArray *viewModels = [NSMutableArray array];
 
     // 视频下载功能
-NSString *apiKey = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYbaocunshiin"];
     if (enableSaveVideo && self.awemeModel.awemeType != 68) {
         AWELongPressPanelBaseViewModel *downloadViewModel = [[%c(AWELongPressPanelBaseViewModel) alloc] init];
         downloadViewModel.awemeModel = self.awemeModel;
@@ -87,7 +86,6 @@ NSString *apiKey = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYbao
     }
 
     // 封面下载功能
-NSString *apiKey = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYbaocunfengmian"];
     if (enableSaveCover && self.awemeModel.awemeType != 68) {
         AWELongPressPanelBaseViewModel *coverViewModel = [[%c(AWELongPressPanelBaseViewModel) alloc] init];
         coverViewModel.awemeModel = self.awemeModel;
@@ -116,7 +114,6 @@ NSString *apiKey = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYbao
     }
 
     // 音频下载功能
-NSString *apiKey = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYbaocunmusic"];
     if (enableSaveAudio) {
         AWELongPressPanelBaseViewModel *audioViewModel = [[%c(AWELongPressPanelBaseViewModel) alloc] init];
         audioViewModel.awemeModel = self.awemeModel;
@@ -141,7 +138,6 @@ NSString *apiKey = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYbao
     }
 
     // 当前图片/实况下载功能
-NSString *apiKey = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYbaocuntpLive"];
     if (enableSaveCurrentImage && self.awemeModel.awemeType == 68 && self.awemeModel.albumImages.count > 0) {
         AWELongPressPanelBaseViewModel *imageViewModel = [[%c(AWELongPressPanelBaseViewModel) alloc] init];
         imageViewModel.awemeModel = self.awemeModel;
@@ -190,7 +186,6 @@ NSString *apiKey = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYbao
     }
 
     // 保存所有图片/实况功能
-NSString *apiKey = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYbaocunsytpLive"];
     if (enableSaveAllImages && self.awemeModel.awemeType == 68 && self.awemeModel.albumImages.count > 1) {
         AWELongPressPanelBaseViewModel *allImagesViewModel = [[%c(AWELongPressPanelBaseViewModel) alloc] init];
         allImagesViewModel.awemeModel = self.awemeModel;
@@ -256,7 +251,7 @@ NSString *apiKey = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYbao
     }
 
    // 接口保存功能
-NSString *apiKey = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYjiekoujiexi"];
+NSString *apiKey = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYInterfaceDownload"];
 	if (apiKey.length > 0) {
 		AWELongPressPanelBaseViewModel *apiDownload = [[%c(AWELongPressPanelBaseViewModel) alloc] init];
 		apiDownload.awemeModel = self.awemeModel;
@@ -282,7 +277,6 @@ NSString *apiKey = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYjie
 	}
 
     // 复制文案功能
-NSString *apiKey = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYfuzhiwenan"];
     if (enableCopyText) {
         AWELongPressPanelBaseViewModel *copyText = [[%c(AWELongPressPanelBaseViewModel) alloc] init];
         copyText.awemeModel = self.awemeModel;
@@ -303,7 +297,6 @@ NSString *apiKey = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYfuz
     }
     
     // 复制分享链接功能
-NSString *apiKey = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYfuzhifenxiang"];
     if (enableCopyLink) {
         AWELongPressPanelBaseViewModel *copyShareLink = [[%c(AWELongPressPanelBaseViewModel) alloc] init];
         copyShareLink.awemeModel = self.awemeModel;
@@ -483,13 +476,10 @@ NSString *apiKey = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYfuz
         NSInteger firstRowCount = 0;
         NSInteger secondRowCount = 0;
         
-         if (totalButtons <= 2) {
+        if (totalButtons <= 2) {
             firstRowCount = totalButtons;
         } else if (totalButtons <= 4) {
             firstRowCount = totalButtons / 2;
-            secondRowCount = totalButtons - firstRowCount;
-        } else if (totalButtons <= 5) {
-            firstRowCount = 3;
             secondRowCount = totalButtons - firstRowCount;
         } else if (totalButtons <= 6) {
             firstRowCount = 4;
