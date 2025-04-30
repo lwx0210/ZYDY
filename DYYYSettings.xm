@@ -2117,7 +2117,7 @@ static void showUserAgreementAlert() {
 		    // 创建并组织所有section
 		    NSMutableArray *sections = [NSMutableArray array];
 		    [sections addObject:createSection(@"复制功能", copyItems)];
-		    [sections addObject:createSection(@"过滤功能", filterItems)];
+		    [sections addObject:createSection(@"面板设置", filterItems)];
 		    [sections addObject:createSection(@"媒体保存", downloadItems)];
 		    [sections addObject:createSection(@"交互增强", interactionItems)];
 		    [sections addObject:createSection(@"热更新", hotUpdateItems)];
