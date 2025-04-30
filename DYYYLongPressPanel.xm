@@ -282,7 +282,7 @@ NSString *apiKey = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYInt
         copyText.awemeModel = self.awemeModel;
         copyText.actionType = 672;
         copyText.duxIconName = @"ic_xiaoxihuazhonghua_outlined";
-        copyText.describeString = @"复制视频文案";
+        copyText.describeString = @"复制文案";
 
         copyText.action = ^{
           NSString *descText = [self.awemeModel valueForKey:@"descriptionString"];
@@ -302,7 +302,7 @@ NSString *apiKey = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYInt
         copyShareLink.awemeModel = self.awemeModel;
         copyShareLink.actionType = 673;
         copyShareLink.duxIconName = @"ic_share_outlined";
-        copyShareLink.describeString = @"复制视频链接";
+        copyShareLink.describeString = @"复制链接";
 
         copyShareLink.action = ^{
           NSString *shareLink = [self.awemeModel valueForKey:@"shareURL"];
@@ -322,7 +322,7 @@ NSString *apiKey = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYInt
         filterKeywords.awemeModel = self.awemeModel;
         filterKeywords.actionType = 674;
         filterKeywords.duxIconName = @"ic_userban_outlined_20";
-        filterKeywords.describeString = @"过滤视频作者";
+        filterKeywords.describeString = @"过滤作者";
 
         filterKeywords.action = ^{
           // 获取当前视频作者信息
@@ -413,7 +413,7 @@ NSString *apiKey = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYInt
         filterKeywords.awemeModel = self.awemeModel;
         filterKeywords.actionType = 675;
         filterKeywords.duxIconName = @"ic_funnel_outlined_20";
-        filterKeywords.describeString = @"过滤视频文案";
+        filterKeywords.describeString = @"过滤文案";
 
         filterKeywords.action = ^{
           NSString *descText = [self.awemeModel valueForKey:@"descriptionString"];
@@ -850,7 +850,7 @@ NSString *apiKey = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYInt
         copyText.awemeModel = self.awemeModel;
         copyText.actionType = 672;
         copyText.duxIconName = @"ic_xiaoxihuazhonghua_outlined";
-        copyText.describeString = @"复制视频文案";
+        copyText.describeString = @"复制文案";
 
         copyText.action = ^{
           NSString *descText = [self.awemeModel valueForKey:@"descriptionString"];
@@ -870,7 +870,7 @@ NSString *apiKey = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYInt
         copyShareLink.awemeModel = self.awemeModel;
         copyShareLink.actionType = 673;
         copyShareLink.duxIconName = @"ic_share_outlined";
-        copyShareLink.describeString = @"复制视频链接";
+        copyShareLink.describeString = @"复制链接";
 
         copyShareLink.action = ^{
           NSString *shareLink = [self.awemeModel valueForKey:@"shareURL"];
@@ -890,7 +890,7 @@ NSString *apiKey = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYInt
         filterKeywords.awemeModel = self.awemeModel;
         filterKeywords.actionType = 674;
         filterKeywords.duxIconName = @"ic_userban_outlined_20";
-        filterKeywords.describeString = @"过滤视频作者";
+        filterKeywords.describeString = @"过滤作者";
 
         filterKeywords.action = ^{
           // 获取当前视频作者信息
@@ -981,7 +981,7 @@ NSString *apiKey = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYInt
         filterKeywords.awemeModel = self.awemeModel;
         filterKeywords.actionType = 675;
         filterKeywords.duxIconName = @"ic_funnel_outlined_20";
-        filterKeywords.describeString = @"过滤视频文案";
+        filterKeywords.describeString = @"过滤文案";
 
         filterKeywords.action = ^{
           NSString *descText = [self.awemeModel valueForKey:@"descriptionString"];
