@@ -476,10 +476,13 @@ NSString *apiKey = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYInt
         NSInteger firstRowCount = 0;
         NSInteger secondRowCount = 0;
         
-        if (totalButtons <= 2) {
+         if (totalButtons <= 2) {
             firstRowCount = totalButtons;
         } else if (totalButtons <= 4) {
             firstRowCount = totalButtons / 2;
+            secondRowCount = totalButtons - firstRowCount;
+        } else if (totalButtons <= 5) {
+            firstRowCount = 3;
             secondRowCount = totalButtons - firstRowCount;
         } else if (totalButtons <= 6) {
             firstRowCount = 4;
