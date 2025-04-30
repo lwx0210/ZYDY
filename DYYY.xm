@@ -2066,7 +2066,6 @@ if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYismaoboli"]){
             }
         }
     }
-}
         UIBlurEffect *blurEffect = [UIBlurEffect effectWithStyle:UIBlurEffectStyleDark];
         UIVisualEffectView *blurEffectView = [[UIVisualEffectView alloc] initWithEffect:blurEffect];
         blurEffectView.frame = self.containerView.bounds;
