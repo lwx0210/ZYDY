@@ -2101,7 +2101,7 @@ if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYismaoboli"]){
         
         [self setTextColorWhiteRecursivelyInView:subview];
     }
-}
+
 %end
 
 %hook _TtC33AWECommentLongPressPanelSwiftImpl32CommentLongPressPanelCopyElement
