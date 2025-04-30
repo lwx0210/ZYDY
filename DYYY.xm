@@ -2061,14 +2061,13 @@ if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYismaoboli"]){
     // 应用毛玻璃效果到容器视图
     if (self.containerView) {
         self.containerView.backgroundColor = [UIColor clearColor];
-        }
- }
+         }
         for (UIView *subview in self.containerView.subviews) {
             if ([subview isKindOfClass:[UIVisualEffectView class]] && subview.tag == 9999) {
                 [subview removeFromSuperview];
             }
         }
-
+}
         UIBlurEffect *blurEffect = [UIBlurEffect effectWithStyle:UIBlurEffectStyleDark];
         UIVisualEffectView *blurEffectView = [[UIVisualEffectView alloc] initWithEffect:blurEffect];
         blurEffectView.frame = self.containerView.bounds;
