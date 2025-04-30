@@ -469,7 +469,7 @@ static void showUserAgreementAlert() {
 			      @"cellType" : @6,
 			      @"imageName" : @"ic_location_outlined_20"},
 			    @{@"identifier" : @"DYYYLabelColor",
-			      @"title" : @"属地标签颜色",
+			      @"title" : @"时间属地颜色",
 			      @"detail" : @"十六进制",
 			      @"cellType" : @26,
 			      @"imageName" : @"ic_location_outlined_20"},
@@ -599,7 +599,7 @@ static void showUserAgreementAlert() {
 			      @"cellType" : @26,
 			      @"imageName" : @"ic_thumbsdown_outlined_20"},
 			    @{@"identifier" : @"DYYYfilterUsers",
-			      @"title" : @"推荐过滤用户",
+			      @"title" : @"推荐过滤作者",
 			      @"detail" : @"",
 			      @"cellType" : @26,
 			      @"imageName" : @"ic_userban_outlined_20"},
@@ -683,7 +683,7 @@ static void showUserAgreementAlert() {
 				      NSArray *keywordArray = [savedKeywords length] > 0 ? [savedKeywords componentsSeparatedByString:@","] : @[];
 
 				      // 创建并显示关键词列表视图
-				      DYYYKeywordListView *keywordListView = [[DYYYKeywordListView alloc] initWithTitle:@"过滤用户列表" keywords:keywordArray];
+				      DYYYKeywordListView *keywordListView = [[DYYYKeywordListView alloc] initWithTitle:@"已过滤的视频作者" keywords:keywordArray];
 
 				      // 设置确认回调
 				      keywordListView.onConfirm = ^(NSArray *keywords) {
@@ -726,7 +726,7 @@ static void showUserAgreementAlert() {
 				      NSArray *keywordArray = [savedKeywords length] > 0 ? [savedKeywords componentsSeparatedByString:@","] : @[];
 
 				      // 创建并显示关键词列表视图
-				      DYYYKeywordListView *keywordListView = [[DYYYKeywordListView alloc] initWithTitle:@"设置过滤关键词" keywords:keywordArray];
+				      DYYYKeywordListView *keywordListView = [[DYYYKeywordListView alloc] initWithTitle:@"已过滤的视频文案" keywords:keywordArray];
 
 				      // 设置确认回调
 				      keywordListView.onConfirm = ^(NSArray *keywords) {
@@ -922,6 +922,11 @@ static void showUserAgreementAlert() {
 		    // 【标题自定义】分类
 		    NSMutableArray<AWESettingItemModel *> *titleItems = [NSMutableArray array];
 		    NSArray *titleSettings = @[
+@{@"identifier" : @"DYYYModifyTopTabText",
+			      @"title" : @"顶栏推荐标题",
+			      @"detail" : @"例如:推荐,DYYY（英文逗号）",
+			      @"cellType" : @26,
+			      @"imageName" : @"ic_tag_outlined_20"},
 			    @{@"identifier" : @"DYYYIndexTitle",
 			      @"title" : @"设置首页标题",
 			      @"detail" : @"不填默认",
@@ -1343,16 +1348,37 @@ static void showUserAgreementAlert() {
 			      @"detail" : @"",
 			      @"cellType" : @6,
 			      @"imageName" : @"ic_eyeslash_outlined_16"},
-			    @{@"identifier" : @"DYYYHidekeyboardai",
-			      @"title" : @"隐藏键盘AI",
+		              @{@"identifier" : @"DYYYHideMrjingxuan",
+			      @"title" : @"隐藏每日精选",
 			      @"detail" : @"",
 			      @"cellType" : @6,
 			      @"imageName" : @"ic_eyeslash_outlined_16"},
-			    @{@"identifier" : @"DYYYHidePanelDaily",
+                             @{@"identifier" : @"DYYYHideCommentViews",
+			      @"title" : @"隐藏评论短剧",
+			      @"detail" : @"",
+			      @"cellType" : @6,
+			      @"imageName" : @"ic_eyeslash_outlined_16"},
+                              @{@"identifier" : @"DYYYHideAiSearch",
+			      @"title" : @"隐藏搜索页Ai",
+			      @"detail" : @"",
+			      @"cellType" : @6,
+			      @"imageName" : @"ic_eyeslash_outlined_16"},
+                              @{@"identifier" : @"DYYYHidePanelDaily",
 			      @"title" : @"隐藏面板日常",
 			      @"detail" : @"",
 			      @"cellType" : @6,
+			      @"imageName" : @"ic_eyeslash_outlined_16"},
+                              @{@"identifier" : @"DYYYHideButton",
+			      @"title" : @"隐藏添加朋友",
+			      @"detail" : @"",
+			      @"cellType" : @6,
+			      @"imageName" : @"ic_eyeslash_outlined_16"},
+                              @{@"identifier" : @"DYYYHideChatCommentBg",
+			      @"title" : @"聊天评论透明",
+			      @"detail" : @"",
+			      @"cellType" : @6,
 			      @"imageName" : @"ic_eyeslash_outlined_16"}
+
 		    ];
 
 		    for (NSDictionary *dict in infoSettings) {
@@ -1559,22 +1585,22 @@ static void showUserAgreementAlert() {
 			      @"cellType" : @6,
 			      @"imageName" : @"ic_boxarrowdown_outlined"},
 			    @{@"identifier" : @"DYYYLongPressSaveVideo",
-			      @"title" : @"长按保存当前视频",
+			      @"title" : @"长按面板保存视频",
 			      @"detail" : @"",
 			      @"cellType" : @6,
 			      @"imageName" : @"ic_boxarrowdown_outlined"},
 			    @{@"identifier" : @"DYYYLongPressSaveCover",
-			      @"title" : @"长按保存视频封面",
+			      @"title" : @"长按面板保存封面",
 			      @"detail" : @"",
 			      @"cellType" : @6,
 			      @"imageName" : @"ic_boxarrowdown_outlined"},
 			    @{@"identifier" : @"DYYYLongPressSaveAudio",
-			      @"title" : @"长按保存视频音乐",
+			      @"title" : @"长按面板保存音频",
 			      @"detail" : @"",
 			      @"cellType" : @6,
 			      @"imageName" : @"ic_boxarrowdown_outlined"},
 			    @{@"identifier" : @"DYYYLongPressSaveCurrentImage",
-			      @"title" : @"长按保存当前图片",
+			      @"title" : @"长按面板保存图片",
 			      @"detail" : @"",
 			      @"cellType" : @6,
 			      @"imageName" : @"ic_boxarrowdown_outlined"},
@@ -1584,27 +1610,27 @@ static void showUserAgreementAlert() {
 			      @"cellType" : @6,
 			      @"imageName" : @"ic_boxarrowdown_outlined"},
 			    @{@"identifier" : @"DYYYLongPressCopyText",
-			      @"title" : @"长按复制视频文案",
+			      @"title" : @"长按面板复制文案",
 			      @"detail" : @"",
 			      @"cellType" : @6,
 			      @"imageName" : @"ic_rectangleonrectangleup_outlined_20"},
 			    @{@"identifier" : @"DYYYLongPressCopyLink",
-			      @"title" : @"长按复制分享链接",
+			      @"title" : @"长按面板复制链接",
 			      @"detail" : @"",
 			      @"cellType" : @6,
 			      @"imageName" : @"ic_rectangleonrectangleup_outlined_20"},
 			    @{@"identifier" : @"DYYYLongPressApiDownload",
-			      @"title" : @"长按接口解析下载",
+			      @"title" : @"长按面板接口解析",
 			      @"detail" : @"",
 			      @"cellType" : @6,
 			      @"imageName" : @"ic_cloudarrowdown_outlined_20"},
 			    @{@"identifier" : @"DYYYLongPressFilterUser",
-			      @"title" : @"长按面板过滤用户",
+			      @"title" : @"长按面板过滤作者",
 			      @"detail" : @"",
 			      @"cellType" : @6,
 			      @"imageName" : @"ic_userban_outlined_20"},
 			    @{@"identifier" : @"DYYYLongPressFilterTitle",
-			      @"title" : @"长按面板过滤标题",
+			      @"title" : @"长按面板过滤文案",
 			      @"detail" : @"",
 			      @"cellType" : @6,
 			      @"imageName" : @"ic_funnel_outlined_20"}
@@ -1822,7 +1848,7 @@ static void showUserAgreementAlert() {
 		    // 添加"选择本地配置"按钮
 		    AWESettingItemModel *loadConfigItem = [[%c(AWESettingItemModel) alloc] init];
 		    loadConfigItem.identifier = @"LoadABTestConfigFile";
-		    loadConfigItem.title = @"本地选择配置";
+		    loadConfigItem.title = @"选择本地配置";
 		    loadConfigItem.detail = @"";
 		    loadConfigItem.type = 0;
 		    loadConfigItem.svgIconImageName = @"ic_phonearrowup_outlined_20";
@@ -2193,8 +2219,8 @@ static void showUserAgreementAlert() {
 		    AWESettingItemModel *buttonSizeItem = [[%c(AWESettingItemModel) alloc] init];
 		    buttonSizeItem.identifier = @"DYYYSpeedButtonSize";
 		    buttonSizeItem.title = @"快捷倍速按钮大小";
-		    // 获取当前的按钮大小，如果没有设置则默认为32
-		    CGFloat currentButtonSize = [[NSUserDefaults standardUserDefaults] floatForKey:@"DYYYSpeedButtonSize"] ?: 32;
+		    // 获取当前的按钮大小，如果没有设置则默认为35
+		    CGFloat currentButtonSize = [[NSUserDefaults standardUserDefaults] floatForKey:@"DYYYSpeedButtonSize"] ?: 35;
 		    buttonSizeItem.detail = [NSString stringWithFormat:@"%.0f", currentButtonSize];
 		    buttonSizeItem.type = 0;
 		    buttonSizeItem.svgIconImageName = @"ic_zoomin_outlined_20";
@@ -2205,12 +2231,12 @@ static void showUserAgreementAlert() {
 		      NSString *currentValue = [NSString stringWithFormat:@"%.0f", currentButtonSize];
 
 		      showTextInputAlert(
-			  @"设置按钮大小", currentValue, @"请输入20-60之间的数值",
+			  @"设置按钮大小", currentValue, @"请输入20-80之间的数值",
 			  ^(NSString *text) {
 			    NSInteger size = [text integerValue];
 
 			    // 确保输入值在有效范围内
-			    if (size >= 20 && size <= 60) {
+			    if (size >= 20 && size <= 80) {
 				    [[NSUserDefaults standardUserDefaults] setFloat:size forKey:@"DYYYSpeedButtonSize"];
 				    [[NSUserDefaults standardUserDefaults] synchronize];
 
@@ -2235,7 +2261,7 @@ static void showUserAgreementAlert() {
 					    });
 				    }
 			    } else {
-				    [DYYYManager showToast:@"请输入20-60之间的有效数值"];
+				    [DYYYManager showToast:@"请输入20-80之间的有效数值"];
 			    }
 			  },
 			  nil);
@@ -2251,7 +2277,7 @@ static void showUserAgreementAlert() {
 		    AWESettingItemModel *enableClearButton = [self
 			createSettingItem:
 			    @{@"identifier" : @"DYYYEnableFloatClearButton",
-			      @"title" : @"一键清屏按钮",
+			      @"title" : @"启用一键清屏按钮",
 			      @"detail" : @"",
 			      @"cellType" : @6,
 			      @"imageName" : @"ic_eyeslash_outlined_16"}];
@@ -2260,9 +2286,9 @@ static void showUserAgreementAlert() {
 		    // 添加清屏按钮大小配置项
 		    AWESettingItemModel *clearButtonSizeItem = [[%c(AWESettingItemModel) alloc] init];
 		    clearButtonSizeItem.identifier = @"DYYYEnableFloatClearButtonSize";
-		    clearButtonSizeItem.title = @"清屏按钮大小";
-		    // 获取当前的按钮大小，如果没有设置则默认为40
-		    CGFloat currentClearButtonSize = [[NSUserDefaults standardUserDefaults] floatForKey:@"DYYYEnableFloatClearButtonSize"] ?: 40;
+		    clearButtonSizeItem.title = @"一键清屏按钮大小";
+		    // 获取当前的按钮大小，如果没有设置则默认为42
+		    CGFloat currentClearButtonSize = [[NSUserDefaults standardUserDefaults] floatForKey:@"DYYYEnableFloatClearButtonSize"] ?: 42;
 		    clearButtonSizeItem.detail = [NSString stringWithFormat:@"%.0f", currentClearButtonSize];
 		    clearButtonSizeItem.type = 0;
 		    clearButtonSizeItem.svgIconImageName = @"ic_zoomin_outlined_20";
@@ -2272,11 +2298,11 @@ static void showUserAgreementAlert() {
 		    clearButtonSizeItem.cellTappedBlock = ^{
 		      NSString *currentValue = [NSString stringWithFormat:@"%.0f", currentClearButtonSize];
 		      showTextInputAlert(
-			  @"设置清屏按钮大小", currentValue, @"请输入20-60之间的数值",
+			  @"设置清屏按钮大小", currentValue, @"请输入20-80之间的数值",
 			  ^(NSString *text) {
 			    NSInteger size = [text integerValue];
 			    // 确保输入值在有效范围内
-			    if (size >= 20 && size <= 60) {
+			    if (size >= 20 && size <= 80) {
 				    [[NSUserDefaults standardUserDefaults] setFloat:size forKey:@"DYYYEnableFloatClearButtonSize"];
 				    [[NSUserDefaults standardUserDefaults] synchronize];
 				    // 更新UI显示
@@ -2298,7 +2324,7 @@ static void showUserAgreementAlert() {
 					    });
 				    }
 			    } else {
-				    [DYYYManager showToast:@"请输入20-60之间的有效数值"];
+				    [DYYYManager showToast:@"请输入20-80之间的有效数值"];
 			    }
 			  },
 			  nil);
@@ -2306,14 +2332,14 @@ static void showUserAgreementAlert() {
 		    [clearButtonItems addObject:clearButtonSizeItem];
 
 		    // 添加清屏按钮自定义图标选项
-		    AWESettingItemModel *clearButtonIcon = createIconCustomizationItem(@"DYYYClearButtonIcon", @"清屏按钮图标", @"ic_roaming_outlined", @"qingping.gif");
+		    AWESettingItemModel *clearButtonIcon = createIconCustomizationItem(@"DYYYClearButtonIcon", @"一键清屏按钮图标", @"ic_roaming_outlined", @"qingping.gif");
 
 		    [clearButtonItems addObject:clearButtonIcon];
 		    // 清屏隐藏时间进度 enableqingButton 需要改名
 		    AWESettingItemModel *enableqingButton = [self
 			createSettingItem:
 			    @{@"identifier" : @"DYYYEnabshijianjindu",
-			      @"title" : @"清屏隐藏进度",
+			      @"title" : @"清屏隐藏时间进度",
 			      @"detail" : @"",
 			      @"cellType" : @6,
 			      @"imageName" : @"ic_eyeslash_outlined_16"}];
