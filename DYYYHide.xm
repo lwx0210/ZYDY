@@ -334,6 +334,17 @@
 
 %end
 
+//隐藏我的页面左上角添加朋友
+%hook AWEProfileNavigationButton
+- (void)setupUI {
+
+	if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHideButton"]) {
+		return;
+	}
+	%orig;
+}
+%end
+
 // 默认隐藏清屏横线
 %hook AWELoadingAndVolumeView
 - (void)setHidden:(BOOL)hidden {
