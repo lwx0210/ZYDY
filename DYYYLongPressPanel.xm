@@ -257,7 +257,7 @@ NSString *apiKey = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYInt
         apiDownload.awemeModel = self.awemeModel;
         apiDownload.actionType = 673;
         apiDownload.duxIconName = @"ic_cloudarrowdown_outlined_20";
-        apiDownload.describeString = @"接口保存";
+        apiDownload.describeString = @"接口解析";
 
         apiDownload.action = ^{
           NSString *shareLink = [self.awemeModel valueForKey:@"shareURL"];
@@ -825,7 +825,7 @@ NSString *apiKey = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYInt
         apiDownload.awemeModel = self.awemeModel;
         apiDownload.actionType = 673;
         apiDownload.duxIconName = @"ic_cloudarrowdown_outlined_20";
-        apiDownload.describeString = @"接口保存";
+        apiDownload.describeString = @"接口解析";
 
         apiDownload.action = ^{
           NSString *shareLink = [self.awemeModel valueForKey:@"shareURL"];
