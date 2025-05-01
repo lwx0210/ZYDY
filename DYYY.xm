@@ -2075,7 +2075,7 @@ static CGFloat currentScale = 1.0;
 		UIVisualEffectView *blurEffectView = [[UIVisualEffectView alloc] initWithEffect:blurEffect];
 		blurEffectView.frame = self.containerView.bounds;
 		blurEffectView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
-		blurEffectView.alpha = 0.9;
+		blurEffectView.alpha = 0.1;
 		blurEffectView.tag = 9999;
 
 		[self.containerView insertSubview:blurEffectView atIndex:0];
