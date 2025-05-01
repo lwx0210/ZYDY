@@ -250,31 +250,31 @@
         [viewModels addObject:allImagesViewModel];
     }
 
-   // 接口保存功能
-NSString *apiKey = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYInterfaceDownload"];
-	if (apiKey.length > 0) {
-		AWELongPressPanelBaseViewModel *apiDownload = [[%c(AWELongPressPanelBaseViewModel) alloc] init];
-		apiDownload.awemeModel = self.awemeModel;
-		apiDownload.actionType = 671;
-		apiDownload.duxIconName = @"ic_cloudarrowdown_outlined_20";
-		apiDownload.describeString = @"接口解析";
+  // 接口解析功能
+    NSString *apiKey = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYInterfaceDownload"];
+    if (enableApiDownload && apiKey.length > 0) {
+        AWELongPressPanelBaseViewModel *apiDownload = [[%c(AWELongPressPanelBaseViewModel) alloc] init];
+        apiDownload.awemeModel = self.awemeModel;
+        apiDownload.actionType = 671;
+        apiDownload.duxIconName = @"ic_cloudarrowdown_outlined_20";
+        apiDownload.describeString = @"接口解析";
 
-		apiDownload.action = ^{
-		  NSString *shareLink = [self.awemeModel valueForKey:@"shareURL"];
-		  if (shareLink.length == 0) {
-			  [DYYYManager showToast:@"无法获取分享链接"];
-			  return;
-		  }
+        apiDownload.action = ^{
+          NSString *shareLink = [self.awemeModel valueForKey:@"shareURL"];
+          if (shareLink.length == 0) {
+              [DYYYManager showToast:@"无法获取分享链接"];
+              return;
+          }
 
-		  // 使用封装的方法进行解析下载
-		  [DYYYManager parseAndDownloadVideoWithShareLink:shareLink apiKey:apiKey];
+          // 使用封装的方法进行解析下载
+          [DYYYManager parseAndDownloadVideoWithShareLink:shareLink apiKey:apiKey];
 
-		  AWELongPressPanelManager *panelManager = [%c(AWELongPressPanelManager) shareInstance];
-		  [panelManager dismissWithAnimation:YES completion:nil];
-		};
+          AWELongPressPanelManager *panelManager = [%c(AWELongPressPanelManager) shareInstance];
+          [panelManager dismissWithAnimation:YES completion:nil];
+        };
 
-		[viewModels addObject:apiDownload];
-	}
+        [viewModels addObject:apiDownload];
+    }
 
     // 复制文案功能
     if (enableCopyText) {
@@ -818,31 +818,31 @@ NSString *apiKey = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYInt
         [viewModels addObject:allImagesViewModel];
     }
 
-    // 接口保存功能
-NSString *apiKey = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYInterfaceDownload"];
-	if (apiKey.length > 0) {
-		AWELongPressPanelBaseViewModel *apiDownload = [[%c(AWELongPressPanelBaseViewModel) alloc] init];
-		apiDownload.awemeModel = self.awemeModel;
-		apiDownload.actionType = 671;
-		apiDownload.duxIconName = @"ic_cloudarrowdown_outlined_20";
-		apiDownload.describeString = @"接口解析";
+  // 接口解析功能
+    NSString *apiKey = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYInterfaceDownload"];
+    if (enableApiDownload && apiKey.length > 0) {
+        AWELongPressPanelBaseViewModel *apiDownload = [[%c(AWELongPressPanelBaseViewModel) alloc] init];
+        apiDownload.awemeModel = self.awemeModel;
+        apiDownload.actionType = 671;
+        apiDownload.duxIconName = @"ic_cloudarrowdown_outlined_20";
+        apiDownload.describeString = @"接口解析";
 
-		apiDownload.action = ^{
-		  NSString *shareLink = [self.awemeModel valueForKey:@"shareURL"];
-		  if (shareLink.length == 0) {
-			  [DYYYManager showToast:@"无法获取分享链接"];
-			  return;
-		  }
+        apiDownload.action = ^{
+          NSString *shareLink = [self.awemeModel valueForKey:@"shareURL"];
+          if (shareLink.length == 0) {
+              [DYYYManager showToast:@"无法获取分享链接"];
+              return;
+          }
 
-		  // 使用封装的方法进行解析下载
-		  [DYYYManager parseAndDownloadVideoWithShareLink:shareLink apiKey:apiKey];
+          // 使用封装的方法进行解析下载
+          [DYYYManager parseAndDownloadVideoWithShareLink:shareLink apiKey:apiKey];
 
-		  AWELongPressPanelManager *panelManager = [%c(AWELongPressPanelManager) shareInstance];
-		  [panelManager dismissWithAnimation:YES completion:nil];
-		};
+          AWELongPressPanelManager *panelManager = [%c(AWELongPressPanelManager) shareInstance];
+          [panelManager dismissWithAnimation:YES completion:nil];
+        };
 
-		[viewModels addObject:apiDownload];
-	}
+        [viewModels addObject:apiDownload];
+    }
 
     // 复制文案功能
     if (enableCopyText) {
