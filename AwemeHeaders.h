@@ -445,6 +445,23 @@ typedef NS_ENUM(NSInteger, MediaType) {
 @interface AWELuckyCatBannerView : UIView
 @end
 
+// 直播间商品信息
+@interface IESECLivePluginLayoutView : UIView
+@end
+
+// 直播间点赞动画
+@interface HTSLiveDiggView : UIView
+@end
+
+@interface BDImageView : UIImageView
+@end
+
+// 设置修改顶栏标题
+@interface AWEHPTopTabItemTextContentView : UIView
+- (void)setContentText:(NSString *)text;
+@end
+
+
 //AI搜索
 @interface AWESearchKeyboardVoiceSearchEntranceView : UIView
 @end
