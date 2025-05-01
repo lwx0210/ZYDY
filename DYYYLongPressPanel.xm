@@ -298,13 +298,13 @@ NSString *apiKey = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYInt
     
     // 复制分享链接功能
     if (enableCopyLink) {
-        AWELongPressPanelBaseViewModel *copyShareLink = [[%c(AWELongPressPanelBaseViewModel) alloc] init];
-        copyShareLink.awemeModel = self.awemeModel;
-        copyShareLink.actionType = 673;
-        copyShareLink.duxIconName = @"ic_share_outlined";
-        copyShareLink.describeString = @"复制链接";
+        AWELongPressPanelBaseViewModel *showSharePanel = [[%c(AWELongPressPanelBaseViewModel) alloc] init];
+        showSharePanel.awemeModel = self.awemeModel;
+        showSharePanel.actionType = 673;
+        showSharePanel.duxIconName = @"ic_share_outlined";
+        showSharePanel.describeString = @"复制链接";
 
-        copyShareLink.action = ^{
+        showSharePanel.action = ^{
           NSString *shareLink = [self.awemeModel valueForKey:@"shareURL"];
           [[UIPasteboard generalPasteboard] setString:shareLink];
           [DYYYManager showToast:@"分享链接已复制到剪贴板"];
@@ -313,7 +313,7 @@ NSString *apiKey = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYInt
           [panelManager dismissWithAnimation:YES completion:nil];
         };
 
-        [viewModels addObject:copyShareLink];
+        [viewModels addObject:showSharePanel];
     }
 
     // 过滤用户功能
