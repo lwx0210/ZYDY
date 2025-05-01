@@ -456,12 +456,6 @@ typedef NS_ENUM(NSInteger, MediaType) {
 @interface BDImageView : UIImageView
 @end
 
-// 设置修改顶栏标题
-@interface AWEHPTopTabItemTextContentView : UIView
-- (void)setContentText:(NSString *)text;
-@end
-
-
 //AI搜索
 @interface AWESearchKeyboardVoiceSearchEntranceView : UIView
 @end
