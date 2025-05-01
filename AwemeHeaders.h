@@ -445,6 +445,11 @@ typedef NS_ENUM(NSInteger, MediaType) {
 @interface AWELuckyCatBannerView : UIView
 @end
 
+// 设置修改顶栏标题
+@interface AWEHPTopTabItemTextContentView : UIView
+- (void)setContentText:(NSString *)text;
+@end
+
 // 直播间商品信息
 @interface IESECLivePluginLayoutView : UIView
 @end
