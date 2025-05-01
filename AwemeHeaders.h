@@ -897,6 +897,9 @@ typedef NS_ENUM(NSInteger, MediaType) {
 - (void)setShouldShowToggle:(BOOL)arg1;
 - (NSUInteger)animationStyle;
 - (NSUInteger)viewStyle;
+- (void)setSlideDismissBlock:(void (^)(void))slideDismissBlock;
+- (void)setTapDismissBlock:(void (^)(void))tapDismissBlock;
+- (void)setAfterDismissBlock:(void (^)(void))afterDismissBlock;
 @end
 
 @interface AWEIMEmoticonModel : NSObject
