@@ -2041,7 +2041,7 @@ static void showUserAgreementAlert() {
 						@"imageName" : @"ic_boxarrowdown_outlined"},
 					      @{
 						      @"identifier" : @"DYYYDoubleInterfaceDownload",
-						      @"title" : @"接口保存",
+						      @"title" : @"接口解析",
 						      @"detail" : @"",
 						      @"cellType" : @6,
 						      @"imageName" : @"ic_cloudarrowdown_outlined_20"
