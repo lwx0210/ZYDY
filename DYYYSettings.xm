@@ -1579,12 +1579,7 @@ static void showUserAgreementAlert() {
 		    // 【长按面板设置】分类
 		    NSMutableArray<AWESettingItemModel *> *longPressItems = [NSMutableArray array];
 		    NSArray *longPressSettings = @[
-			    @{@"identifier" : @"DYYYLongPressDownload",
-			      @"title" : @"长按面板保存媒体",
-			      @"detail" : @"",
-			      @"cellType" : @6,
-			      @"imageName" : @"ic_boxarrowdown_outlined"},
-			    @{@"identifier" : @"DYYYLongPressSaveVideo",
+                              @{@"identifier" : @"DYYYLongPressSaveVideo",
 			      @"title" : @"长按面板保存视频",
 			      @"detail" : @"",
 			      @"cellType" : @6,
