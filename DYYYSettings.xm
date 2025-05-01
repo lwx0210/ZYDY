@@ -2869,7 +2869,7 @@ static void showUserAgreementAlert() {
                           // 添加DYYYForceDownloadEmotion启用时的提示
 			  if ([strongItem.identifier isEqualToString:@"DYYYForceDownloadEmotion"] && isSwitchOn) {
 				showAboutDialog(@"防蠢提示", @"这里指的是长按整条评论而非单一个表情包", nil);
-			  
+			  }
 			  [self handleConflictsAndDependenciesForSetting:strongItem.identifier isEnabled:isSwitchOn];
 		  }
 		};
@@ -2879,6 +2879,7 @@ static void showUserAgreementAlert() {
 }
 
 %new
+
 - (void)applyDependencyRulesForItem:(AWESettingItemModel *)item {
 	// 处理依赖关系
 	if ([item.identifier isEqualToString:@"DYYYdanmuColor"]) {
