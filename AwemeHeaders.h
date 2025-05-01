@@ -894,9 +894,6 @@ typedef NS_ENUM(NSInteger, MediaType) {
 - (NSUInteger)viewStyle;
 @end
 
-@interface BDImageView : UIImageView
-@end
-
 @interface AWEIMEmoticonModel : NSObject
 - (id)valueForKey:(NSString *)key;
 @end
