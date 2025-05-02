@@ -2360,7 +2360,7 @@ static void showUserAgreementAlert() {
 		    AWESettingItemModel *enableqingButton = [self
 			createSettingItem:
 			    @{@"identifier" : @"DYYYEnabshijianjindu",
-			      @"title" : @"清屏移除进度",
+			      @"title" : @"清屏移除时间进度",
 			      @"detail" : @"",
 			      @"cellType" : @6,
 			      @"imageName" : @"ic_eyeslash_outlined_16"}];
@@ -2369,7 +2369,7 @@ static void showUserAgreementAlert() {
 		    AWESettingItemModel *enableqingButton1 = [self
 			createSettingItem:
 			    @{@"identifier" : @"DYYYHideTimeProgress",
-			      @"title" : @"清屏隐藏进度",
+			      @"title" : @"清屏隐藏时间进度",
 			      @"detail" : @"",
 			      @"cellType" : @6,
 			      @"imageName" : @"ic_eyeslash_outlined_16"}];
