@@ -2680,14 +2680,12 @@ static void showUserAgreementAlert() {
 						NSError *error = nil;
 						NSUInteger totalSize = 0;
 
-						NSString *cachesDir = NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES).firstObject;
-
 						NSString *tempDir = NSTemporaryDirectory();
 
-						NSArray<NSString *> *customDirs = @[ @"BDByteCast" ];
+						NSArray<NSString *> *customDirs = @[ @"Caches", @"BDByteCast", @"kitelog" ];
 						NSString *libraryDir = NSSearchPathForDirectoriesInDomains(NSLibraryDirectory, NSUserDomainMask, YES).firstObject;
 
-						NSMutableArray<NSString *> *allPaths = [NSMutableArray arrayWithObjects:cachesDir, tempDir, nil];
+						NSMutableArray<NSString *> *allPaths = [NSMutableArray arrayWithObjects:tempDir, nil];
 						for (NSString *sub in customDirs) {
 							NSString *full = [libraryDir stringByAppendingPathComponent:sub];
 							[allPaths addObject:full];
