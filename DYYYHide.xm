@@ -1424,8 +1424,7 @@
 // 隐藏搜同款
 %hook ACCStickerContainerView
 - (void)layoutSubviews {
-	// 类型安全检查 + 隐藏逻辑
-	if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHideInteractionSearch"]) {
+	if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHideSearchSame"]) {
 		if ([self respondsToSelector:@selector(removeFromSuperview)]) {
 			[self removeFromSuperview];
 		}
