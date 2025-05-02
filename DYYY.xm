@@ -2137,10 +2137,6 @@ if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYisEnableSheetBlur"])
         [self setTextColorDefaultRecursivelyInView:subview];
     }
 }
-%dtor {
-    [[NSNotificationCenter defaultCenter] removeObserver:self name:UIContentSizeCategoryDidChangeNotification object:nil];
-}
-
 %end
 
 
