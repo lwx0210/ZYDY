@@ -2137,17 +2137,6 @@ if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYisEnableSheetBlur"])
         [self setTextColorDefaultRecursivelyInView:subview];
     }
 }
-
-// 监听系统外观模式变化的通知
-%ctor {
-    [[NSNotificationCenter defaultCenter] addObserverForName:UIContentSizeCategoryDidChangeNotification object:nil queue:[NSOperationQueue mainQueue] usingBlock:^(NSNotification * _Nonnull note) {
-        UIUserInterfaceStyle newAppearanceStyle = [[UIApplication sharedApplication] windows].firstObject.traitCollection.userInterfaceStyle;
-        currentAppearanceStyle = newAppearanceStyle;
-        // 通知发生变化时，重新调用 layoutSubviews 来更新视图
-        [[AWEUserActionSheetView sharedInstance] layoutSubviews];
-    }];
-}
-
 %dtor {
     [[NSNotificationCenter defaultCenter] removeObserver:self name:UIContentSizeCategoryDidChangeNotification object:nil];
 }
