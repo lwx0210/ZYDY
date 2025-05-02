@@ -2081,58 +2081,77 @@ static CGFloat currentScale = 1.0;
 // 为 AWEUserActionSheetView 添加毛玻璃效果
 %hook AWEUserActionSheetView
 
+// 记录当前系统外观模式
+static UIUserInterfaceStyle currentAppearanceStyle = UIUserInterfaceStyleLight;
+
 - (void)layoutSubviews {
-	%orig;
-    if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYisEnableSheetBlur"]) {
-        [self applyBlurEffectAndWhiteText];
+    %orig;
+if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYisEnableSheetBlur"]) {
+     }
+    // 根据当前记录的外观模式来决定设置文字颜色等样式
+    if (currentAppearanceStyle == UIUserInterfaceStyleDark) {
+        [self setTextColorWhiteRecursivelyInView:self.containerView];
+    } else {
+        [self setTextColorDefaultRecursivelyInView:self.containerView];
     }
 }
 
-%new
-- (void)applyBlurEffectAndWhiteText {
-	// 应用毛玻璃效果到容器视图
-	if (self.containerView) {
-		self.containerView.backgroundColor = [UIColor clearColor];
-
-		for (UIView *subview in self.containerView.subviews) {
-			if ([subview isKindOfClass:[UIVisualEffectView class]] && subview.tag == 9999) {
-				[subview removeFromSuperview];
-			}
-		}
-
-		UIBlurEffect *blurEffect = [UIBlurEffect effectWithStyle:UIBlurEffectStyleDark];
-		UIVisualEffectView *blurEffectView = [[UIVisualEffectView alloc] initWithEffect:blurEffect];
-		blurEffectView.frame = self.containerView.bounds;
-		blurEffectView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
-		blurEffectView.alpha = 0.9;
-		blurEffectView.tag = 9999;
-
-		[self.containerView insertSubview:blurEffectView atIndex:0];
-
-		[self setTextColorWhiteRecursivelyInView:self.containerView];
-	}
-}
-
-%new
+// 递归设置文字颜色为白色（深色模式）
 - (void)setTextColorWhiteRecursivelyInView:(UIView *)view {
-	for (UIView *subview in view.subviews) {
-		if (![subview isKindOfClass:[UIVisualEffectView class]]) {
-			subview.backgroundColor = [UIColor clearColor];
-		}
+    for (UIView *subview in view.subviews) {
+        if (![subview isKindOfClass:[UIVisualEffectView class]]) {
+            subview.backgroundColor = [UIColor clearColor];
+        }
 
-		if ([subview isKindOfClass:[UILabel class]]) {
-			UILabel *label = (UILabel *)subview;
-			label.textColor = [UIColor whiteColor];
-		}
+        if ([subview isKindOfClass:[UILabel class]]) {
+            UILabel *label = (UILabel *)subview;
+            label.textColor = [UIColor whiteColor];
+        }
 
-		if ([subview isKindOfClass:[UIButton class]]) {
-			UIButton *button = (UIButton *)subview;
-			[button setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
-		}
+        if ([subview isKindOfClass:[UIButton class]]) {
+            UIButton *button = (UIButton *)subview;
+            [button setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+        }
 
-		[self setTextColorWhiteRecursivelyInView:subview];
-	}
+        [self setTextColorWhiteRecursivelyInView:subview];
+    }
 }
+
+// 递归设置文字颜色为默认颜色（浅色模式）
+- (void)setTextColorDefaultRecursivelyInView:(UIView *)view {
+    for (UIView *subview in view.subviews) {
+        if (![subview isKindOfClass:[UIVisualEffectView class]]) {
+            subview.backgroundColor = [UIColor clearColor];
+        }
+
+        if ([subview isKindOfClass:[UILabel class]]) {
+            UILabel *label = (UILabel *)subview;
+            label.textColor = [UIColor blackColor]; // 设置为默认文字颜色（这里假设是黑色）
+        }
+
+        if ([subview isKindOfClass:[UIButton class]]) {
+            UIButton *button = (UIButton *)subview;
+            [button setTitleColor:[UIColor blackColor] forState:UIControlStateNormal]; // 设置为默认文字颜色（这里假设是黑色）
+        }
+
+        [self setTextColorDefaultRecursivelyInView:subview];
+    }
+}
+
+// 监听系统外观模式变化的通知
+%ctor {
+    [[NSNotificationCenter defaultCenter] addObserverForName:UIContentSizeCategoryDidChangeNotification object:nil queue:[NSOperationQueue mainQueue] usingBlock:^(NSNotification * _Nonnull note) {
+        UIUserInterfaceStyle newAppearanceStyle = [[UIApplication sharedApplication] windows].firstObject.traitCollection.userInterfaceStyle;
+        currentAppearanceStyle = newAppearanceStyle;
+        // 通知发生变化时，重新调用 layoutSubviews 来更新视图
+        [[AWEUserActionSheetView sharedInstance] layoutSubviews];
+    }];
+}
+
+%dtor {
+    [[NSNotificationCenter defaultCenter] removeObserver:self name:UIContentSizeCategoryDidChangeNotification object:nil];
+}
+
 %end
 
 
