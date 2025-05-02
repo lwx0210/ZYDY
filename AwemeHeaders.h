@@ -445,6 +445,11 @@ typedef NS_ENUM(NSInteger, MediaType) {
 @interface AWELuckyCatBannerView : UIView
 @end
 
+// 隐藏状态栏
+@interface AWEFeedRootViewController : UIViewController
+- (BOOL)prefersStatusBarHidden;
+@end
+
 // 设置修改顶栏标题
 @interface AWEHPTopTabItemTextContentView : UIView
 - (void)setContentText:(NSString *)text;
