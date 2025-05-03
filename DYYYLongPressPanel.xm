@@ -251,12 +251,32 @@
 		[viewModels addObject:allImagesViewModel];
 	}
 
+	// 复制文案功能
+	if (enableCopyText) {
+		AWELongPressPanelBaseViewModel *copyText = [[%c(AWELongPressPanelBaseViewModel) alloc] init];
+		copyText.awemeModel = self.awemeModel;
+		copyText.actionType = 671;
+		copyText.duxIconName = @"ic_xiaoxihuazhonghua_outlined";
+		copyText.describeString = @"复制文案";
+
+		copyText.action = ^{
+		  NSString *descText = [self.awemeModel valueForKey:@"descriptionString"];
+		  [[UIPasteboard generalPasteboard] setString:descText];
+		  [DYYYManager showToast:@"文案已复制到剪贴板"];
+
+		  AWELongPressPanelManager *panelManager = [%c(AWELongPressPanelManager) shareInstance];
+		  [panelManager dismissWithAnimation:YES completion:nil];
+		};
+
+		[viewModels addObject:copyText];
+	}
+
 	// 接口保存功能
 	NSString *apiKey = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYInterfaceDownload"];
 	if (enableApiDownload && apiKey.length > 0) {
 		AWELongPressPanelBaseViewModel *apiDownload = [[%c(AWELongPressPanelBaseViewModel) alloc] init];
 		apiDownload.awemeModel = self.awemeModel;
-		apiDownload.actionType = 671;
+		apiDownload.actionType = 672;
 		apiDownload.duxIconName = @"ic_cloudarrowdown_outlined_20";
 		apiDownload.describeString = @"接口解析";
 
@@ -275,27 +295,6 @@
 		};
 
 		[viewModels addObject:apiDownload];
-	}
-
-
-	// 复制文案功能
-	if (enableCopyText) {
-		AWELongPressPanelBaseViewModel *copyText = [[%c(AWELongPressPanelBaseViewModel) alloc] init];
-		copyText.awemeModel = self.awemeModel;
-		copyText.actionType = 672;
-		copyText.duxIconName = @"ic_xiaoxihuazhonghua_outlined";
-		copyText.describeString = @"复制文案";
-
-		copyText.action = ^{
-		  NSString *descText = [self.awemeModel valueForKey:@"descriptionString"];
-		  [[UIPasteboard generalPasteboard] setString:descText];
-		  [DYYYManager showToast:@"文案已复制到剪贴板"];
-
-		  AWELongPressPanelManager *panelManager = [%c(AWELongPressPanelManager) shareInstance];
-		  [panelManager dismissWithAnimation:YES completion:nil];
-		};
-
-		[viewModels addObject:copyText];
 	}
 
 	// 复制分享链接功能
@@ -862,12 +861,32 @@
 		[viewModels addObject:allImagesViewModel];
 	}
 
+	// 复制文案功能
+	if (enableCopyText) {
+		AWELongPressPanelBaseViewModel *copyText = [[%c(AWELongPressPanelBaseViewModel) alloc] init];
+		copyText.awemeModel = self.awemeModel;
+		copyText.actionType = 671;
+		copyText.duxIconName = @"ic_xiaoxihuazhonghua_outlined";
+		copyText.describeString = @"复制文案";
+
+		copyText.action = ^{
+		  NSString *descText = [self.awemeModel valueForKey:@"descriptionString"];
+		  [[UIPasteboard generalPasteboard] setString:descText];
+		  [DYYYManager showToast:@"文案已复制到剪贴板"];
+
+		  AWELongPressPanelManager *panelManager = [%c(AWELongPressPanelManager) shareInstance];
+		  [panelManager dismissWithAnimation:YES completion:nil];
+		};
+
+		[viewModels addObject:copyText];
+	}
+
 	// 接口保存功能
 	NSString *apiKey = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYInterfaceDownload"];
 	if (enableApiDownload && apiKey.length > 0) {
 		AWELongPressPanelBaseViewModel *apiDownload = [[%c(AWELongPressPanelBaseViewModel) alloc] init];
 		apiDownload.awemeModel = self.awemeModel;
-		apiDownload.actionType = 671;
+		apiDownload.actionType = 672;
 		apiDownload.duxIconName = @"ic_cloudarrowdown_outlined_20";
 		apiDownload.describeString = @"接口解析";
 
@@ -886,26 +905,6 @@
 		};
 
 		[viewModels addObject:apiDownload];
-	}
-
-     // 复制文案功能
-	if (enableCopyText) {
-		AWELongPressPanelBaseViewModel *copyText = [[%c(AWELongPressPanelBaseViewModel) alloc] init];
-		copyText.awemeModel = self.awemeModel;
-		copyText.actionType = 672;
-		copyText.duxIconName = @"ic_xiaoxihuazhonghua_outlined";
-		copyText.describeString = @"复制文案";
-
-		copyText.action = ^{
-		  NSString *descText = [self.awemeModel valueForKey:@"descriptionString"];
-		  [[UIPasteboard generalPasteboard] setString:descText];
-		  [DYYYManager showToast:@"文案已复制到剪贴板"];
-
-		  AWELongPressPanelManager *panelManager = [%c(AWELongPressPanelManager) shareInstance];
-		  [panelManager dismissWithAnimation:YES completion:nil];
-		};
-
-		[viewModels addObject:copyText];
 	}
 
 	// 复制分享链接功能
