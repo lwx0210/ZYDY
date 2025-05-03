@@ -251,11 +251,38 @@
 		[viewModels addObject:allImagesViewModel];
 	}
 
+	// 接口保存功能
+	NSString *apiKey = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYInterfaceDownload"];
+	if (enableApiDownload && apiKey.length > 0) {
+		AWELongPressPanelBaseViewModel *apiDownload = [[%c(AWELongPressPanelBaseViewModel) alloc] init];
+		apiDownload.awemeModel = self.awemeModel;
+		apiDownload.actionType = 671;
+		apiDownload.duxIconName = @"ic_cloudarrowdown_outlined_20";
+		apiDownload.describeString = @"接口解析";
+
+		apiDownload.action = ^{
+		  NSString *shareLink = [self.awemeModel valueForKey:@"shareURL"];
+		  if (shareLink.length == 0) {
+			  [DYYYManager showToast:@"无法获取分享链接"];
+			  return;
+		  }
+
+		  // 使用封装的方法进行解析下载
+		  [DYYYManager parseAndDownloadVideoWithShareLink:shareLink apiKey:apiKey];
+
+		  AWELongPressPanelManager *panelManager = [%c(AWELongPressPanelManager) shareInstance];
+		  [panelManager dismissWithAnimation:YES completion:nil];
+		};
+
+		[viewModels addObject:apiDownload];
+	}
+
+
 	// 复制文案功能
 	if (enableCopyText) {
 		AWELongPressPanelBaseViewModel *copyText = [[%c(AWELongPressPanelBaseViewModel) alloc] init];
 		copyText.awemeModel = self.awemeModel;
-		copyText.actionType = 671;
+		copyText.actionType = 672;
 		copyText.duxIconName = @"ic_xiaoxihuazhonghua_outlined";
 		copyText.describeString = @"复制文案";
 
@@ -275,7 +302,7 @@
 	if (enableCopyLink) {
 		AWELongPressPanelBaseViewModel *copyShareLink = [[%c(AWELongPressPanelBaseViewModel) alloc] init];
 		copyShareLink.awemeModel = self.awemeModel;
-		copyShareLink.actionType = 672;
+		copyShareLink.actionType = 673;
 		copyShareLink.duxIconName = @"ic_share_outlined";
 		copyShareLink.describeString = @"复制链接";
 
@@ -291,30 +318,139 @@
 		[viewModels addObject:copyShareLink];
 	}
 
-	// 接口保存功能
-	NSString *apiKey = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYInterfaceDownload"];
-	if (enableApiDownload && apiKey.length > 0) {
-		AWELongPressPanelBaseViewModel *apiDownload = [[%c(AWELongPressPanelBaseViewModel) alloc] init];
-		apiDownload.awemeModel = self.awemeModel;
-		apiDownload.actionType = 673;
-		apiDownload.duxIconName = @"ic_cloudarrowdown_outlined_20";
-		apiDownload.describeString = @"接口保存";
+	// 过滤用户功能
+	if (enableFilterUser) {
+		AWELongPressPanelBaseViewModel *filterKeywords = [[%c(AWELongPressPanelBaseViewModel) alloc] init];
+		filterKeywords.awemeModel = self.awemeModel;
+		filterKeywords.actionType = 674;
+		filterKeywords.duxIconName = @"ic_userban_outlined_20";
+		filterKeywords.describeString = @"过滤作者";
 
-		apiDownload.action = ^{
-		  NSString *shareLink = [self.awemeModel valueForKey:@"shareURL"];
-		  if (shareLink.length == 0) {
-			  [DYYYManager showToast:@"无法获取分享链接"];
-			  return;
+		filterKeywords.action = ^{
+		  AWEUserModel *author = self.awemeModel.author;
+		  NSString *nickname = author.nickname ?: @"未知用户";
+		  NSString *shortId = author.shortID ?: @"";
+
+		  // 创建当前用户的过滤格式 "nickname-shortid"
+		  NSString *currentUserFilter = [NSString stringWithFormat:@"%@-%@", nickname, shortId];
+
+		  // 获取保存的过滤用户列表
+		  NSString *savedUsers = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYfilterUsers"] ?: @"";
+		  NSArray *userArray = [savedUsers length] > 0 ? [savedUsers componentsSeparatedByString:@","] : @[];
+
+		  BOOL userExists = NO;
+		  for (NSString *userInfo in userArray) {
+			  NSArray *components = [userInfo componentsSeparatedByString:@"-"];
+			  if (components.count >= 2) {
+				  NSString *userId = [components lastObject];
+				  if ([userId isEqualToString:shortId] && shortId.length > 0) {
+					  userExists = YES;
+					  break;
+				  }
+			  }
 		  }
+		  NSString *actionButtonText = userExists ? @"取消过滤" : @"添加过滤";
 
-		  // 使用封装的方法进行解析下载
-		  [DYYYManager parseAndDownloadVideoWithShareLink:shareLink apiKey:apiKey];
+		  [DYYYBottomAlertView showAlertWithTitle:@"过滤作者"
+		      message:[NSString stringWithFormat:@"用户: %@ (ID: %@)", nickname, shortId]
+		      cancelButtonText:@"管理过滤列表"
+		      confirmButtonText:actionButtonText
+		      cancelAction:^{
+			DYYYKeywordListView *keywordListView = [[DYYYKeywordListView alloc] initWithTitle:@"已过滤的视频作者" keywords:userArray];
+			keywordListView.onConfirm = ^(NSArray *users) {
+			  NSString *userString = [users componentsJoinedByString:@","];
+			  [[NSUserDefaults standardUserDefaults] setObject:userString forKey:@"DYYYfilterUsers"];
+			  [[NSUserDefaults standardUserDefaults] synchronize];
+
+			  [DYYYManager showToast:@"过滤作者列表已更新"];
+			};
+
+			[keywordListView show];
+		      }
+		      confirmAction:^{
+			// 添加或移除用户过滤
+			NSMutableArray *updatedUsers = [NSMutableArray arrayWithArray:userArray];
+
+			if (userExists) {
+				// 移除用户
+				NSMutableArray *toRemove = [NSMutableArray array];
+				for (NSString *userInfo in updatedUsers) {
+					NSArray *components = [userInfo componentsSeparatedByString:@"-"];
+					if (components.count >= 2) {
+						NSString *userId = [components lastObject];
+						if ([userId isEqualToString:shortId]) {
+							[toRemove addObject:userInfo];
+						}
+					}
+				}
+				[updatedUsers removeObjectsInArray:toRemove];
+				[DYYYManager showToast:@"已从过滤列表中移除此作者"];
+			} else {
+				// 添加用户
+				[updatedUsers addObject:currentUserFilter];
+				[DYYYManager showToast:@"已添加此作者到过滤列表"];
+			}
+
+			// 保存更新后的列表
+			NSString *updatedUserString = [updatedUsers componentsJoinedByString:@","];
+			[[NSUserDefaults standardUserDefaults] setObject:updatedUserString forKey:@"DYYYfilterUsers"];
+			[[NSUserDefaults standardUserDefaults] synchronize];
+		      }];
+		};
+
+		[viewModels addObject:filterKeywords];
+	}
+
+	// 过滤文案功能
+	if (enableFilterKeyword) {
+		AWELongPressPanelBaseViewModel *filterKeywords = [[%c(AWELongPressPanelBaseViewModel) alloc] init];
+		filterKeywords.awemeModel = self.awemeModel;
+		filterKeywords.actionType = 675;
+		filterKeywords.duxIconName = @"ic_funnel_outlined_20";
+		filterKeywords.describeString = @"过滤文案";
+
+		filterKeywords.action = ^{
+		  NSString *descText = [self.awemeModel valueForKey:@"descriptionString"];
+
+		  DYYYFilterSettingsView *filterView = [[DYYYFilterSettingsView alloc] initWithTitle:@"选择需要过滤的视频文案" text:descText];
+		  filterView.onConfirm = ^(NSString *selectedText) {
+		    if (selectedText.length > 0) {
+			    NSString *currentKeywords = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYfilterKeywords"] ?: @"";
+			    NSString *newKeywords;
+
+			    if (currentKeywords.length > 0) {
+				    newKeywords = [NSString stringWithFormat:@"%@,%@", currentKeywords, selectedText];
+			    } else {
+				    newKeywords = selectedText;
+			    }
+
+			    [[NSUserDefaults standardUserDefaults] setObject:newKeywords forKey:@"DYYYfilterKeywords"];
+			    [[NSUserDefaults standardUserDefaults] synchronize];
+			    [DYYYManager showToast:[NSString stringWithFormat:@"已添加到过滤文案: %@", selectedText]];
+		    }
+		  };
+
+		  filterView.onKeywordFilterTap = ^{
+		    NSString *savedKeywords = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYfilterKeywords"] ?: @"";
+		    NSArray *keywordArray = [savedKeywords length] > 0 ? [savedKeywords componentsSeparatedByString:@","] : @[];
+		    DYYYKeywordListView *keywordListView = [[DYYYKeywordListView alloc] initWithTitle:@"已过滤的视频文案" keywords:keywordArray];
+
+		    keywordListView.onConfirm = ^(NSArray *keywords) {
+		      NSString *keywordString = [keywords componentsJoinedByString:@","];
+		      [[NSUserDefaults standardUserDefaults] setObject:keywordString forKey:@"DYYYfilterKeywords"];
+		      [[NSUserDefaults standardUserDefaults] synchronize];
+		      [DYYYManager showToast:@"过滤文案已更新"];
+		    };
+		    [keywordListView show];
+		  };
+
+		  [filterView show];
 
 		  AWELongPressPanelManager *panelManager = [%c(AWELongPressPanelManager) shareInstance];
 		  [panelManager dismissWithAnimation:YES completion:nil];
 		};
 
-		[viewModels addObject:apiDownload];
+		[viewModels addObject:filterKeywords];
 	}
 
 	if (enableTimerClose) {
@@ -373,141 +509,6 @@
 		};
 
 		[viewModels addObject:timerCloseViewModel];
-	}
-
-	// 过滤用户功能
-	if (enableFilterUser) {
-		AWELongPressPanelBaseViewModel *filterKeywords = [[%c(AWELongPressPanelBaseViewModel) alloc] init];
-		filterKeywords.awemeModel = self.awemeModel;
-		filterKeywords.actionType = 674;
-		filterKeywords.duxIconName = @"ic_userban_outlined_20";
-		filterKeywords.describeString = @"过滤用户";
-
-		filterKeywords.action = ^{
-		  AWEUserModel *author = self.awemeModel.author;
-		  NSString *nickname = author.nickname ?: @"未知用户";
-		  NSString *shortId = author.shortID ?: @"";
-
-		  // 创建当前用户的过滤格式 "nickname-shortid"
-		  NSString *currentUserFilter = [NSString stringWithFormat:@"%@-%@", nickname, shortId];
-
-		  // 获取保存的过滤用户列表
-		  NSString *savedUsers = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYfilterUsers"] ?: @"";
-		  NSArray *userArray = [savedUsers length] > 0 ? [savedUsers componentsSeparatedByString:@","] : @[];
-
-		  BOOL userExists = NO;
-		  for (NSString *userInfo in userArray) {
-			  NSArray *components = [userInfo componentsSeparatedByString:@"-"];
-			  if (components.count >= 2) {
-				  NSString *userId = [components lastObject];
-				  if ([userId isEqualToString:shortId] && shortId.length > 0) {
-					  userExists = YES;
-					  break;
-				  }
-			  }
-		  }
-		  NSString *actionButtonText = userExists ? @"取消过滤" : @"添加过滤";
-
-		  [DYYYBottomAlertView showAlertWithTitle:@"过滤用户视频"
-		      message:[NSString stringWithFormat:@"用户: %@ (ID: %@)", nickname, shortId]
-		      cancelButtonText:@"管理过滤列表"
-		      confirmButtonText:actionButtonText
-		      cancelAction:^{
-			DYYYKeywordListView *keywordListView = [[DYYYKeywordListView alloc] initWithTitle:@"过滤用户列表" keywords:userArray];
-			keywordListView.onConfirm = ^(NSArray *users) {
-			  NSString *userString = [users componentsJoinedByString:@","];
-			  [[NSUserDefaults standardUserDefaults] setObject:userString forKey:@"DYYYfilterUsers"];
-			  [[NSUserDefaults standardUserDefaults] synchronize];
-
-			  [DYYYManager showToast:@"过滤用户列表已更新"];
-			};
-
-			[keywordListView show];
-		      }
-		      confirmAction:^{
-			// 添加或移除用户过滤
-			NSMutableArray *updatedUsers = [NSMutableArray arrayWithArray:userArray];
-
-			if (userExists) {
-				// 移除用户
-				NSMutableArray *toRemove = [NSMutableArray array];
-				for (NSString *userInfo in updatedUsers) {
-					NSArray *components = [userInfo componentsSeparatedByString:@"-"];
-					if (components.count >= 2) {
-						NSString *userId = [components lastObject];
-						if ([userId isEqualToString:shortId]) {
-							[toRemove addObject:userInfo];
-						}
-					}
-				}
-				[updatedUsers removeObjectsInArray:toRemove];
-				[DYYYManager showToast:@"已从过滤列表中移除此用户"];
-			} else {
-				// 添加用户
-				[updatedUsers addObject:currentUserFilter];
-				[DYYYManager showToast:@"已添加此用户到过滤列表"];
-			}
-
-			// 保存更新后的列表
-			NSString *updatedUserString = [updatedUsers componentsJoinedByString:@","];
-			[[NSUserDefaults standardUserDefaults] setObject:updatedUserString forKey:@"DYYYfilterUsers"];
-			[[NSUserDefaults standardUserDefaults] synchronize];
-		      }];
-		};
-
-		[viewModels addObject:filterKeywords];
-	}
-
-	// 过滤文案功能
-	if (enableFilterKeyword) {
-		AWELongPressPanelBaseViewModel *filterKeywords = [[%c(AWELongPressPanelBaseViewModel) alloc] init];
-		filterKeywords.awemeModel = self.awemeModel;
-		filterKeywords.actionType = 675;
-		filterKeywords.duxIconName = @"ic_funnel_outlined_20";
-		filterKeywords.describeString = @"过滤文案";
-
-		filterKeywords.action = ^{
-		  NSString *descText = [self.awemeModel valueForKey:@"descriptionString"];
-
-		  DYYYFilterSettingsView *filterView = [[DYYYFilterSettingsView alloc] initWithTitle:@"过滤关键词调整" text:descText];
-		  filterView.onConfirm = ^(NSString *selectedText) {
-		    if (selectedText.length > 0) {
-			    NSString *currentKeywords = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYfilterKeywords"] ?: @"";
-			    NSString *newKeywords;
-
-			    if (currentKeywords.length > 0) {
-				    newKeywords = [NSString stringWithFormat:@"%@,%@", currentKeywords, selectedText];
-			    } else {
-				    newKeywords = selectedText;
-			    }
-
-			    [[NSUserDefaults standardUserDefaults] setObject:newKeywords forKey:@"DYYYfilterKeywords"];
-			    [[NSUserDefaults standardUserDefaults] synchronize];
-			    [DYYYManager showToast:[NSString stringWithFormat:@"已添加过滤词: %@", selectedText]];
-		    }
-		  };
-
-		  filterView.onKeywordFilterTap = ^{
-		    NSString *savedKeywords = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYfilterKeywords"] ?: @"";
-		    NSArray *keywordArray = [savedKeywords length] > 0 ? [savedKeywords componentsSeparatedByString:@","] : @[];
-		    DYYYKeywordListView *keywordListView = [[DYYYKeywordListView alloc] initWithTitle:@"设置过滤关键词" keywords:keywordArray];
-
-		    keywordListView.onConfirm = ^(NSArray *keywords) {
-		      NSString *keywordString = [keywords componentsJoinedByString:@","];
-		      [[NSUserDefaults standardUserDefaults] setObject:keywordString forKey:@"DYYYfilterKeywords"];
-		      [[NSUserDefaults standardUserDefaults] synchronize];
-		      [DYYYManager showToast:@"过滤关键词已更新"];
-		    };
-		    [keywordListView show];
-		  };
-
-		  [filterView show];
-
-		  AWELongPressPanelManager *panelManager = [%c(AWELongPressPanelManager) shareInstance];
-		  [panelManager dismissWithAnimation:YES completion:nil];
-		};
-
-		[viewModels addObject:filterKeywords];
 	}
 
 	NSMutableArray<AWELongPressPanelViewGroupModel *> *customGroups = [NSMutableArray array];
@@ -866,9 +867,9 @@
 	if (enableApiDownload && apiKey.length > 0) {
 		AWELongPressPanelBaseViewModel *apiDownload = [[%c(AWELongPressPanelBaseViewModel) alloc] init];
 		apiDownload.awemeModel = self.awemeModel;
-		apiDownload.actionType = 673;
+		apiDownload.actionType = 671;
 		apiDownload.duxIconName = @"ic_cloudarrowdown_outlined_20";
-		apiDownload.describeString = @"接口保存";
+		apiDownload.describeString = @"接口解析";
 
 		apiDownload.action = ^{
 		  NSString *shareLink = [self.awemeModel valueForKey:@"shareURL"];
@@ -887,7 +888,201 @@
 		[viewModels addObject:apiDownload];
 	}
 
-	if (enableTimerClose) {
+     // 复制文案功能
+	if (enableCopyText) {
+		AWELongPressPanelBaseViewModel *copyText = [[%c(AWELongPressPanelBaseViewModel) alloc] init];
+		copyText.awemeModel = self.awemeModel;
+		copyText.actionType = 672;
+		copyText.duxIconName = @"ic_xiaoxihuazhonghua_outlined";
+		copyText.describeString = @"复制文案";
+
+		copyText.action = ^{
+		  NSString *descText = [self.awemeModel valueForKey:@"descriptionString"];
+		  [[UIPasteboard generalPasteboard] setString:descText];
+		  [DYYYManager showToast:@"文案已复制到剪贴板"];
+
+		  AWELongPressPanelManager *panelManager = [%c(AWELongPressPanelManager) shareInstance];
+		  [panelManager dismissWithAnimation:YES completion:nil];
+		};
+
+		[viewModels addObject:copyText];
+	}
+
+	// 复制分享链接功能
+	if (enableCopyLink) {
+		AWELongPressPanelBaseViewModel *copyShareLink = [[%c(AWELongPressPanelBaseViewModel) alloc] init];
+		copyShareLink.awemeModel = self.awemeModel;
+		copyShareLink.actionType = 673;
+		copyShareLink.duxIconName = @"ic_share_outlined";
+		copyShareLink.describeString = @"复制链接";
+
+		copyShareLink.action = ^{
+		  NSString *shareLink = [self.awemeModel valueForKey:@"shareURL"];
+		  [[UIPasteboard generalPasteboard] setString:shareLink];
+		  [DYYYManager showToast:@"分享链接已复制到剪贴板"];
+
+		  AWELongPressPanelManager *panelManager = [%c(AWELongPressPanelManager) shareInstance];
+		  [panelManager dismissWithAnimation:YES completion:nil];
+		};
+
+		[viewModels addObject:copyShareLink];
+	}
+
+	// 过滤用户功能
+	if (enableFilterUser) {
+		AWELongPressPanelBaseViewModel *filterKeywords = [[%c(AWELongPressPanelBaseViewModel) alloc] init];
+		filterKeywords.awemeModel = self.awemeModel;
+		filterKeywords.actionType = 674;
+		filterKeywords.duxIconName = @"ic_userban_outlined_20";
+		filterKeywords.describeString = @"过滤作者";
+
+		filterKeywords.action = ^{
+		  // 获取当前视频作者信息
+		  AWEUserModel *author = self.awemeModel.author;
+		  NSString *nickname = author.nickname ?: @"未知用户";
+		  NSString *shortId = author.shortID ?: @"";
+
+		  // 创建当前用户的过滤格式 "nickname-shortid"
+		  NSString *currentUserFilter = [NSString stringWithFormat:@"%@-%@", nickname, shortId];
+
+		  // 获取保存的过滤用户列表
+		  NSString *savedUsers = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYfilterUsers"] ?: @"";
+		  NSArray *userArray = [savedUsers length] > 0 ? [savedUsers componentsSeparatedByString:@","] : @[];
+
+		  // 检查当前用户是否已在过滤列表中
+		  BOOL userExists = NO;
+		  for (NSString *userInfo in userArray) {
+			  NSArray *components = [userInfo componentsSeparatedByString:@"-"];
+			  if (components.count >= 2) {
+				  NSString *userId = [components lastObject];
+				  if ([userId isEqualToString:shortId] && shortId.length > 0) {
+					  userExists = YES;
+					  break;
+				  }
+			  }
+		  }
+		  NSString *actionButtonText = userExists ? @"取消过滤" : @"添加过滤";
+
+		  [DYYYBottomAlertView showAlertWithTitle:@"过滤作者"
+		      message:[NSString stringWithFormat:@"用户: %@ (ID: %@)", nickname, shortId]
+		      cancelButtonText:@"管理过滤列表"
+		      confirmButtonText:actionButtonText
+		      cancelAction:^{
+			// 创建并显示关键词列表视图
+			DYYYKeywordListView *keywordListView = [[DYYYKeywordListView alloc] initWithTitle:@"已过滤的视频作者" keywords:userArray];
+			// 设置确认回调
+			keywordListView.onConfirm = ^(NSArray *users) {
+			  // 将用户数组转换为逗号分隔的字符串
+			  NSString *userString = [users componentsJoinedByString:@","];
+
+			  // 保存到用户默认设置
+			  [[NSUserDefaults standardUserDefaults] setObject:userString forKey:@"DYYYfilterUsers"];
+			  [[NSUserDefaults standardUserDefaults] synchronize];
+
+			  // 显示提示
+			  [DYYYManager showToast:@"过滤作者列表已更新"];
+			};
+
+			[keywordListView show];
+		      }
+		      confirmAction:^{
+			// 添加或移除用户过滤
+			NSMutableArray *updatedUsers = [NSMutableArray arrayWithArray:userArray];
+
+			if (userExists) {
+				// 移除用户
+				NSMutableArray *toRemove = [NSMutableArray array];
+				for (NSString *userInfo in updatedUsers) {
+					NSArray *components = [userInfo componentsSeparatedByString:@"-"];
+					if (components.count >= 2) {
+						NSString *userId = [components lastObject];
+						if ([userId isEqualToString:shortId]) {
+							[toRemove addObject:userInfo];
+						}
+					}
+				}
+				[updatedUsers removeObjectsInArray:toRemove];
+				[DYYYManager showToast:@"已从过滤列表中移除此作者"];
+			} else {
+				// 添加用户
+				[updatedUsers addObject:currentUserFilter];
+				[DYYYManager showToast:@"已添加此作者到过滤列表"];
+			}
+
+			// 保存更新后的列表
+			NSString *updatedUserString = [updatedUsers componentsJoinedByString:@","];
+			[[NSUserDefaults standardUserDefaults] setObject:updatedUserString forKey:@"DYYYfilterUsers"];
+			[[NSUserDefaults standardUserDefaults] synchronize];
+		      }];
+		};
+
+		[viewModels addObject:filterKeywords];
+	}
+
+	// 过滤文案功能
+	if (enableFilterKeyword) {
+		AWELongPressPanelBaseViewModel *filterKeywords = [[%c(AWELongPressPanelBaseViewModel) alloc] init];
+		filterKeywords.awemeModel = self.awemeModel;
+		filterKeywords.actionType = 675;
+		filterKeywords.duxIconName = @"ic_funnel_outlined_20";
+		filterKeywords.describeString = @"过滤文案";
+
+		filterKeywords.action = ^{
+		  NSString *descText = [self.awemeModel valueForKey:@"descriptionString"];
+
+		  DYYYFilterSettingsView *filterView = [[DYYYFilterSettingsView alloc] initWithTitle:@"选择需要过滤的视频文案" text:descText];
+		  filterView.onConfirm = ^(NSString *selectedText) {
+		    if (selectedText.length > 0) {
+			    NSString *currentKeywords = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYfilterKeywords"] ?: @"";
+			    NSString *newKeywords;
+
+			    if (currentKeywords.length > 0) {
+				    newKeywords = [NSString stringWithFormat:@"%@,%@", currentKeywords, selectedText];
+			    } else {
+				    newKeywords = selectedText;
+			    }
+
+			    [[NSUserDefaults standardUserDefaults] setObject:newKeywords forKey:@"DYYYfilterKeywords"];
+			    [[NSUserDefaults standardUserDefaults] synchronize];
+			    [DYYYManager showToast:[NSString stringWithFormat:@"已添加到过滤文案: %@", selectedText]];
+		    }
+		  };
+
+		  // 设置过滤关键词按钮回调
+		  filterView.onKeywordFilterTap = ^{
+		    // 获取保存的关键词
+		    NSString *savedKeywords = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYfilterKeywords"] ?: @"";
+		    NSArray *keywordArray = [savedKeywords length] > 0 ? [savedKeywords componentsSeparatedByString:@","] : @[];
+
+		    // 创建并显示关键词列表视图
+		    DYYYKeywordListView *keywordListView = [[DYYYKeywordListView alloc] initWithTitle:@"已过滤的视频文案" keywords:keywordArray];
+
+		    // 设置确认回调
+		    keywordListView.onConfirm = ^(NSArray *keywords) {
+		      // 将关键词数组转换为逗号分隔的字符串
+		      NSString *keywordString = [keywords componentsJoinedByString:@","];
+
+		      // 保存到用户默认设置
+		      [[NSUserDefaults standardUserDefaults] setObject:keywordString forKey:@"DYYYfilterKeywords"];
+		      [[NSUserDefaults standardUserDefaults] synchronize];
+
+		      // 显示提示
+		      [DYYYManager showToast:@"过滤文案已更新"];
+		    };
+
+		    // 显示关键词列表视图
+		    [keywordListView show];
+		  };
+
+		  [filterView show];
+
+		  AWELongPressPanelManager *panelManager = [%c(AWELongPressPanelManager) shareInstance];
+		  [panelManager dismissWithAnimation:YES completion:nil];
+		};
+
+		[viewModels addObject:filterKeywords];
+	}
+if (enableTimerClose) {
 		AWELongPressPanelBaseViewModel *timerCloseViewModel = [[%c(AWELongPressPanelBaseViewModel) alloc] init];
 		timerCloseViewModel.awemeModel = self.awemeModel;
 		timerCloseViewModel.actionType = 676;
@@ -944,202 +1139,6 @@
 
 		[viewModels addObject:timerCloseViewModel];
 	}
-
-	// 复制文案功能
-	if (enableCopyText) {
-		AWELongPressPanelBaseViewModel *copyText = [[%c(AWELongPressPanelBaseViewModel) alloc] init];
-		copyText.awemeModel = self.awemeModel;
-		copyText.actionType = 671;
-		copyText.duxIconName = @"ic_xiaoxihuazhonghua_outlined";
-		copyText.describeString = @"复制文案";
-
-		copyText.action = ^{
-		  NSString *descText = [self.awemeModel valueForKey:@"descriptionString"];
-		  [[UIPasteboard generalPasteboard] setString:descText];
-		  [DYYYManager showToast:@"文案已复制到剪贴板"];
-
-		  AWELongPressPanelManager *panelManager = [%c(AWELongPressPanelManager) shareInstance];
-		  [panelManager dismissWithAnimation:YES completion:nil];
-		};
-
-		[viewModels addObject:copyText];
-	}
-
-	// 复制分享链接功能
-	if (enableCopyLink) {
-		AWELongPressPanelBaseViewModel *copyShareLink = [[%c(AWELongPressPanelBaseViewModel) alloc] init];
-		copyShareLink.awemeModel = self.awemeModel;
-		copyShareLink.actionType = 672;
-		copyShareLink.duxIconName = @"ic_share_outlined";
-		copyShareLink.describeString = @"复制链接";
-
-		copyShareLink.action = ^{
-		  NSString *shareLink = [self.awemeModel valueForKey:@"shareURL"];
-		  [[UIPasteboard generalPasteboard] setString:shareLink];
-		  [DYYYManager showToast:@"分享链接已复制到剪贴板"];
-
-		  AWELongPressPanelManager *panelManager = [%c(AWELongPressPanelManager) shareInstance];
-		  [panelManager dismissWithAnimation:YES completion:nil];
-		};
-
-		[viewModels addObject:copyShareLink];
-	}
-
-	// 过滤用户功能
-	if (enableFilterUser) {
-		AWELongPressPanelBaseViewModel *filterKeywords = [[%c(AWELongPressPanelBaseViewModel) alloc] init];
-		filterKeywords.awemeModel = self.awemeModel;
-		filterKeywords.actionType = 674;
-		filterKeywords.duxIconName = @"ic_userban_outlined_20";
-		filterKeywords.describeString = @"过滤用户";
-
-		filterKeywords.action = ^{
-		  // 获取当前视频作者信息
-		  AWEUserModel *author = self.awemeModel.author;
-		  NSString *nickname = author.nickname ?: @"未知用户";
-		  NSString *shortId = author.shortID ?: @"";
-
-		  // 创建当前用户的过滤格式 "nickname-shortid"
-		  NSString *currentUserFilter = [NSString stringWithFormat:@"%@-%@", nickname, shortId];
-
-		  // 获取保存的过滤用户列表
-		  NSString *savedUsers = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYfilterUsers"] ?: @"";
-		  NSArray *userArray = [savedUsers length] > 0 ? [savedUsers componentsSeparatedByString:@","] : @[];
-
-		  // 检查当前用户是否已在过滤列表中
-		  BOOL userExists = NO;
-		  for (NSString *userInfo in userArray) {
-			  NSArray *components = [userInfo componentsSeparatedByString:@"-"];
-			  if (components.count >= 2) {
-				  NSString *userId = [components lastObject];
-				  if ([userId isEqualToString:shortId] && shortId.length > 0) {
-					  userExists = YES;
-					  break;
-				  }
-			  }
-		  }
-		  NSString *actionButtonText = userExists ? @"取消过滤" : @"添加过滤";
-
-		  [DYYYBottomAlertView showAlertWithTitle:@"过滤用户视频"
-		      message:[NSString stringWithFormat:@"用户: %@ (ID: %@)", nickname, shortId]
-		      cancelButtonText:@"管理过滤列表"
-		      confirmButtonText:actionButtonText
-		      cancelAction:^{
-			// 创建并显示关键词列表视图
-			DYYYKeywordListView *keywordListView = [[DYYYKeywordListView alloc] initWithTitle:@"过滤用户列表" keywords:userArray];
-			// 设置确认回调
-			keywordListView.onConfirm = ^(NSArray *users) {
-			  // 将用户数组转换为逗号分隔的字符串
-			  NSString *userString = [users componentsJoinedByString:@","];
-
-			  // 保存到用户默认设置
-			  [[NSUserDefaults standardUserDefaults] setObject:userString forKey:@"DYYYfilterUsers"];
-			  [[NSUserDefaults standardUserDefaults] synchronize];
-
-			  // 显示提示
-			  [DYYYManager showToast:@"过滤用户列表已更新"];
-			};
-
-			[keywordListView show];
-		      }
-		      confirmAction:^{
-			// 添加或移除用户过滤
-			NSMutableArray *updatedUsers = [NSMutableArray arrayWithArray:userArray];
-
-			if (userExists) {
-				// 移除用户
-				NSMutableArray *toRemove = [NSMutableArray array];
-				for (NSString *userInfo in updatedUsers) {
-					NSArray *components = [userInfo componentsSeparatedByString:@"-"];
-					if (components.count >= 2) {
-						NSString *userId = [components lastObject];
-						if ([userId isEqualToString:shortId]) {
-							[toRemove addObject:userInfo];
-						}
-					}
-				}
-				[updatedUsers removeObjectsInArray:toRemove];
-				[DYYYManager showToast:@"已从过滤列表中移除此用户"];
-			} else {
-				// 添加用户
-				[updatedUsers addObject:currentUserFilter];
-				[DYYYManager showToast:@"已添加此用户到过滤列表"];
-			}
-
-			// 保存更新后的列表
-			NSString *updatedUserString = [updatedUsers componentsJoinedByString:@","];
-			[[NSUserDefaults standardUserDefaults] setObject:updatedUserString forKey:@"DYYYfilterUsers"];
-			[[NSUserDefaults standardUserDefaults] synchronize];
-		      }];
-		};
-
-		[viewModels addObject:filterKeywords];
-	}
-
-	// 过滤文案功能
-	if (enableFilterKeyword) {
-		AWELongPressPanelBaseViewModel *filterKeywords = [[%c(AWELongPressPanelBaseViewModel) alloc] init];
-		filterKeywords.awemeModel = self.awemeModel;
-		filterKeywords.actionType = 675;
-		filterKeywords.duxIconName = @"ic_funnel_outlined_20";
-		filterKeywords.describeString = @"过滤文案";
-
-		filterKeywords.action = ^{
-		  NSString *descText = [self.awemeModel valueForKey:@"descriptionString"];
-
-		  DYYYFilterSettingsView *filterView = [[DYYYFilterSettingsView alloc] initWithTitle:@"过滤关键词调整" text:descText];
-		  filterView.onConfirm = ^(NSString *selectedText) {
-		    if (selectedText.length > 0) {
-			    NSString *currentKeywords = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYfilterKeywords"] ?: @"";
-			    NSString *newKeywords;
-
-			    if (currentKeywords.length > 0) {
-				    newKeywords = [NSString stringWithFormat:@"%@,%@", currentKeywords, selectedText];
-			    } else {
-				    newKeywords = selectedText;
-			    }
-
-			    [[NSUserDefaults standardUserDefaults] setObject:newKeywords forKey:@"DYYYfilterKeywords"];
-			    [[NSUserDefaults standardUserDefaults] synchronize];
-			    [DYYYManager showToast:[NSString stringWithFormat:@"已添加过滤词: %@", selectedText]];
-		    }
-		  };
-
-		  // 设置过滤关键词按钮回调
-		  filterView.onKeywordFilterTap = ^{
-		    // 获取保存的关键词
-		    NSString *savedKeywords = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYfilterKeywords"] ?: @"";
-		    NSArray *keywordArray = [savedKeywords length] > 0 ? [savedKeywords componentsSeparatedByString:@","] : @[];
-
-		    // 创建并显示关键词列表视图
-		    DYYYKeywordListView *keywordListView = [[DYYYKeywordListView alloc] initWithTitle:@"设置过滤关键词" keywords:keywordArray];
-
-		    // 设置确认回调
-		    keywordListView.onConfirm = ^(NSArray *keywords) {
-		      // 将关键词数组转换为逗号分隔的字符串
-		      NSString *keywordString = [keywords componentsJoinedByString:@","];
-
-		      // 保存到用户默认设置
-		      [[NSUserDefaults standardUserDefaults] setObject:keywordString forKey:@"DYYYfilterKeywords"];
-		      [[NSUserDefaults standardUserDefaults] synchronize];
-
-		      // 显示提示
-		      [DYYYManager showToast:@"过滤关键词已更新"];
-		    };
-
-		    // 显示关键词列表视图
-		    [keywordListView show];
-		  };
-
-		  [filterView show];
-
-		  AWELongPressPanelManager *panelManager = [%c(AWELongPressPanelManager) shareInstance];
-		  [panelManager dismissWithAnimation:YES completion:nil];
-		};
-
-		[viewModels addObject:filterKeywords];
-	}
-
 	newGroupModel.groupArr = viewModels;
 
 	if (originalArray.count > 0) {
