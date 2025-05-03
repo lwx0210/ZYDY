@@ -1695,7 +1695,7 @@ static void showUserAgreementAlert() {
 		    [sections addObject:createSection(@"隐藏顶栏", removeSettingsItems)];
 
 		    // 创建并推入二级设置页面，使用sections数组而不是直接使用removeSettingsItems
-		    AWESettingBaseViewController *subVC = createSubSettingsViewController(@"顶栏移除", sections);
+		    AWESettingBaseViewController *subVC = createSubSettingsViewController(@"隐藏顶栏", sections);
 		    [rootVC.navigationController pushViewController:(UIViewController *)subVC animated:YES];
 		  };
 		  [mainItems addObject:removeSettingItem];
