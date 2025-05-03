@@ -315,6 +315,7 @@ typedef NS_ENUM(NSInteger, DYYYSettingItemType) {
             [DYYYSettingItem itemWithTitle:@"保存评论区表情包" key:@"DYYYFourceDownloadEmotion" type:DYYYSettingItemTypeSwitch],
             [DYYYSettingItem itemWithTitle:@"保存预览页表情包" key:@"DYYYForceDownloadPreviewEmotion" type:DYYYSettingItemTypeSwitch],
             [DYYYSettingItem itemWithTitle:@"长按评论复制文案" key:@"DYYYCommentCopyText" type:DYYYSettingItemTypeSwitch],
+            [DYYYSettingItem itemWithTitle:@"显示定时关闭弹窗" key:@"DYYYConfirmCloseView" type:DYYYSettingItemTypeSwitch],
             [DYYYSettingItem itemWithTitle:@"启用自动背景切换" key:@"DYYYisEnableAutoTheme" type:DYYYSettingItemTypeSwitch]
         ],
         @[
