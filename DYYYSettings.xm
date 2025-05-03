@@ -2119,7 +2119,7 @@ static void showUserAgreementAlert() {
 
 		    // 创建并组织所有section
 		    NSMutableArray *sections = [NSMutableArray array];
-		    [sections addObject:createSection(@"长按面板设置", longPressItems)];
+		    [sections addObject:createSection(@"面板设置", longPressItems)];
 		    [sections addObject:createSection(@"媒体保存", downloadItems)];
 		    [sections addObject:createSection(@"交互增强", interactionItems)];
 		    [sections addObject:createSection(@"热更新", hotUpdateItems)];
