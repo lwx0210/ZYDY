@@ -19,6 +19,7 @@
 
 @implementation DYYYConfirmCloseView
 
+if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHidaojishi"]) {
 - (instancetype)initWithTitle:(NSString *)title message:(NSString *)message {
     self = [super initWithFrame:UIScreen.mainScreen.bounds];
     if (self) {
@@ -109,6 +110,7 @@
         self.contentView.alpha = 0;
         self.contentView.transform = CGAffineTransformMakeScale(0.8, 0.8);
     }
+ }
     return self;
 }
 
