@@ -14,7 +14,7 @@
 @property (nonatomic, assign) BOOL justToggledLock; // 添加锁定状态切换标记
 @property (nonatomic, assign) BOOL originalLockState; // 保存原始锁定状态
 @property (nonatomic, assign) BOOL isResponding; // 新增属性跟踪按钮响应状态
-@property (nonatomic, strong) NSTimer *statusCheckTimer; // 新增状态检查定时器
+@property (nonatomic, strong) NSTimer *statusCheckTimer; // 状态检查定时器
 - (void)saveButtonPosition;
 - (void)loadSavedPosition;
 - (void)resetButtonState; // 添加方法确保按钮状态可以被重置
