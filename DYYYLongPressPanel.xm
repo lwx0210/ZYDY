@@ -6,59 +6,147 @@
 #import "DYYYConfirmCloseView.h"
 #import "DYYYManager.h"
 
-
 %hook AWELongPressPanelViewGroupModel
 %property(nonatomic, assign) BOOL isDYYYCustomGroup;
 %end
 
 // Modern风格长按面板（新版UI）
 %hook AWEModernLongPressPanelTableViewController
-
 - (NSArray *)dataArray {
-	NSArray *originalArray = %orig;
-
-	if (!originalArray) {
-		originalArray = @[];
-	}
-
-	// 检查是否启用了任意长按功能
-	BOOL hasAnyFeatureEnabled = NO;
-
-	// 检查各个单独的功能开关
-	BOOL enableSaveVideo = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYLongPressSaveVideo"];
-	BOOL enableSaveCover = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYLongPressSaveCover"];
-	BOOL enableSaveAudio = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYLongPressSaveAudio"];
-	BOOL enableSaveCurrentImage = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYLongPressSaveCurrentImage"];
-	BOOL enableSaveAllImages = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYLongPressSaveAllImages"];
-	BOOL enableCopyText = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYLongPressCopyText"];
-	BOOL enableCopyLink = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYLongPressCopyLink"];
-	BOOL enableApiDownload = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYLongPressApiDownload"];
-	BOOL enableFilterUser = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYLongPressFilterUser"];
-	BOOL enableFilterKeyword = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYLongPressFilterTitle"];
-	BOOL enableTimerClose = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYLongPressTimerClose"];
-
-	// 兼容旧版设置
-	if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYLongPressDownload"]) {
-		if (!enableSaveVideo && !enableSaveCover && !enableSaveAudio && !enableSaveCurrentImage && !enableSaveAllImages) {
-			enableSaveVideo = enableSaveCover = enableSaveAudio = enableSaveCurrentImage = enableSaveAllImages = YES;
-		}
-	}
-
-	if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYCopyText"]) {
-		if (!enableCopyText && !enableCopyLink) {
-			enableCopyText = enableCopyLink = YES;
-		}
-	}
-
-	// 检查是否有任何功能启用
-	hasAnyFeatureEnabled = enableSaveVideo || enableSaveCover || enableSaveAudio || enableSaveCurrentImage || enableSaveAllImages || enableCopyText || enableCopyLink || enableApiDownload ||
-			       enableFilterUser || enableFilterKeyword || enableTimerClose;
-
-	if (!hasAnyFeatureEnabled) {
-		return originalArray;
-	}
-
-	NSMutableArray *viewModels = [NSMutableArray array];
+    NSArray *originalArray = %orig;
+    if (!originalArray) {
+        originalArray = @[];
+    }
+    
+    // 检查是否启用了任意长按功能
+    BOOL hasAnyFeatureEnabled = NO;
+    
+    // 检查各个单独的功能开关
+    BOOL enableSaveVideo = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYLongPressSaveVideo"];
+    BOOL enableSaveCover = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYLongPressSaveCover"];
+    BOOL enableSaveAudio = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYLongPressSaveAudio"];
+    BOOL enableSaveCurrentImage = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYLongPressSaveCurrentImage"];
+    BOOL enableSaveAllImages = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYLongPressSaveAllImages"];
+    BOOL enableCopyText = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYLongPressCopyText"];
+    BOOL enableCopyLink = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYLongPressCopyLink"];
+    BOOL enableApiDownload = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYLongPressApiDownload"];
+    BOOL enableFilterUser = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYLongPressFilterUser"];
+    BOOL enableFilterKeyword = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYLongPressFilterTitle"];
+    BOOL enableTimerClose = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYLongPressTimerClose"];
+    
+    // 兼容旧版设置
+    if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYLongPressDownload"]) {
+        if (!enableSaveVideo && !enableSaveCover && !enableSaveAudio && !enableSaveCurrentImage && !enableSaveAllImages) {
+            enableSaveVideo = enableSaveCover = enableSaveAudio = enableSaveCurrentImage = enableSaveAllImages = YES;
+        }
+    }
+    if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYCopyText"]) {
+        if (!enableCopyText && !enableCopyLink) {
+            enableCopyText = enableCopyLink = YES;
+        }
+    }
+    
+    // 检查是否有任何功能启用
+    hasAnyFeatureEnabled = enableSaveVideo || enableSaveCover || enableSaveAudio || enableSaveCurrentImage || enableSaveAllImages || enableCopyText || enableCopyLink || enableApiDownload ||
+                           enableFilterUser || enableFilterKeyword || enableTimerClose;
+    
+    // 处理原始面板按钮的显示/隐藏
+    NSMutableArray *modifiedArray = [NSMutableArray array];
+    
+    // 获取需要隐藏的按钮设置
+    BOOL hideDaily = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHidePanelDaily"];
+    BOOL hideRecommend = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHidePanelRecommend"];
+    BOOL hideNotInterested = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHidePanelNotInterested"];
+    BOOL hideReport = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHidePanelReport"];
+    BOOL hideSpeed = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHidePanelSpeed"];
+    BOOL hideClearScreen = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHidePanelClearScreen"];
+    BOOL hideFavorite = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHidePanelFavorite"];
+    BOOL hideLater = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHidePanelLater"];
+    BOOL hideCast = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHidePanelCast"];
+    BOOL hideOpenInPC = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHidePanelOpenInPC"];
+    BOOL hideSubtitle = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHidePanelSubtitle"];
+    BOOL hideAutoPlay = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHidePanelAutoPlay"];
+    BOOL hideSearchImage = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHidePanelSearchImage"];
+    BOOL hideListenDouyin = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHidePanelListenDouyin"];
+    BOOL hideBackgroundPlay = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHidePanelBackgroundPlay"];
+    
+    // 处理原始面板
+    for (id group in originalArray) {
+        // 检查是否为视图组模型
+        if ([group isKindOfClass:%c(AWELongPressPanelViewGroupModel)]) {
+            AWELongPressPanelViewGroupModel *groupModel = (AWELongPressPanelViewGroupModel *)group;
+            NSMutableArray *filteredGroupArr = [NSMutableArray array];
+            
+            for (id item in groupModel.groupArr) {
+                // 检查是否为基础视图模型
+                if ([item isKindOfClass:%c(AWELongPressPanelBaseViewModel)]) {
+                    AWELongPressPanelBaseViewModel *viewModel = (AWELongPressPanelBaseViewModel *)item;
+                    NSString *descString = viewModel.describeString;
+                    
+                    // 根据描述字符串判断按钮类型并决定是否隐藏
+                    BOOL shouldHide = NO;
+                    
+                    if ([descString isEqualToString:@"转发到日常"] && hideDaily) {
+                        shouldHide = YES;
+                    } else if ([descString isEqualToString:@"推荐"] && hideRecommend) {
+                        shouldHide = YES;
+                    } else if ([descString isEqualToString:@"不感兴趣"] && hideNotInterested) {
+                        shouldHide = YES;
+                    } else if ([descString isEqualToString:@"举报"] && hideReport) {
+                        shouldHide = YES;
+                    } else if ([descString isEqualToString:@"倍速"] && hideSpeed) {
+                        shouldHide = YES;
+                    } else if ([descString isEqualToString:@"清屏播放"] && hideClearScreen) {
+                        shouldHide = YES;
+                    } else if ([descString isEqualToString:@"缓存视频"] && hideFavorite) {
+                        shouldHide = YES;
+                    } else if ([descString isEqualToString:@"添加至稍后再看"] && hideLater) {
+                        shouldHide = YES;
+                    } else if ([descString isEqualToString:@"投屏"] && hideCast) {
+                        shouldHide = YES;
+                    } else if ([descString isEqualToString:@"电脑/Pad打开"] && hideOpenInPC) {
+                        shouldHide = YES;
+                    } else if ([descString isEqualToString:@"弹幕"] && hideSubtitle) {
+                        shouldHide = YES;
+                    } else if ([descString isEqualToString:@"自动连播"] && hideAutoPlay) {
+                        shouldHide = YES;
+                    } else if ([descString isEqualToString:@"识别图片"] && hideSearchImage) {
+                        shouldHide = YES;
+                    } else if ([descString isEqualToString:@"听抖音"] && hideListenDouyin) {
+                        shouldHide = YES;
+                    } else if ([descString isEqualToString:@"后台播放设置"] && hideBackgroundPlay) {
+                        shouldHide = YES;
+                    }
+                    
+                    if (!shouldHide) {
+                        [filteredGroupArr addObject:viewModel];
+                    }
+                } else {
+                    // 不是视图模型的，直接添加
+                    [filteredGroupArr addObject:item];
+                }
+            }
+            
+            // 如果过滤后的数组不为空，添加到结果中
+            if (filteredGroupArr.count > 0) {
+                AWELongPressPanelViewGroupModel *newGroup = [[%c(AWELongPressPanelViewGroupModel) alloc] init];
+                newGroup.groupType = groupModel.groupType;
+                newGroup.isModern = groupModel.isModern;
+                newGroup.groupArr = filteredGroupArr;
+                [modifiedArray addObject:newGroup];
+            }
+        } else {
+            // 不是组模型的，直接添加
+            [modifiedArray addObject:group];
+        }
+    }
+    
+    // 如果没有任何功能启用，返回修改后的原始数组
+    if (!hasAnyFeatureEnabled) {
+        return modifiedArray;
+    }
+    
+    NSMutableArray *viewModels = [NSMutableArray array];
 
 	// 视频下载功能
 	if (enableSaveVideo && self.awemeModel.awemeType != 68) {
@@ -529,163 +617,230 @@
 		[viewModels addObject:timerCloseViewModel];
 	}
 
-	NSMutableArray<AWELongPressPanelViewGroupModel *> *customGroups = [NSMutableArray array];
-	NSInteger totalButtons = viewModels.count;
-	// 根据按钮总数确定每行的按钮数
-	NSInteger firstRowCount = 0;
-	NSInteger secondRowCount = 0;
-
-	if (totalButtons <= 2) {
-		firstRowCount = totalButtons;
-	} else if (totalButtons <= 4) {
-		firstRowCount = totalButtons / 2;
-		secondRowCount = totalButtons - firstRowCount;
-	} else if (totalButtons <= 5) {
-		firstRowCount = 3;
-		secondRowCount = totalButtons - firstRowCount;
-	} else if (totalButtons <= 6) {
-		firstRowCount = 4;
-		secondRowCount = totalButtons - firstRowCount;
-	} else if (totalButtons <= 8) {
-		firstRowCount = 4;
-		secondRowCount = totalButtons - firstRowCount;
-	} else {
-		firstRowCount = 5;
-		secondRowCount = totalButtons - firstRowCount;
-	}
-
-	// 创建第一行
-	if (firstRowCount > 0) {
-		NSArray<AWELongPressPanelBaseViewModel *> *firstRowButtons = [viewModels subarrayWithRange:NSMakeRange(0, firstRowCount)];
-
-		AWELongPressPanelViewGroupModel *firstRowGroup = [[%c(AWELongPressPanelViewGroupModel) alloc] init];
-		firstRowGroup.isDYYYCustomGroup = YES;
-		firstRowGroup.groupType = (firstRowCount <= 3) ? 11 : 12;
-		firstRowGroup.isModern = YES;
-		firstRowGroup.groupArr = firstRowButtons;
-		[customGroups addObject:firstRowGroup];
-	}
-
-	// 创建第二行
-	if (secondRowCount > 0) {
-		NSArray<AWELongPressPanelBaseViewModel *> *secondRowButtons = [viewModels subarrayWithRange:NSMakeRange(firstRowCount, secondRowCount)];
-
-		AWELongPressPanelViewGroupModel *secondRowGroup = [[%c(AWELongPressPanelViewGroupModel) alloc] init];
-		secondRowGroup.isDYYYCustomGroup = YES;
-		secondRowGroup.groupType = (secondRowCount <= 3) ? 11 : 12;
-		secondRowGroup.isModern = YES;
-		secondRowGroup.groupArr = secondRowButtons;
-		[customGroups addObject:secondRowGroup];
-	}
-
-	// 处理日常转发按钮
-	if (originalArray.count > 0 && [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHidePanelDaily"]) {
-		NSMutableArray *modifiedArray = [originalArray mutableCopy];
-		AWELongPressPanelViewGroupModel *firstGroup = modifiedArray[0];
-		if (firstGroup.groupArr.count > 1) {
-			NSMutableArray *groupArray = [firstGroup.groupArr mutableCopy];
-			if ([[groupArray[1] valueForKey:@"describeString"] isEqualToString:@"转发到日常"]) {
-				[groupArray removeObjectAtIndex:1];
-			}
-			firstGroup.groupArr = groupArray;
-			modifiedArray[0] = firstGroup;
-		}
-		originalArray = modifiedArray;
-	}
-
-	return [customGroups arrayByAddingObjectsFromArray:originalArray];
+ NSMutableArray<AWELongPressPanelViewGroupModel *> *customGroups = [NSMutableArray array];
+    NSInteger totalButtons = viewModels.count;
+    
+    // 根据按钮总数确定每行的按钮数
+    NSInteger firstRowCount = 0;
+    NSInteger secondRowCount = 0;
+    
+    if (totalButtons <= 2) {
+        firstRowCount = totalButtons;
+    } else if (totalButtons <= 4) {
+        firstRowCount = totalButtons / 2;
+        secondRowCount = totalButtons - firstRowCount;
+    } else if (totalButtons <= 5) {
+        firstRowCount = 3;
+        secondRowCount = totalButtons - firstRowCount;
+    } else if (totalButtons <= 6) {
+        firstRowCount = 4;
+        secondRowCount = totalButtons - firstRowCount;
+    } else if (totalButtons <= 8) {
+        firstRowCount = 4;
+        secondRowCount = totalButtons - firstRowCount;
+    } else {
+        firstRowCount = 5;
+        secondRowCount = totalButtons - firstRowCount;
+    }
+    
+    // 创建第一行
+    if (firstRowCount > 0) {
+        NSArray<AWELongPressPanelBaseViewModel *> *firstRowButtons = [viewModels subarrayWithRange:NSMakeRange(0, firstRowCount)];
+        AWELongPressPanelViewGroupModel *firstRowGroup = [[%c(AWELongPressPanelViewGroupModel) alloc] init];
+        firstRowGroup.isDYYYCustomGroup = YES;
+        firstRowGroup.groupType = (firstRowCount <= 3) ? 11 : 12;
+        firstRowGroup.isModern = YES;
+        firstRowGroup.groupArr = firstRowButtons;
+        [customGroups addObject:firstRowGroup];
+    }
+    
+    // 创建第二行
+    if (secondRowCount > 0) {
+        NSArray<AWELongPressPanelBaseViewModel *> *secondRowButtons = [viewModels subarrayWithRange:NSMakeRange(firstRowCount, secondRowCount)];
+        AWELongPressPanelViewGroupModel *secondRowGroup = [[%c(AWELongPressPanelViewGroupModel) alloc] init];
+        secondRowGroup.isDYYYCustomGroup = YES;
+        secondRowGroup.groupType = (secondRowCount <= 3) ? 11 : 12;
+        secondRowGroup.isModern = YES;
+        secondRowGroup.groupArr = secondRowButtons;
+        [customGroups addObject:secondRowGroup];
+    }
+    
+    return [customGroups arrayByAddingObjectsFromArray:modifiedArray];
 }
 %end
 
 // 修复Modern风格长按面板水平设置单元格的大小计算
 %hook AWEModernLongPressHorizontalSettingCell
-
 - (CGSize)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout *)layout sizeForItemAtIndexPath:(NSIndexPath *)indexPath {
-	if (self.longPressViewGroupModel && [self.longPressViewGroupModel isDYYYCustomGroup]) {
-		if (self.dataArray && indexPath.item < self.dataArray.count) {
-			CGFloat totalWidth = collectionView.bounds.size.width;
-			NSInteger itemCount = self.dataArray.count;
-			CGFloat itemWidth = totalWidth / itemCount;
-			return CGSizeMake(itemWidth, 73);
-		}
-		return CGSizeMake(73, 73);
-	}
-
-	return %orig;
+    if (self.longPressViewGroupModel && [self.longPressViewGroupModel isDYYYCustomGroup]) {
+        if (self.dataArray && indexPath.item < self.dataArray.count) {
+            CGFloat totalWidth = collectionView.bounds.size.width;
+            NSInteger itemCount = self.dataArray.count;
+            CGFloat itemWidth = totalWidth / itemCount;
+            return CGSizeMake(itemWidth, 73);
+        }
+        return CGSizeMake(73, 73);
+    }
+    return %orig;
 }
-
 %end
 
 // 修复Modern风格长按面板交互单元格的大小计算
 %hook AWEModernLongPressInteractiveCell
-
 - (CGSize)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout *)layout sizeForItemAtIndexPath:(NSIndexPath *)indexPath {
-	if (self.longPressViewGroupModel && [self.longPressViewGroupModel isDYYYCustomGroup]) {
-		if (self.dataArray && indexPath.item < self.dataArray.count) {
-			NSInteger itemCount = self.dataArray.count;
-			CGFloat totalWidth = collectionView.bounds.size.width - 12 * (itemCount - 1);
-			CGFloat itemWidth = totalWidth / itemCount;
-			return CGSizeMake(itemWidth, 73);
-		}
-		return CGSizeMake(73, 73);
-	}
-
-	return %orig;
+    if (self.longPressViewGroupModel && [self.longPressViewGroupModel isDYYYCustomGroup]) {
+        if (self.dataArray && indexPath.item < self.dataArray.count) {
+            NSInteger itemCount = self.dataArray.count;
+            CGFloat totalWidth = collectionView.bounds.size.width - 12 * (itemCount - 1);
+            CGFloat itemWidth = totalWidth / itemCount;
+            return CGSizeMake(itemWidth, 73);
+        }
+        return CGSizeMake(73, 73);
+    }
+    return %orig;
 }
-
 %end
 
 // 经典风格长按面板
 %hook AWELongPressPanelTableViewController
-
 - (NSArray *)dataArray {
-	NSArray *originalArray = %orig;
+    NSArray *originalArray = %orig;
+    if (!originalArray) {
+        originalArray = @[];
+    }
+    
+    // 检查是否启用了任意长按功能
+    BOOL hasAnyFeatureEnabled = NO;
+    
+    // 检查各个单独的功能开关
+    BOOL enableSaveVideo = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYLongPressSaveVideo"];
+    BOOL enableSaveCover = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYLongPressSaveCover"];
+    BOOL enableSaveAudio = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYLongPressSaveAudio"];
+    BOOL enableSaveCurrentImage = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYLongPressSaveCurrentImage"];
+    BOOL enableSaveAllImages = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYLongPressSaveAllImages"];
+    BOOL enableCopyText = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYLongPressCopyText"];
+    BOOL enableCopyLink = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYLongPressCopyLink"];
+    BOOL enableApiDownload = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYLongPressApiDownload"];
+    BOOL enableFilterUser = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYLongPressFilterUser"];
+    BOOL enableFilterKeyword = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYLongPressFilterTitle"];
+    BOOL enableTimerClose = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYLongPressTimerClose"];
+    
+    // 兼容旧版设置
+    if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYLongPressDownload"]) {
+        if (!enableSaveVideo && !enableSaveCover && !enableSaveAudio && !enableSaveCurrentImage && !enableSaveAllImages) {
+            enableSaveVideo = enableSaveCover = enableSaveAudio = enableSaveCurrentImage = enableSaveAllImages = YES;
+        }
+    }
+    if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYCopyText"]) {
+        if (!enableCopyText && !enableCopyLink) {
+            enableCopyText = enableCopyLink = YES;
+        }
+    }
+    
+    // 处理原始面板按钮的显示/隐藏
+    NSMutableArray *modifiedArray = [NSMutableArray array];
+    
+    // 获取需要隐藏的按钮设置
+    BOOL hideDaily = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHidePanelDaily"];
+    BOOL hideRecommend = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHidePanelRecommend"];
+    BOOL hideNotInterested = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHidePanelNotInterested"];
+    BOOL hideReport = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHidePanelReport"];
+    BOOL hideSpeed = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHidePanelSpeed"];
+    BOOL hideClearScreen = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHidePanelClearScreen"];
+    BOOL hideFavorite = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHidePanelFavorite"];
+    BOOL hideLater = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHidePanelLater"];
+    BOOL hideCast = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHidePanelCast"];
+    BOOL hideOpenInPC = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHidePanelOpenInPC"];
+    BOOL hideSubtitle = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHidePanelSubtitle"];
+    BOOL hideAutoPlay = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHidePanelAutoPlay"];
+    BOOL hideSearchImage = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHidePanelSearchImage"];
+    BOOL hideListenDouyin = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHidePanelListenDouyin"];
+    BOOL hideBackgroundPlay = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHidePanelBackgroundPlay"];
+    
+    // 处理原始面板
+    for (id group in originalArray) {
+        // 检查是否为视图组模型
+        if ([group isKindOfClass:%c(AWELongPressPanelViewGroupModel)]) {
+            AWELongPressPanelViewGroupModel *groupModel = (AWELongPressPanelViewGroupModel *)group;
+            NSMutableArray *filteredGroupArr = [NSMutableArray array];
+            
+            for (id item in groupModel.groupArr) {
+                // 检查是否为基础视图模型
+                if ([item isKindOfClass:%c(AWELongPressPanelBaseViewModel)]) {
+                    AWELongPressPanelBaseViewModel *viewModel = (AWELongPressPanelBaseViewModel *)item;
+                    NSString *descString = viewModel.describeString;
+                    
+                    // 根据描述字符串判断按钮类型并决定是否隐藏
+                    BOOL shouldHide = NO;
+                    
+                    if ([descString isEqualToString:@"转发到日常"] && hideDaily) {
+                        shouldHide = YES;
+                    } else if ([descString isEqualToString:@"推荐"] && hideRecommend) {
+                        shouldHide = YES;
+                    } else if ([descString isEqualToString:@"不感兴趣"] && hideNotInterested) {
+                        shouldHide = YES;
+                    } else if ([descString isEqualToString:@"举报"] && hideReport) {
+                        shouldHide = YES;
+                    } else if ([descString isEqualToString:@"倍速"] && hideSpeed) {
+                        shouldHide = YES;
+                    } else if ([descString isEqualToString:@"清屏播放"] && hideClearScreen) {
+                        shouldHide = YES;
+                    } else if ([descString isEqualToString:@"缓存视频"] && hideFavorite) {
+                        shouldHide = YES;
+                    } else if ([descString isEqualToString:@"添加至稍后再看"] && hideLater) {
+                        shouldHide = YES;
+                    } else if ([descString isEqualToString:@"投屏"] && hideCast) {
+                        shouldHide = YES;
+                    } else if ([descString isEqualToString:@"电脑/Pad打开"] && hideOpenInPC) {
+                        shouldHide = YES;
+                    } else if ([descString isEqualToString:@"弹幕"] && hideSubtitle) {
+                        shouldHide = YES;
+                    } else if ([descString isEqualToString:@"自动连播"] && hideAutoPlay) {
+                        shouldHide = YES;
+                    } else if ([descString isEqualToString:@"识别图片"] && hideSearchImage) {
+                        shouldHide = YES;
+                    } else if ([descString isEqualToString:@"听抖音"] && hideListenDouyin) {
+                        shouldHide = YES;
+                    } else if ([descString isEqualToString:@"后台播放设置"] && hideBackgroundPlay) {
+                        shouldHide = YES;
+                    }
+                    
+                    if (!shouldHide) {
+                        [filteredGroupArr addObject:viewModel];
+                    }
+                } else {
+                    // 不是视图模型的，直接添加
+                    [filteredGroupArr addObject:item];
+                }
+            }
+            
+            // 如果过滤后的数组不为空，添加到结果中
+            if (filteredGroupArr.count > 0) {
+                AWELongPressPanelViewGroupModel *newGroup = [[%c(AWELongPressPanelViewGroupModel) alloc] init];
+                newGroup.groupType = groupModel.groupType;
+                newGroup.groupArr = filteredGroupArr;
+                [modifiedArray addObject:newGroup];
+            }
+        } else {
+            // 不是组模型的，直接添加
+            [modifiedArray addObject:group];
+        }
+    }
+    
+    // 检查是否有任何功能启用
+    hasAnyFeatureEnabled = enableSaveVideo || enableSaveCover || enableSaveAudio || enableSaveCurrentImage || enableSaveAllImages || enableCopyText || enableCopyLink || enableApiDownload ||
+                           enableFilterUser || enableFilterKeyword || enableTimerClose;
+    
+    // 如果没有任何功能启用，返回修改后的原始数组
+    if (!hasAnyFeatureEnabled) {
+        return modifiedArray;
+    }
+    
+    AWELongPressPanelViewGroupModel *newGroupModel = [[%c(AWELongPressPanelViewGroupModel) alloc] init];
+    newGroupModel.groupType = 0;
 
-	if (!originalArray) {
-		originalArray = @[];
-	}
-
-	// 检查是否启用了任意长按功能
-	BOOL hasAnyFeatureEnabled = NO;
-
-	// 检查各个单独的功能开关
-	BOOL enableSaveVideo = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYLongPressSaveVideo"];
-	BOOL enableSaveCover = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYLongPressSaveCover"];
-	BOOL enableSaveAudio = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYLongPressSaveAudio"];
-	BOOL enableSaveCurrentImage = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYLongPressSaveCurrentImage"];
-	BOOL enableSaveAllImages = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYLongPressSaveAllImages"];
-	BOOL enableCopyText = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYLongPressCopyText"];
-	BOOL enableCopyLink = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYLongPressCopyLink"];
-	BOOL enableApiDownload = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYLongPressApiDownload"];
-	BOOL enableFilterUser = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYLongPressFilterUser"];
-	BOOL enableFilterKeyword = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYLongPressFilterTitle"];
-	BOOL enableTimerClose = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYLongPressTimerClose"];
-
-	// 兼容旧版设置
-	if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYLongPressDownload"]) {
-		if (!enableSaveVideo && !enableSaveCover && !enableSaveAudio && !enableSaveCurrentImage && !enableSaveAllImages) {
-			enableSaveVideo = enableSaveCover = enableSaveAudio = enableSaveCurrentImage = enableSaveAllImages = YES;
-		}
-	}
-
-	if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYCopyText"]) {
-		if (!enableCopyText && !enableCopyLink) {
-			enableCopyText = enableCopyLink = YES;
-		}
-	}
-
-	// 检查是否有任何功能启用
-	hasAnyFeatureEnabled = enableSaveVideo || enableSaveCover || enableSaveAudio || enableSaveCurrentImage || enableSaveAllImages || enableCopyText || enableCopyLink || enableApiDownload ||
-			       enableFilterUser || enableFilterKeyword || enableTimerClose;
-
-	if (!hasAnyFeatureEnabled) {
-		return originalArray;
-	}
-
-	AWELongPressPanelViewGroupModel *newGroupModel = [[%c(AWELongPressPanelViewGroupModel) alloc] init];
-	newGroupModel.groupType = 0;
-
-	NSMutableArray *viewModels = [NSMutableArray array];
+    NSMutableArray *viewModels = [NSMutableArray array];
+    
 
 	// 视频下载功能
 	if (enableSaveVideo && self.awemeModel.awemeType != 68) {
@@ -1176,20 +1331,19 @@
 	}
 	newGroupModel.groupArr = viewModels;
 
-	if (originalArray.count > 0) {
-		NSMutableArray *resultArray = [originalArray mutableCopy];
-		[resultArray insertObject:newGroupModel atIndex:1];
-		return [resultArray copy];
-	} else {
-		return @[ newGroupModel ];
-	}
+    if (modifiedArray.count > 0) {
+        NSMutableArray *resultArray = [modifiedArray mutableCopy];
+        [resultArray insertObject:newGroupModel atIndex:0];
+        return [resultArray copy];
+    } else {
+        return @[ newGroupModel ];
+    }
 }
-
 %end
 
 // 初始化钩子
 %ctor {
-	if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYUserAgreementAccepted"]) {
-		%init;
-	}
+    if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYUserAgreementAccepted"]) {
+        %init;
+    }
 }
