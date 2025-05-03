@@ -1590,7 +1590,7 @@ static void showUserAgreementAlert() {
 		  // 创建顶栏移除分类项
 		  AWESettingItemModel *removeSettingItem = [[%c(AWESettingItemModel) alloc] init];
 		  removeSettingItem.identifier = @"DYYYRemoveSettings";
-		  removeSettingItem.title = @"隐藏顶栏";
+		  removeSettingItem.title = @"顶栏移除";
 		  removeSettingItem.type = 0;
 		  removeSettingItem.svgIconImageName = @"ic_doublearrowup_outlined_20";
 		  removeSettingItem.cellType = 26;
@@ -1601,67 +1601,67 @@ static void showUserAgreementAlert() {
 		    NSMutableArray<AWESettingItemModel *> *removeSettingsItems = [NSMutableArray array];
 		    NSArray *removeSettings = @[
 			    @{@"identifier" : @"DYYYHideHotContainer",
-			      @"title" : @"隐藏顶栏推荐",
+			      @"title" : @"移除推荐",
 			      @"detail" : @"",
 			      @"cellType" : @6,
 			      @"imageName" : @"ic_xmark_outlined_20"},
 			    @{@"identifier" : @"DYYYHideFollow",
-			      @"title" : @"隐藏顶栏关注",
+			      @"title" : @"移除关注",
 			      @"detail" : @"",
 			      @"cellType" : @6,
 			      @"imageName" : @"ic_xmark_outlined_20"},
 			    @{@"identifier" : @"DYYYHideMediumVideo",
-			      @"title" : @"隐藏顶栏精选",
+			      @"title" : @"移除精选",
 			      @"detail" : @"",
 			      @"cellType" : @6,
 			      @"imageName" : @"ic_xmark_outlined_20"},
 			    @{@"identifier" : @"DYYYHideMall",
-			      @"title" : @"隐藏顶栏商城",
+			      @"title" : @"移除商城",
 			      @"detail" : @"",
 			      @"cellType" : @6,
 			      @"imageName" : @"ic_xmark_outlined_20"},
 			    @{@"identifier" : @"DYYYHideNearby",
-			      @"title" : @"隐藏顶栏同城",
+			      @"title" : @"移除同城",
 			      @"detail" : @"",
 			      @"cellType" : @6,
 			      @"imageName" : @"ic_xmark_outlined_20"},
 			    @{@"identifier" : @"DYYYHideGroupon",
-			      @"title" : @"隐藏顶栏团购",
+			      @"title" : @"移除团购",
 			      @"detail" : @"",
 			      @"cellType" : @6,
 			      @"imageName" : @"ic_xmark_outlined_20"},
 			    @{@"identifier" : @"DYYYHideTabLive",
-			      @"title" : @"隐藏顶栏直播",
+			      @"title" : @"移除直播",
 			      @"detail" : @"",
 			      @"cellType" : @6,
 			      @"imageName" : @"ic_xmark_outlined_20"},
 			    @{@"identifier" : @"DYYYHidePadHot",
-			      @"title" : @"隐藏顶栏热点",
+			      @"title" : @"移除热点",
 			      @"detail" : @"",
 			      @"cellType" : @6,
 			      @"imageName" : @"ic_xmark_outlined_20"},
 			    @{@"identifier" : @"DYYYHideHangout",
-			      @"title" : @"隐藏顶栏经验",
+			      @"title" : @"移除经验",
 			      @"detail" : @"",
 			      @"cellType" : @6,
 			      @"imageName" : @"ic_xmark_outlined_20"},
 			    @{@"identifier" : @"DYYYHidePlaylet",
-			      @"title" : @"隐藏顶栏短剧",
+			      @"title" : @"移除短剧",
 			      @"detail" : @"",
 			      @"cellType" : @6,
 			      @"imageName" : @"ic_xmark_outlined_20"},
 			    @{@"identifier" : @"DYYYHideCinema",
-			      @"title" : @"隐藏顶栏看剧",
+			      @"title" : @"移除看剧",
 			      @"detail" : @"",
 			      @"cellType" : @6,
 			      @"imageName" : @"ic_xmark_outlined_20"},
 			    @{@"identifier" : @"DYYYHideKidsV2",
-			      @"title" : @"隐藏顶栏少儿",
+			      @"title" : @"移除少儿",
 			      @"detail" : @"",
 			      @"cellType" : @6,
 			      @"imageName" : @"ic_xmark_outlined_20"},
 			    @{@"identifier" : @"DYYYHideGame",
-			      @"title" : @"隐藏顶栏游戏",
+			      @"title" : @"移除游戏",
 			      @"detail" : @"",
 			      @"cellType" : @6,
 			      @"imageName" : @"ic_xmark_outlined_20"}
@@ -1692,10 +1692,10 @@ static void showUserAgreementAlert() {
 		    }
 
 		    NSMutableArray *sections = [NSMutableArray array];
-		    [sections addObject:createSection(@"隐藏顶栏", removeSettingsItems)];
+		    [sections addObject:createSection(@"顶栏移除", removeSettingsItems)];
 
 		    // 创建并推入二级设置页面，使用sections数组而不是直接使用removeSettingsItems
-		    AWESettingBaseViewController *subVC = createSubSettingsViewController(@"隐藏顶栏", sections);
+		    AWESettingBaseViewController *subVC = createSubSettingsViewController(@"顶栏移除", sections);
 		    [rootVC.navigationController pushViewController:(UIViewController *)subVC animated:YES];
 		  };
 		  [mainItems addObject:removeSettingItem];
