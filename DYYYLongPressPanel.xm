@@ -351,8 +351,8 @@
 		  }
 		  NSString *actionButtonText = userExists ? @"取消过滤" : @"添加过滤";
 
-		  [DYYYBottomAlertView showAlertWithTitle:@"过滤作者"
-		      message:[NSString stringWithFormat:@"用户: %@ (ID: %@)", nickname, shortId]
+		  [DYYYBottomAlertView showAlertWithTitle:@"过滤视频作者"
+		      message:[NSString stringWithFormat:@"作者: %@ (ID: %@)", nickname, shortId]
 		      cancelButtonText:@"管理过滤列表"
 		      confirmButtonText:actionButtonText
 		      cancelAction:^{
@@ -412,7 +412,7 @@
 		filterKeywords.action = ^{
 		  NSString *descText = [self.awemeModel valueForKey:@"descriptionString"];
 
-		  DYYYFilterSettingsView *filterView = [[DYYYFilterSettingsView alloc] initWithTitle:@"选择需要过滤的视频文案" text:descText];
+		  DYYYFilterSettingsView *filterView = [[DYYYFilterSettingsView alloc] initWithTitle:@"选择需要过滤的文案" text:descText];
 		  filterView.onConfirm = ^(NSString *selectedText) {
 		    if (selectedText.length > 0) {
 			    NSString *currentKeywords = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYfilterKeywords"] ?: @"";
@@ -963,8 +963,8 @@
 		  }
 		  NSString *actionButtonText = userExists ? @"取消过滤" : @"添加过滤";
 
-		  [DYYYBottomAlertView showAlertWithTitle:@"过滤作者"
-		      message:[NSString stringWithFormat:@"用户: %@ (ID: %@)", nickname, shortId]
+		  [DYYYBottomAlertView showAlertWithTitle:@"过滤视频作者"
+		      message:[NSString stringWithFormat:@"作者: %@ (ID: %@)", nickname, shortId]
 		      cancelButtonText:@"管理过滤列表"
 		      confirmButtonText:actionButtonText
 		      cancelAction:^{
@@ -1030,7 +1030,7 @@
 		filterKeywords.action = ^{
 		  NSString *descText = [self.awemeModel valueForKey:@"descriptionString"];
 
-		  DYYYFilterSettingsView *filterView = [[DYYYFilterSettingsView alloc] initWithTitle:@"选择需要过滤的视频文案" text:descText];
+		  DYYYFilterSettingsView *filterView = [[DYYYFilterSettingsView alloc] initWithTitle:@"选择需要过滤的文案" text:descText];
 		  filterView.onConfirm = ^(NSString *selectedText) {
 		    if (selectedText.length > 0) {
 			    NSString *currentKeywords = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYfilterKeywords"] ?: @"";
