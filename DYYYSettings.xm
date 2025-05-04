@@ -1913,13 +1913,11 @@ static void showUserAgreementAlert() {
 			    [downloadItems addObject:item];
 		    }
 
-		    // 【热更新】分类
+			    // 【热更新】分类
 		    NSMutableArray<AWESettingItemModel *> *hotUpdateItems = [NSMutableArray array];
 
 		    // 获取当前热更新状态
 		    abTestBlockEnabled = [[NSUserDefaults standardUserDefaults] boolForKey:@"ABTestBlockEnabled"];
-
-		    // 添加"禁用热更新"开关
 		    AWESettingItemModel *disableHotUpdateItem = [[%c(AWESettingItemModel) alloc] init];
 		    disableHotUpdateItem.identifier = @"ABTestBlockEnabled";
 		    disableHotUpdateItem.title = @"禁用下发配置";
@@ -1933,40 +1931,77 @@ static void showUserAgreementAlert() {
 
 		    disableHotUpdateItem.switchChangedBlock = ^{
 		      BOOL newValue = !disableHotUpdateItem.isSwitchOn;
-		      disableHotUpdateItem.isSwitchOn = newValue;
-		      abTestBlockEnabled = newValue;
 
-		      // 保存设置
-		      [[NSUserDefaults standardUserDefaults] setBool:newValue forKey:@"ABTestBlockEnabled"];
-		      [[NSUserDefaults standardUserDefaults] synchronize];
-
-		      // 如果启用了拦截，重新加载固定数据
+		      // 当用户尝试启用"禁用下发配置"时显示确认弹窗
 		      if (newValue) {
-			      // 重置全局变量，下次加载时会重新读取文件
-			      gFixedABTestData = nil;
-			      onceToken = 0;
-			      loadFixedABTestData();
-		      }
+			      [DYYYBottomAlertView showAlertWithTitle:@"禁用下发配置"
+				  message:@"请尽量保证在禁用热更新前导入正确配置，否则会导致插件部分功能失效。确定要继续吗？"
+				  cancelButtonText:@"取消"
+				  confirmButtonText:@"确定"
+				  cancelAction:^{
+				    // 取消操作，恢复开关状态
+				    disableHotUpdateItem.isSwitchOn = !newValue;
+				  }
+				  confirmAction:^{
+				    // 用户确认后执行原来的逻辑
+				    disableHotUpdateItem.isSwitchOn = newValue;
+				    abTestBlockEnabled = newValue;
 
-		      // 刷新表格以反映状态变化
-		      UIViewController *topVC = topView();
-		      if ([topVC isKindOfClass:%c(AWESettingBaseViewController)]) {
-			      dispatch_async(dispatch_get_main_queue(), ^{
-				UITableView *tableView = nil;
-				for (UIView *subview in topVC.view.subviews) {
-					if ([subview isKindOfClass:[UITableView class]]) {
-						tableView = (UITableView *)subview;
-						break;
+				    // 保存设置
+				    [[NSUserDefaults standardUserDefaults] setBool:newValue forKey:@"ABTestBlockEnabled"];
+				    [[NSUserDefaults standardUserDefaults] synchronize];
+
+				    // 重置全局变量，下次加载时会重新读取文件
+				    gFixedABTestData = nil;
+				    onceToken = 0;
+				    loadFixedABTestData();
+
+				    // 刷新表格以反映状态变化
+				    UIViewController *topVC = topView();
+				    if ([topVC isKindOfClass:%c(AWESettingBaseViewController)]) {
+					    dispatch_async(dispatch_get_main_queue(), ^{
+					      UITableView *tableView = nil;
+					      for (UIView *subview in topVC.view.subviews) {
+						      if ([subview isKindOfClass:[UITableView class]]) {
+							      tableView = (UITableView *)subview;
+							      break;
+						      }
+					      }
+					      if (tableView) {
+						      [tableView reloadData];
+					      }
+					    });
+				    }
+				  }];
+		      } else {
+			      // 如果是关闭功能，直接执行不需要确认
+			      disableHotUpdateItem.isSwitchOn = newValue;
+			      abTestBlockEnabled = newValue;
+
+			      // 保存设置
+			      [[NSUserDefaults standardUserDefaults] setBool:newValue forKey:@"ABTestBlockEnabled"];
+			      [[NSUserDefaults standardUserDefaults] synchronize];
+
+			      // 刷新表格以反映状态变化
+			      UIViewController *topVC = topView();
+			      if ([topVC isKindOfClass:%c(AWESettingBaseViewController)]) {
+				      dispatch_async(dispatch_get_main_queue(), ^{
+					UITableView *tableView = nil;
+					for (UIView *subview in topVC.view.subviews) {
+						if ([subview isKindOfClass:[UITableView class]]) {
+							tableView = (UITableView *)subview;
+							break;
+						}
 					}
-				}
-				if (tableView) {
-					[tableView reloadData];
-				}
-			      });
+					if (tableView) {
+						[tableView reloadData];
+					}
+				      });
+			      }
 		      }
 		    };
 
-		    [hotUpdateItems addObject:disableHotUpdateItem];
+                    [hotUpdateItems addObject:disableHotUpdateItem];
 
 		    // 添加"保存当前配置"按钮
 		    AWESettingItemModel *saveCurrentConfigItem = [[%c(AWESettingItemModel) alloc] init];
