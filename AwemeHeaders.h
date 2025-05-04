@@ -219,6 +219,9 @@ typedef NS_ENUM(NSInteger, MediaType) {
 
 @end
 
+@interface AWEFamiliarNavView : UIView
+@end
+
 @interface AWEDanmakuItemTextInfo : NSObject
 - (void)setDanmakuTextColor:(id)arg1;
 - (UIColor *)colorFromHexStringForTextInfo:(NSString *)hexString;
