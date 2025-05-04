@@ -17,7 +17,7 @@
 @property (nonatomic, strong) NSTimer *statusCheckTimer; // 状态检查定时器
 - (void)saveButtonPosition;
 - (void)loadSavedPosition;
-- (void)resetButtonState; // 添加方法确保按钮状态可以被重置
+- (void)resetButtonState; 
 - (void)toggleLockState; 
 @end
 
@@ -40,10 +40,7 @@
         self.layer.shadowOffset = CGSizeMake(0, 2);
         self.layer.shadowOpacity = 0.5;
         
-        // 确保用户交互始终启用
         self.userInteractionEnabled = YES;
-        
-        // 初始化响应状态为YES
         self.isResponding = YES;
         
         self.statusCheckTimer = [NSTimer scheduledTimerWithTimeInterval:60.0
@@ -53,13 +50,10 @@
                                                                 repeats:YES];
         [[NSRunLoop mainRunLoop] addTimer:self.statusCheckTimer forMode:NSRunLoopCommonModes];
         
-        // 使用单独的方法初始化手势，便于复用
         [self setupGestureRecognizers];
-        
-        // 加载保存的位置和锁定状态
+
         [self loadSavedPosition];
-        
-        // justToggledLock总是初始化为NO
+
         self.justToggledLock = NO;
     }
     return self;
@@ -69,8 +63,7 @@
     for (UIGestureRecognizer *recognizer in [self.gestureRecognizers copy]) {
         [self removeGestureRecognizer:recognizer];
     }
-    
-    // 重新添加拖拽手势 - 不再设置优先级依赖
+
     UIPanGestureRecognizer *panGesture = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(handlePan:)];
     [self addGestureRecognizer:panGesture];
     
@@ -89,9 +82,8 @@
     longPressGesture.delegate = (id<UIGestureRecognizerDelegate>)self;
 }
 
-// 修改手势代理方法
+
 - (BOOL)gestureRecognizer:(UIGestureRecognizer *)gestureRecognizer shouldRecognizeSimultaneouslyWithGestureRecognizer:(UIGestureRecognizer *)otherGestureRecognizer {
-    // 允许拖拽手势和其他手势同时工作
     if ([gestureRecognizer isKindOfClass:[UIPanGestureRecognizer class]]) {
         return YES;
     }
@@ -157,7 +149,6 @@
     }
 }
 
-// 替换原来的firstStageLongPress和secondStageLongPress
 - (void)toggleLockState {
     // 切换锁定状态
     self.isLocked = !self.isLocked;
@@ -459,16 +450,16 @@ void updateSpeedButtonUI() {
 %hook AWEAwemePlayVideoViewController
 
 - (void)setIsAutoPlay:(BOOL)arg0 {
-    // 检查是否启用了自动恢复第一个倍速的功能
     BOOL autoRestoreSpeed = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYAutoRestoreSpeed"];
-    // 如果启用了自动恢复功能，则将当前索引设置为0（第一个速度）
     if (autoRestoreSpeed) {
         setCurrentSpeedIndex(0);
     }
     float speed = getCurrentSpeed();
     NSInteger speedIndex = getCurrentSpeedIndex();
-
     currentVideoController = self;
+    if (speed != 1.0) {
+        [currentVideoController adjustPlaybackSpeed:speed];
+    }
     updateSpeedButtonUI();
     %orig(arg0);
 }
@@ -536,29 +527,13 @@ void updateSpeedButtonUI() {
         [keyWindow addSubview:speedButton];
         [speedButton loadSavedPosition]; 
         
-        // 确保按钮在顶层显示
-        speedButton.layer.zPosition = 999;
     }
     
     // 只在评论不可见时才显示按钮
     if (speedButton) {
         speedButton.hidden = isCommentViewVisible;
     }
-    
-    if (currentVideoController) {
-        [currentVideoController adjustPlaybackSpeed:getCurrentSpeed()];
-    } else {
-        UIViewController *vc = [self firstAvailableUIViewController];
-        while (vc && ![vc isKindOfClass:%c(AWEAwemePlayVideoViewController)]) {
-            vc = vc.parentViewController;
-        }
-        
-        if ([vc isKindOfClass:%c(AWEAwemePlayVideoViewController)]) {
-            AWEAwemePlayVideoViewController *videoVC = (AWEAwemePlayVideoViewController *)vc;
-            [videoVC adjustPlaybackSpeed:getCurrentSpeed()];
-            currentVideoController = videoVC;
-        }
-    }
+
 }
 
 - (void)viewWillAppear:(BOOL)animated {
@@ -567,13 +542,6 @@ void updateSpeedButtonUI() {
     if (speedButton) {
         dispatch_async(dispatch_get_main_queue(), ^{
             speedButton.hidden = isCommentViewVisible;
-            
-            // 确保按钮位于顶层视图
-            UIWindow *keyWindow = [UIApplication sharedApplication].keyWindow;
-            if (keyWindow && ![speedButton isDescendantOfView:keyWindow]) {
-                [keyWindow addSubview:speedButton];
-                [speedButton loadSavedPosition];
-            }
         });
     }
 }
@@ -687,7 +655,6 @@ void updateSpeedButtonUI() {
         dispatch_async(dispatch_get_main_queue(), ^{
             [self addSubview:speedButton];
             [speedButton loadSavedPosition];
-            speedButton.layer.zPosition = 999;
             speedButton.hidden = isCommentViewVisible;
         });
     }
@@ -695,11 +662,9 @@ void updateSpeedButtonUI() {
 %end
 
 %ctor {
-    // 加载全局开关状态
     NSUserDefaults *defaults = [NSUserDefaults standardUserDefaults];
     isFloatSpeedButtonEnabled = [defaults boolForKey:@"DYYYEnableFloatSpeedButton"];
     
-    // 只有当全局开关打开时才初始化hooks
     if (isFloatSpeedButtonEnabled) {
         %init;
     }
