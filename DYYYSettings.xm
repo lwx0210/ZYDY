@@ -1666,7 +1666,7 @@ static void showUserAgreementAlert() {
 			      @"cellType" : @6,
 			      @"imageName" : @"ic_xmark_outlined_20"},
                             @{@"identifier" : @"DYYYHideOtherChannel",
-			      @"title" : @"移除顶栏其他",
+			      @"title" : @"移除其它",
 			      @"detail" : @"",
 			      @"cellType" : @26,
 			      @"imageName" : @"ic_xmark_outlined_20"}
@@ -1704,7 +1704,7 @@ static void showUserAgreementAlert() {
 				      NSArray *keywordArray = [savedKeywords length] > 0 ? [savedKeywords componentsSeparatedByString:@","] : @[];
 
 				      // 创建并显示关键词列表视图
-				      DYYYKeywordListView *keywordListView = [[DYYYKeywordListView alloc] initWithTitle:@"设置过滤其他顶栏" keywords:keywordArray];
+				      DYYYKeywordListView *keywordListView = [[DYYYKeywordListView alloc] initWithTitle:@"自定义过滤顶栏" keywords:keywordArray];
 
 				      // 设置确认回调
 				      keywordListView.onConfirm = ^(NSArray *keywords) {
