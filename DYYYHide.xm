@@ -384,6 +384,29 @@
 }
 %end
 
+// 隐藏朋友"关注/不关注"按钮
+%hook AWEFeedUnfollowFamiliarFollowAndDislikeView
+- (void)showUnfollowFamiliarView {
+	if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHideFamiliar"]) {
+		self.hidden = YES;
+		return;
+	}
+	%orig;
+}
+%end
+
+// 隐藏朋友日常按钮
+%hook AWEFamiliarNavView
+- (void)layoutSubviews {
+
+	if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHideFamiliar"]) {
+		self.hidden = YES; 
+	}
+
+	%orig;
+}
+%end
+
 //隐藏AI搜索
 %hook AWESearchKeyboardVoiceSearchEntranceView 
 - (id)initWithFrame:(CGRect)frame {
