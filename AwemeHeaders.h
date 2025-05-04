@@ -219,6 +219,7 @@ typedef NS_ENUM(NSInteger, MediaType) {
 
 @end
 
+//隐藏朋友日常
 @interface AWEFamiliarNavView : UIView
 @end
 
@@ -924,5 +925,7 @@ typedef NS_ENUM(NSInteger, MediaType) {
 - (void)dyyy_saveButtonTapped:(id)sender;
 @end
 
+
+//隐藏朋友关注和不关注
 @interface AWEFeedUnfollowFamiliarFollowAndDislikeView : UIView
 @end
