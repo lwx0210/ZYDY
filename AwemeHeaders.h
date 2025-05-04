@@ -923,3 +923,6 @@ typedef NS_ENUM(NSInteger, MediaType) {
 @property (nonatomic, strong) AWEIMEmoticonModel *model;
 - (void)dyyy_saveButtonTapped:(id)sender;
 @end
+
+@interface AWEFeedUnfollowFamiliarFollowAndDislikeView : UIView
+@end
