@@ -5,6 +5,7 @@
 #import "DYYYKeywordListView.h"
 #import "DYYYConfirmCloseView.h"
 #import "DYYYManager.h"
+#import "DYYYUtils.h"
 
 %hook AWELongPressPanelViewGroupModel
 %property(nonatomic, assign) BOOL isDYYYCustomGroup;
@@ -376,26 +377,24 @@
 		[viewModels addObject:apiDownload];
 	}
 
-	// 复制分享链接功能
-	if (enableCopyLink) {
-		AWELongPressPanelBaseViewModel *copyShareLink = [[%c(AWELongPressPanelBaseViewModel) alloc] init];
-		copyShareLink.awemeModel = self.awemeModel;
-		copyShareLink.actionType = 673;
-		copyShareLink.duxIconName = @"ic_share_outlined";
-		copyShareLink.describeString = @"复制链接";
-
-		copyShareLink.action = ^{
-		  NSString *shareLink = [self.awemeModel valueForKey:@"shareURL"];
-		  [[UIPasteboard generalPasteboard] setString:shareLink];
-		  [DYYYManager showToast:@"分享链接已复制到剪贴板"];
-
-		  AWELongPressPanelManager *panelManager = [%c(AWELongPressPanelManager) shareInstance];
-		  [panelManager dismissWithAnimation:YES completion:nil];
-		};
-
-		[viewModels addObject:copyShareLink];
-	}
-
+    // 复制分享链接功能
+    if (enableCopyLink) {
+        AWELongPressPanelBaseViewModel *copyShareLink = [[%c(AWELongPressPanelBaseViewModel) alloc] init];
+        copyShareLink.awemeModel = self.awemeModel;
+        copyShareLink.actionType = 673;
+        copyShareLink.duxIconName = @"ic_share_outlined";
+        copyShareLink.describeString = @"复制链接";
+        copyShareLink.action = ^{
+            NSString *shareLink = [self.awemeModel valueForKey:@"shareURL"];
+            NSString *cleanedURL = cleanShareURL(shareLink);
+            [[UIPasteboard generalPasteboard] setString:cleanedURL];
+            [DYYYManager showToast:@"分享链接已复制到剪贴板"];
+            AWELongPressPanelManager *panelManager = [%c(AWELongPressPanelManager) shareInstance];
+            [panelManager dismissWithAnimation:YES completion:nil];
+        };
+        [viewModels addObject:copyShareLink];
+    }
+    
 	// 过滤用户功能
 	if (enableFilterUser) {
 		AWELongPressPanelBaseViewModel *filterKeywords = [[%c(AWELongPressPanelBaseViewModel) alloc] init];
@@ -1070,26 +1069,24 @@
 		[viewModels addObject:apiDownload];
 	}
 
-	// 复制分享链接功能
-	if (enableCopyLink) {
-		AWELongPressPanelBaseViewModel *copyShareLink = [[%c(AWELongPressPanelBaseViewModel) alloc] init];
-		copyShareLink.awemeModel = self.awemeModel;
-		copyShareLink.actionType = 673;
-		copyShareLink.duxIconName = @"ic_share_outlined";
-		copyShareLink.describeString = @"复制链接";
-
-		copyShareLink.action = ^{
-		  NSString *shareLink = [self.awemeModel valueForKey:@"shareURL"];
-		  [[UIPasteboard generalPasteboard] setString:shareLink];
-		  [DYYYManager showToast:@"分享链接已复制到剪贴板"];
-
-		  AWELongPressPanelManager *panelManager = [%c(AWELongPressPanelManager) shareInstance];
-		  [panelManager dismissWithAnimation:YES completion:nil];
-		};
-
-		[viewModels addObject:copyShareLink];
-	}
-
+    // 复制分享链接功能
+    if (enableCopyLink) {
+        AWELongPressPanelBaseViewModel *copyShareLink = [[%c(AWELongPressPanelBaseViewModel) alloc] init];
+        copyShareLink.awemeModel = self.awemeModel;
+        copyShareLink.actionType = 672;
+        copyShareLink.duxIconName = @"ic_share_outlined";
+        copyShareLink.describeString = @"复制链接";
+        copyShareLink.action = ^{
+            NSString *shareLink = [self.awemeModel valueForKey:@"shareURL"];
+            NSString *cleanedURL = cleanShareURL(shareLink);
+            [[UIPasteboard generalPasteboard] setString:cleanedURL];
+            [DYYYManager showToast:@"分享链接已复制到剪贴板"];
+            AWELongPressPanelManager *panelManager = [%c(AWELongPressPanelManager) shareInstance];
+            [panelManager dismissWithAnimation:YES completion:nil];
+        };
+        [viewModels addObject:copyShareLink];
+    }
+    
 	// 过滤用户功能
 	if (enableFilterUser) {
 		AWELongPressPanelBaseViewModel *filterKeywords = [[%c(AWELongPressPanelBaseViewModel) alloc] init];
