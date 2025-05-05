@@ -527,6 +527,30 @@ static void DYYYAddCustomViewToParent(UIView *parentView, float transparency) {
 }
 %end
 
+%hook AWEDPlayerFeedPlayerViewController
+
+- (void)viewDidLayoutSubviews {
+	%orig;
+
+	if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYisEnableFullScreen"]) {
+		UIView *contentView = self.contentView;
+		if (contentView && contentView.superview) {
+			CGRect frame = contentView.frame;
+			CGFloat parentHeight = contentView.superview.frame.size.height;
+
+			if (frame.size.height == parentHeight - 83) {
+				frame.size.height = parentHeight;
+				contentView.frame = frame;
+				[contentView setNeedsLayout];
+				[contentView layoutIfNeeded];
+			}
+		}
+	}
+}
+
+%end
+
+
 %hook UIView
 
 - (void)setFrame:(CGRect)frame {
@@ -1905,12 +1929,12 @@ static CGFloat currentScale = 1.0;
 %hook AWENormalModeTabBarGeneralButton
 
 - (BOOL)enableRefresh {
-    if ([self.accessibilityLabel isEqualToString:@"首页"]) {
-        if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYDisableHomeRefresh"]) {
-            return NO;
-        }
-    }
-    return %orig;
+	if ([self.accessibilityLabel isEqualToString:@"首页"]) {
+		if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYDisableHomeRefresh"]) {
+			return NO;
+		}
+	}
+	return %orig;
 }
 
 %end
