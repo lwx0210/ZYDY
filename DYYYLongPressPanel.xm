@@ -59,7 +59,8 @@
     BOOL hideSearchImage = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHidePanelSearchImage"];
     BOOL hideListenDouyin = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHidePanelListenDouyin"];
     BOOL hideBackgroundPlay = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHidePanelBackgroundPlay"];
-    
+    BOOL hideBiserial = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHidePanelBiserial"];
+
     // 处理原始面板
     for (id group in originalArray) {
         // 检查是否为视图组模型
@@ -106,8 +107,10 @@
                         shouldHide = YES;
                     } else if ([descString isEqualToString:@"后台播放设置"] && hideBackgroundPlay) {
                         shouldHide = YES;
+                    } else if ([descString isEqualToString:@"首页双列快捷入口"] && hideBiserial) {
+                        shouldHide = YES;
                     }
-                    
+
                     if (!shouldHide) {
                         [filteredGroupArr addObject:viewModel];
                     }
@@ -744,8 +747,9 @@
     BOOL hideSearchImage = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHidePanelSearchImage"];
     BOOL hideListenDouyin = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHidePanelListenDouyin"];
     BOOL hideBackgroundPlay = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHidePanelBackgroundPlay"];
-    
-    // 处理原始面板
+    BOOL hideBiserial = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHidePanelBiserial"];
+  
+// 处理原始面板
     for (id group in originalArray) {
         // 检查是否为视图组模型
         if ([group isKindOfClass:%c(AWELongPressPanelViewGroupModel)]) {
@@ -790,6 +794,8 @@
                     } else if ([descString isEqualToString:@"听抖音"] && hideListenDouyin) {
                         shouldHide = YES;
                     } else if ([descString isEqualToString:@"后台播放设置"] && hideBackgroundPlay) {
+                        shouldHide = YES;
+                    } else if ([descString isEqualToString:@"首页双列快捷入口"] && hideBiserial) {
                         shouldHide = YES;
                     }
                     
