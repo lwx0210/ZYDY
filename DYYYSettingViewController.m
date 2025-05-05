@@ -284,6 +284,7 @@ typedef NS_ENUM(NSInteger, DYYYSettingItemType) {
         ],
         @[
             [DYYYSettingItem itemWithTitle:@"隐藏面板日常" key:@"DYYYHidePanelDaily" type:DYYYSettingItemTypeSwitch],
+            [DYYYSettingItem itemWithTitle:@"隐藏面板双列" key:@"DYYYHidePanelBiserial" type:DYYYSettingItemTypeSwitch],
             [DYYYSettingItem itemWithTitle:@"隐藏面板推荐" key:@"DYYYHidePanelRecommend" type:DYYYSettingItemTypeSwitch],
             [DYYYSettingItem itemWithTitle:@"隐藏面板举报" key:@"DYYYHidePanelReport" type:DYYYSettingItemTypeSwitch],
             [DYYYSettingItem itemWithTitle:@"隐藏面板倍速" key:@"DYYYHidePanelSpeed" type:DYYYSettingItemTypeSwitch],
