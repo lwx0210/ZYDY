@@ -933,4 +933,5 @@ typedef NS_ENUM(NSInteger, MediaType) {
 //修复打开评论全屏失效
 @interface AWEDPlayerFeedPlayerViewController : UIViewController
 @property (nonatomic) UIView *contentView;
+- (void)setVideoControllerPlaybackRate:(double)arg0;
 @end
