@@ -1569,6 +1569,13 @@ static void showUserAgreementAlert() {
                            @"detail": @"",
                            @"cellType": @6,
                            @"imageName": @"ic_eyeslash_outlined_16"
+                       },
+                      @{
+                           @"identifier": @"DYYYHidePanelBiserial",
+                           @"title": @"隐藏面板双列入口",
+                           @"detail": @"",
+                           @"cellType": @6,
+                           @"imageName": @"ic_eyeslash_outlined_16"
                        }
                    ];
 		    for (NSDictionary *dict in modernpanelSettings) {
