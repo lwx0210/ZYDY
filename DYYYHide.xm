@@ -46,6 +46,20 @@
 }
 %end
 
+// 隐藏章节进度条
+%hook AWEDemaciaChapterProgressSlider
+
+- (void)layoutSubviews {
+	%orig;
+
+	if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHideChapterProgress"]) {
+		self.hidden = YES;
+	}
+}
+
+%end
+
+
 // 首页头像隐藏和透明
 %hook AWEAdAvatarView
 - (void)layoutSubviews {
