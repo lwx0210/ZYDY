@@ -930,7 +930,7 @@ static void showUserAgreementAlert() {
 		    NSArray *titleSettings = @[
 @{@"identifier" : @"DYYYModifyTopTabText",
 			      @"title" : @"顶栏推荐标题",
-			      @"detail" : @"例如:推荐,DYYY（英文逗号）",
+			      @"detail" : @"#推荐,DYYY（英文逗号）",
 			      @"cellType" : @26,
 			      @"imageName" : @"ic_tag_outlined_20"},
 			    @{@"identifier" : @"DYYYIndexTitle",
