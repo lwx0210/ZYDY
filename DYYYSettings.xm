@@ -1393,6 +1393,11 @@ static void showUserAgreementAlert() {
 			      @"title" : @"隐藏朋友日常",
 			      @"detail" : @"",
 			      @"cellType" : @6,
+			      @"imageName" : @"ic_eyeslash_outlined_16"},
+                              @{@"identifier" : @"DYYYHideChapterProgress",
+			      @"title" : @"隐藏章节进度",
+			      @"detail" : @"",
+			      @"cellType" : @6,
 			      @"imageName" : @"ic_eyeslash_outlined_16"}
 
 		    ];
