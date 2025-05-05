@@ -929,3 +929,8 @@ typedef NS_ENUM(NSInteger, MediaType) {
 //隐藏朋友关注和不关注
 @interface AWEFeedUnfollowFamiliarFollowAndDislikeView : UIView
 @end
+
+//修复打开评论全屏失效
+@interface AWEDPlayerFeedPlayerViewController : UIViewController
+@property (nonatomic) UIView *contentView;
+@end
