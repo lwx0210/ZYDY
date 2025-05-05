@@ -699,7 +699,9 @@
     if (!originalArray) {
         originalArray = @[];
     }
-    
+    if (!self.awemeModel.author.nickname) {
+        return originalArray;
+    }
     // 检查是否启用了任意长按功能
     BOOL hasAnyFeatureEnabled = NO;
     
