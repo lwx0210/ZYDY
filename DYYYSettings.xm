@@ -2956,7 +2956,7 @@ static void showUserAgreementAlert() {
 		  AWESettingItemModel *aboutItem = [[%c(AWESettingItemModel) alloc] init];
 		  aboutItem.identifier = @"DYYYAbout";
 		  aboutItem.title = @"关于插件";
-		  aboutItem.detail = DYYY_VERSION;
+		  aboutItem.detail = DYYY_VERSION_STRING;
 		  aboutItem.type = 0;
 		  aboutItem.iconImageName = @"awe-settings-icon-about";
 		  aboutItem.cellType = 26;
@@ -2964,7 +2964,7 @@ static void showUserAgreementAlert() {
 		  aboutItem.isEnable = YES;
 		  aboutItem.cellTappedBlock = ^{
 		    showAboutDialog(@"关于DYYY",
-				    @"版本: " DYYY_VERSION @"\n\n"
+				    @"版本: " DYYY_VERSION_STRING @"\n\n"
 				    @"感谢使用DYYY\n\n"
 				    @"感谢huami开源\n\n"
 				    @"@维他入我心 基于DYYY二次开发\n\n"
