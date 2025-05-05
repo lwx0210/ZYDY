@@ -935,3 +935,9 @@ typedef NS_ENUM(NSInteger, MediaType) {
 @property (nonatomic) UIView *contentView;
 - (void)setVideoControllerPlaybackRate:(double)arg0;
 @end
+
+//底部热点提示框
+@interface AWENewHotSpotBottomBarView : UIView
+@property (nonatomic, strong, readonly) UIView *superview;
+@property (nonatomic, assign, getter=isHidden) BOOL hidden;
+@end
