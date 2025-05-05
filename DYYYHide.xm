@@ -32,6 +32,20 @@
 }
 %end
 
+//隐藏底部热点框
+%hook AWENewHotSpotBottomBarView
+- (void)layoutSubviews {
+	if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHideHotspot"]) {
+		if ([self respondsToSelector:@selector(removeFromSuperview)]) {
+			[self removeFromSuperview];
+		}
+		self.hidden = YES;
+		return;
+	}
+	%orig;
+}
+%end
+
 // 首页头像隐藏和透明
 %hook AWEAdAvatarView
 - (void)layoutSubviews {
