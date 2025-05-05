@@ -941,3 +941,7 @@ typedef NS_ENUM(NSInteger, MediaType) {
 @property (nonatomic, strong, readonly) UIView *superview;
 @property (nonatomic, assign, getter=isHidden) BOOL hidden;
 @end
+
+//隐藏章节进度
+@interface AWEDemaciaChapterProgressSlider : UIView
+@end
