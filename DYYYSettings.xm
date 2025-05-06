@@ -2240,12 +2240,11 @@ static void showUserAgreementAlert() {
 			      @"detail" : @"",
 			      @"cellType" : @6,
 			      @"imageName" : @"ic_comment_outlined_20"},
-			    @{
-				    @"identifier" : @"DYYYEnableDoubleOpenAlertController",
-				    @"title" : @"启用双击打开菜单",
-				    @"detail" : @"",
-				    @"cellType" : @26,
-				    @"imageName" : @"ic_xiaoxihuazhonghua_outlined_20"
+			    @{@"identifier" : @"DYYYEnableDoubleOpenAlertController",
+			      @"title" : @"启用双击打开菜单",
+			      @"detail" : @"",
+			      @"cellType" : @26,
+			      @"imageName" : @"ic_xiaoxihuazhonghua_outlined_20"
 			    }
 		    ];
 
