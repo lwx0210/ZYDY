@@ -59,7 +59,6 @@
 
 %end
 
-
 // 首页头像隐藏和透明
 %hook AWEAdAvatarView
 - (void)layoutSubviews {
@@ -401,7 +400,7 @@
 }
 %end
 
-	// 隐藏每日精选
+// 隐藏每日精选
 %hook AWETemplateTagsCommonView
 - (id)initWithFrame:(CGRect)frame {
     self = %orig;
@@ -460,6 +459,7 @@
 }
 %end
 
+//隐藏加入挑战及顶栏输入框扫一扫
 %hook UIButton
 
 - (void)setTitle:(NSString *)title forState:(UIControlState)state {
@@ -496,7 +496,21 @@
     }
 }
 
+- (void)layoutSubviews {
+	%orig;
+
+	NSString *accessibilityLabel = self.accessibilityLabel;
+
+	if ([accessibilityLabel isEqualToString:@"拍照搜同款"] || [accessibilityLabel isEqualToString:@"扫一扫"]) {
+		if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHideScancode"]) {
+			[self removeFromSuperview];
+			return;
+		}
+	}
+}
+
 %end
+
 
 // 隐藏评论区免费去看短剧
 %hook AWEShowPlayletCommentHeaderView
@@ -747,9 +761,15 @@
 			return;
 		}
 	}
+
+	if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHideFollowPromptView"]) {
+		self.hidden = YES;
+		return;
+	}
 }
 
 %end
+
 %hook AWENormalModeTabBar
 
 - (void)layoutSubviews {
