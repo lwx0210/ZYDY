@@ -949,3 +949,14 @@ typedef NS_ENUM(NSInteger, MediaType) {
 // 直播右上关闭按钮
 @interface IESLiveLayoutPlaceholderView : UIView
 @end
+
+//HDR
+@interface AWEPlayVideoViewController : UIViewController
+- (void)setHDRVideoMode:(NSInteger)mode;
+@end
+@interface BDSimMediaPlayer : NSObject
+- (void)setHDRVideoMode:(NSInteger)mode;
+@end
+@interface BDSimPlayerMediaViewController : UIViewController
+- (void)setHDRVideoMode:(NSInteger)mode;
+@end
