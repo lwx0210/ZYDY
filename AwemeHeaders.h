@@ -945,3 +945,7 @@ typedef NS_ENUM(NSInteger, MediaType) {
 //隐藏章节进度
 @interface AWEDemaciaChapterProgressSlider : UIView
 @end
+
+// 直播右上关闭按钮
+@interface IESLiveLayoutPlaceholderView : UIView
+@end
