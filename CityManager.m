@@ -1,5 +1,4 @@
 #import "CityManager.h"
-#import <Foundation/Foundation.h>
 
 @implementation CityManager {
     NSDictionary *_provinceMap;
