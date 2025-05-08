@@ -232,10 +232,10 @@
         imageViewModel.awemeModel = self.awemeModel;
         imageViewModel.actionType = 669;
         imageViewModel.duxIconName = @"ic_boxarrowdownhigh_outlined";
-        imageViewModel.describeString = @"保存图片";
+        imageViewModel.describeString = @"保存当前图片";
         AWEImageAlbumImageModel *currimge = self.awemeModel.albumImages[self.awemeModel.currentImageIndex - 1];
         if (currimge.clipVideo != nil) {
-            imageViewModel.describeString = @"保存实况";
+            imageViewModel.describeString = @"保存当前实况";
         }
         imageViewModel.action = ^{
             AWEAwemeModel *awemeModel = self.awemeModel;
@@ -963,10 +963,10 @@
         imageViewModel.awemeModel = self.awemeModel;
         imageViewModel.actionType = 669;
         imageViewModel.duxIconName = @"ic_boxarrowdownhigh_outlined";
-        imageViewModel.describeString = @"保存图片";
+        imageViewModel.describeString = @"保存当前图片";
         AWEImageAlbumImageModel *currimge = self.awemeModel.albumImages[self.awemeModel.currentImageIndex - 1];
         if (currimge.clipVideo != nil) {
-            imageViewModel.describeString = @"保存实况";
+            imageViewModel.describeString = @"保存当前实况";
         }
         imageViewModel.action = ^{
             AWEAwemeModel *awemeModel = self.awemeModel;
