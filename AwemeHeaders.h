@@ -957,14 +957,26 @@ typedef NS_ENUM(NSInteger, MediaType) {
 @end
 
 //HDR
-@interface AWEPlayVideoViewController : UIViewController
-- (void)setHDRVideoMode:(NSInteger)mode;
-@end
-@interface BDSimMediaPlayer : NSObject
-- (void)setHDRVideoMode:(NSInteger)mode;
+@interface AWEFeedABSettings : NSObject
++ (BOOL)enableHDRBrightnessOpt;
++ (BOOL)hdrAutomaticIdentification;
 @end
 @interface BDSimPlayerMediaViewController : UIViewController
-- (void)setHDRVideoMode:(NSInteger)mode;
+- (void)setEnableHDR:(BOOL)enable;
+- (void)setEnablePlayHDRMode;
+@end
+@interface AWEVideoPlayerConfiguration : NSObject
++ (void)setHDRBrightnessStrategy:(id)strategy;
+@end
+@interface BDSimPlayerBizConfig : NSObject
+- (BOOL)enableHDRBrightnessOpt;
+@end
+@interface AWEProtectEyesManager : NSObject
+- (void)setHDRlutImage:(id)image;
+@end
+@interface BDSimMediaPlayer : NSObject
+- (void)setEnableHDR:(BOOL)enable;
+- (void)setEnablePlayHDRMode;
 @end
 
 //Ab接口
