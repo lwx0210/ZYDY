@@ -798,6 +798,7 @@ typedef NS_ENUM(NSInteger, MediaType) {
 
 @interface AWESettingBaseViewController : UIViewController
 @property(nonatomic, strong) UIView *view;
+@property(nonatomic, strong) UITableView *tableView;
 - (AWESettingBaseViewModel *)viewModel;
 @end
 
@@ -811,10 +812,11 @@ typedef NS_ENUM(NSInteger, MediaType) {
 - (AWESettingItemModel *)createSettingItem:(NSDictionary *)dict cellTapHandlers:(NSMutableDictionary *)cellTapHandlers;
 
 - (void)applyDependencyRulesForItem:(AWESettingItemModel *)item;
+- (void)refreshTableView;
+- (void)updateSectionDataArray;
 - (void)handleConflictsAndDependenciesForSetting:(NSString *)identifier isEnabled:(BOOL)isEnabled;
 - (void)updateDependentItemsForSetting:(NSString *)identifier value:(id)value;
 @end
-
 
 @interface AWENavigationBar : UIView
 @property(nonatomic, strong) UILabel *titleLabel;
