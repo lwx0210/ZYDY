@@ -1589,10 +1589,6 @@ static void DYYYAddCustomViewToParent(UIView *parentView, float transparency) {
                 }
             } else {
                 // 这里添加原第一段代码中根据地区代码处理显示内容的逻辑
-if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYisEnableArea"]) {
-        NSString *text = label.text;
-        NSString *areaCode = self.model.cityCode;
-
         NSLog(@"[XUUZ] 当前 areaCode: %@ (%lu 位)", areaCode, (unsigned long)areaCode.length);
 
         NSString *province = [CityManager.sharedInstance getProvinceNameWithCode:areaCode] ?: @"";
@@ -1725,7 +1721,7 @@ if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYisEnableArea"]) {
   }
 }
 %end
-%end
+
 
 static CGFloat stream_frame_y = 0;
 
