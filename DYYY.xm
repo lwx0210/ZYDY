@@ -1724,7 +1724,8 @@ if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYisEnableArea"]) {
 	return [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYisEnableArea"];
   }
 }
-
+%end
+%end
 
 static CGFloat stream_frame_y = 0;
 
