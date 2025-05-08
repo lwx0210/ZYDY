@@ -467,13 +467,8 @@ static void showUserAgreementAlert() {
 			      @"detail" : @"",
 			      @"cellType" : @6,
 			      @"imageName" : @"ic_location_outlined_20"},
-			    @{@"identifier" : @"DYYYGeonamesUsername",
-			      @"title" : @"国外解析账号",
-			      @"detail" : @"",
-			      @"cellType" : @26,
-			      @"imageName" : @"ic_location_outlined_20"},
-			    @{@"identifier" : @"DYYYLabelColor",
-			      @"title" : @"属地标签颜色",
+		            @{@"identifier" : @"DYYYLabelColor",
+			      @"title" : @"时间属地颜色",
 			      @"detail" : @"十六进制",
 			      @"cellType" : @26,
 			      @"imageName" : @"ic_location_outlined_20"},
@@ -2314,7 +2309,7 @@ static void showUserAgreementAlert() {
 		    [clearButtonItems addObject:clearButtonSizeItem];
 
 		    // 添加清屏按钮自定义图标选项
-		    AWESettingItemModel *clearButtonIcon = createIconCustomizationItem(@"DYYYClearButtonIcon", @"清屏按钮图标", @"ic_roaming_outlined", @"qingping.gif");
+		    AWESettingItemModel *clearButtonIcon = createIconCustomizationItem(@"DYYYClearButtonIcon", @"一键清屏按钮图标", @"ic_roaming_outlined", @"qingping.gif");
 
 		    [clearButtonItems addObject:clearButtonIcon];
 		    // 清屏移除时间进度 enableqingButton 需要改名
