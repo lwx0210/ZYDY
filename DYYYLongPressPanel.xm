@@ -243,17 +243,8 @@
             } else {
                 currentImageModel = awemeModel.albumImages.firstObject;
             }
-            // 如果是实况的话
-            if (currentImageModel.clipVideo != nil) {
-                NSURL *url = [NSURL URLWithString:currentImageModel.urlList.firstObject];
-                NSURL *videoURL = [currentImageModel.clipVideo.playURL getDYYYSrcURLDownload];
-                [DYYYManager downloadLivePhoto:url
-                                      videoURL:videoURL
-                                    completion:^{
-                                        [DYYYManager showToast:@"实况照片已保存到相册"];
-                                    }];
-            } else if (currentImageModel && currentImageModel.urlList.count > 0) {
-                // 查找非.image后缀的URL
+             // 如果是实况的话
+            // 查找非.image后缀的URL
                 NSURL *downloadURL = nil;
                 for (NSString *urlString in currentImageModel.urlList) {
                     NSURL *url = [NSURL URLWithString:urlString];
@@ -264,6 +255,13 @@
                     }
                 }
                 
+            if (currentImageModel.clipVideo != nil) {
+                NSURL *videoURL = [currentImageModel.clipVideo.playURL getDYYYSrcURLDownload];
+                [DYYYManager downloadLivePhoto:downloadURL
+                                      videoURL:videoURL
+                                    completion:^{
+                                    }];
+            } else if (currentImageModel && currentImageModel.urlList.count > 0) {
                 if (downloadURL) {
                     [DYYYManager downloadMedia:downloadURL
                                     mediaType:MediaTypeImage
@@ -971,17 +969,8 @@
             } else {
                 currentImageModel = awemeModel.albumImages.firstObject;
             }
-            // 如果是实况的话
-            if (currentImageModel.clipVideo != nil) {
-                NSURL *url = [NSURL URLWithString:currentImageModel.urlList.firstObject];
-                NSURL *videoURL = [currentImageModel.clipVideo.playURL getDYYYSrcURLDownload];
-                [DYYYManager downloadLivePhoto:url
-                                      videoURL:videoURL
-                                    completion:^{
-                                        [DYYYManager showToast:@"实况照片已保存到相册"];
-                                    }];
-            } else if (currentImageModel && currentImageModel.urlList.count > 0) {
-                // 查找非.image后缀的URL
+             // 如果是实况的话
+            // 查找非.image后缀的URL
                 NSURL *downloadURL = nil;
                 for (NSString *urlString in currentImageModel.urlList) {
                     NSURL *url = [NSURL URLWithString:urlString];
@@ -992,6 +981,13 @@
                     }
                 }
                 
+            if (currentImageModel.clipVideo != nil) {
+                NSURL *videoURL = [currentImageModel.clipVideo.playURL getDYYYSrcURLDownload];
+                [DYYYManager downloadLivePhoto:downloadURL
+                                      videoURL:videoURL
+                                    completion:^{
+                                    }];
+            } else if (currentImageModel && currentImageModel.urlList.count > 0) {
                 if (downloadURL) {
                     [DYYYManager downloadMedia:downloadURL
                                     mediaType:MediaTypeImage
