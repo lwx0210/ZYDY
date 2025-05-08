@@ -99,6 +99,7 @@
 			[actions addObject:downloadAction];
 
 			// 添加保存封面选项
+                        if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYDoubleSaveCover"]) {
 			if (!isImageContent) { // 仅视频内容显示保存封面选项
 				AWEUserSheetAction *saveCoverAction = [NSClassFromString(@"AWEUserSheetAction")
 				    actionWithTitle:@"保存封面"
@@ -119,7 +120,7 @@
 					    }];
 				[actions addObject:saveCoverAction];
 			}
-
+                     }
 			// 如果是图集，添加下载所有图片选项
 			if (isImageContent && awemeModel.albumImages.count > 1) {
 				AWEUserSheetAction *downloadAllAction = [NSClassFromString(@"AWEUserSheetAction") actionWithTitle:@"保存所有图片"
