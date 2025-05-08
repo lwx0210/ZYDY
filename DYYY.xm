@@ -1646,7 +1646,6 @@ if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYisEnableArea"]) {
                 }
             }
         }
-    }
 	// 应用IP属地标签上移
 	NSString *ipScaleValue = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYNicknameScale"];
 	if (ipScaleValue.length > 0) {
@@ -1723,7 +1722,7 @@ if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYisEnableArea"]) {
 
 + (BOOL)shouldActiveWithData:(id)arg1 context:(id)arg2 {
 	return [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYisEnableArea"];
-}
+  }
 
 %end
 
