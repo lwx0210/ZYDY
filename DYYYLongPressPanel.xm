@@ -226,7 +226,7 @@
 		[viewModels addObject:audioViewModel];
 	}
 
-  // 当前图片/实况下载功能
+    // 当前图片/实况下载功能
     if (enableSaveCurrentImage && self.awemeModel.awemeType == 68 && self.awemeModel.albumImages.count > 0) {
         AWELongPressPanelBaseViewModel *imageViewModel = [[%c(AWELongPressPanelBaseViewModel) alloc] init];
         imageViewModel.awemeModel = self.awemeModel;
@@ -255,16 +255,30 @@
                                         [DYYYManager showToast:@"实况照片已保存到相册"];
                                     }];
             } else if (currentImageModel && currentImageModel.urlList.count > 0) {
-                NSURL *url = [NSURL URLWithString:currentImageModel.urlList.firstObject];
-                [DYYYManager downloadMedia:url
-                                mediaType:MediaTypeImage
-                                completion:^(BOOL success){
-                                    if (success) {
-                                        [DYYYManager showToast:@"图片已保存到相册"];
-                                    } else {
-                                        [DYYYManager showToast:@"图片保存已取消"];
-                                    }
-                                }];
+                // 查找非.image后缀的URL
+                NSURL *downloadURL = nil;
+                for (NSString *urlString in currentImageModel.urlList) {
+                    NSURL *url = [NSURL URLWithString:urlString];
+                    NSString *pathExtension = [url.path.lowercaseString pathExtension];
+                    if (![pathExtension isEqualToString:@"image"]) {
+                        downloadURL = url;
+                        break;
+                    }
+                }
+                
+                if (downloadURL) {
+                    [DYYYManager downloadMedia:downloadURL
+                                    mediaType:MediaTypeImage
+                                    completion:^(BOOL success){
+                                        if (success) {
+                                            [DYYYManager showToast:@"图片已保存到相册"];
+                                        } else {
+                                            [DYYYManager showToast:@"图片保存已取消"];
+                                        }
+                                    }];
+                } else {
+                    [DYYYManager showToast:@"没有找到合适格式的图片"];
+                }
             }
             AWELongPressPanelManager *panelManager = [%c(AWELongPressPanelManager) shareInstance];
             [panelManager dismissWithAnimation:YES completion:nil];
@@ -295,7 +309,20 @@
             NSMutableArray *imageURLs = [NSMutableArray array];
             for (AWEImageAlbumImageModel *imageModel in awemeModel.albumImages) {
                 if (imageModel.urlList.count > 0) {
-                    [imageURLs addObject:imageModel.urlList.firstObject];
+                    // 查找非.image后缀的URL
+                    NSURL *downloadURL = nil;
+                    for (NSString *urlString in imageModel.urlList) {
+                        NSURL *url = [NSURL URLWithString:urlString];
+                        NSString *pathExtension = [url.path.lowercaseString pathExtension];
+                        if (![pathExtension isEqualToString:@"image"]) {
+                            downloadURL = url;
+                            break;
+                        }
+                    }
+                    
+                    if (downloadURL) {
+                        [imageURLs addObject:downloadURL.absoluteString];
+                    }
                 }
             }
             // 检查是否有实况照片
@@ -311,7 +338,19 @@
                 NSMutableArray *livePhotos = [NSMutableArray array];
                 for (AWEImageAlbumImageModel *imageModel in awemeModel.albumImages) {
                     if (imageModel.urlList.count > 0 && imageModel.clipVideo != nil) {
-                        NSURL *photoURL = [NSURL URLWithString:imageModel.urlList.firstObject];
+                        // 为实况照片也进行URL过滤
+                        NSURL *photoURL = nil;
+                        for (NSString *urlString in imageModel.urlList) {
+                            NSURL *url = [NSURL URLWithString:urlString];
+                            NSString *pathExtension = [url.path.lowercaseString pathExtension];
+                            if (![pathExtension isEqualToString:@"image"]) {
+                                photoURL = url;
+                                break;
+                            }
+                        }
+                        if (!photoURL && imageModel.urlList.count > 0) {
+                            photoURL = [NSURL URLWithString:imageModel.urlList.firstObject];
+                        }
                         NSURL *videoURL = [imageModel.clipVideo.playURL getDYYYSrcURLDownload];
                         [livePhotos addObject:@{@"imageURL" : photoURL.absoluteString, @"videoURL" : videoURL.absoluteString}];
                     }
@@ -320,6 +359,8 @@
                 [DYYYManager downloadAllLivePhotos:livePhotos];
             } else if (imageURLs.count > 0) {
                 [DYYYManager downloadAllImages:imageURLs];
+            } else {
+                [DYYYManager showToast:@"没有找到合适格式的图片"];
             }
             AWELongPressPanelManager *panelManager = [%c(AWELongPressPanelManager) shareInstance];
             [panelManager dismissWithAnimation:YES completion:nil];
@@ -945,16 +986,30 @@
                                         [DYYYManager showToast:@"实况照片已保存到相册"];
                                     }];
             } else if (currentImageModel && currentImageModel.urlList.count > 0) {
-                NSURL *url = [NSURL URLWithString:currentImageModel.urlList.firstObject];
-                [DYYYManager downloadMedia:url
-                                mediaType:MediaTypeImage
-                                completion:^(BOOL success){
-                                    if (success) {
-                                        [DYYYManager showToast:@"图片已保存到相册"];
-                                    } else {
-                                        [DYYYManager showToast:@"图片保存已取消"];
-                                    }
-                                }];
+                // 查找非.image后缀的URL
+                NSURL *downloadURL = nil;
+                for (NSString *urlString in currentImageModel.urlList) {
+                    NSURL *url = [NSURL URLWithString:urlString];
+                    NSString *pathExtension = [url.path.lowercaseString pathExtension];
+                    if (![pathExtension isEqualToString:@"image"]) {
+                        downloadURL = url;
+                        break;
+                    }
+                }
+                
+                if (downloadURL) {
+                    [DYYYManager downloadMedia:downloadURL
+                                    mediaType:MediaTypeImage
+                                    completion:^(BOOL success){
+                                        if (success) {
+                                            [DYYYManager showToast:@"图片已保存到相册"];
+                                        } else {
+                                            [DYYYManager showToast:@"图片保存已取消"];
+                                        }
+                                    }];
+                } else {
+                    [DYYYManager showToast:@"没有找到合适格式的图片"];
+                }
             }
             AWELongPressPanelManager *panelManager = [%c(AWELongPressPanelManager) shareInstance];
             [panelManager dismissWithAnimation:YES completion:nil];
@@ -985,7 +1040,20 @@
             NSMutableArray *imageURLs = [NSMutableArray array];
             for (AWEImageAlbumImageModel *imageModel in awemeModel.albumImages) {
                 if (imageModel.urlList.count > 0) {
-                    [imageURLs addObject:imageModel.urlList.firstObject];
+                    // 查找非.image后缀的URL
+                    NSURL *downloadURL = nil;
+                    for (NSString *urlString in imageModel.urlList) {
+                        NSURL *url = [NSURL URLWithString:urlString];
+                        NSString *pathExtension = [url.path.lowercaseString pathExtension];
+                        if (![pathExtension isEqualToString:@"image"]) {
+                            downloadURL = url;
+                            break;
+                        }
+                    }
+                    
+                    if (downloadURL) {
+                        [imageURLs addObject:downloadURL.absoluteString];
+                    }
                 }
             }
             // 检查是否有实况照片
@@ -1001,7 +1069,19 @@
                 NSMutableArray *livePhotos = [NSMutableArray array];
                 for (AWEImageAlbumImageModel *imageModel in awemeModel.albumImages) {
                     if (imageModel.urlList.count > 0 && imageModel.clipVideo != nil) {
-                        NSURL *photoURL = [NSURL URLWithString:imageModel.urlList.firstObject];
+                        // 为实况照片也进行URL过滤
+                        NSURL *photoURL = nil;
+                        for (NSString *urlString in imageModel.urlList) {
+                            NSURL *url = [NSURL URLWithString:urlString];
+                            NSString *pathExtension = [url.path.lowercaseString pathExtension];
+                            if (![pathExtension isEqualToString:@"image"]) {
+                                photoURL = url;
+                                break;
+                            }
+                        }
+                        if (!photoURL && imageModel.urlList.count > 0) {
+                            photoURL = [NSURL URLWithString:imageModel.urlList.firstObject];
+                        }
                         NSURL *videoURL = [imageModel.clipVideo.playURL getDYYYSrcURLDownload];
                         [livePhotos addObject:@{@"imageURL" : photoURL.absoluteString, @"videoURL" : videoURL.absoluteString}];
                     }
@@ -1010,6 +1090,8 @@
                 [DYYYManager downloadAllLivePhotos:livePhotos];
             } else if (imageURLs.count > 0) {
                 [DYYYManager downloadAllImages:imageURLs];
+            } else {
+                [DYYYManager showToast:@"没有找到合适格式的图片"];
             }
             AWELongPressPanelManager *panelManager = [%c(AWELongPressPanelManager) shareInstance];
             [panelManager dismissWithAnimation:YES completion:nil];
