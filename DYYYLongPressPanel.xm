@@ -145,61 +145,62 @@
     
     NSMutableArray *viewModels = [NSMutableArray array];
 
-	// 视频下载功能
-	if (enableSaveVideo && self.awemeModel.awemeType != 68) {
-		AWELongPressPanelBaseViewModel *downloadViewModel = [[%c(AWELongPressPanelBaseViewModel) alloc] init];
-		downloadViewModel.awemeModel = self.awemeModel;
-		downloadViewModel.actionType = 666;
-		downloadViewModel.duxIconName = @"ic_boxarrowdownhigh_outlined";
-		downloadViewModel.describeString = @"保存视频";
+    // 视频下载功能
+    if (enableSaveVideo && self.awemeModel.awemeType != 68) {
+        AWELongPressPanelBaseViewModel *downloadViewModel = [[%c(AWELongPressPanelBaseViewModel) alloc] init];
+        downloadViewModel.awemeModel = self.awemeModel;
+        downloadViewModel.actionType = 666;
+        downloadViewModel.duxIconName = @"ic_boxarrowdownhigh_outlined";
+        downloadViewModel.describeString = @"保存视频";
+        downloadViewModel.action = ^{
+            AWEAwemeModel *awemeModel = self.awemeModel;
+            AWEVideoModel *videoModel = awemeModel.video;
+            if (videoModel && videoModel.h264URL && videoModel.h264URL.originURLList.count > 0) {
+                NSURL *url = [NSURL URLWithString:videoModel.h264URL.originURLList.firstObject];
+                [DYYYManager downloadMedia:url
+                                mediaType:MediaTypeVideo
+                                completion:^(BOOL success){
+                                    if (success) {
+                                        [DYYYManager showToast:@"视频已保存到相册"];
+                                    } else {
+                                        [DYYYManager showToast:@"视频保存已取消"];
+                                    }
+                                }];
 
-		downloadViewModel.action = ^{
-		  AWEAwemeModel *awemeModel = self.awemeModel;
-		  AWEVideoModel *videoModel = awemeModel.video;
+            }
+            AWELongPressPanelManager *panelManager = [%c(AWELongPressPanelManager) shareInstance];
+            [panelManager dismissWithAnimation:YES completion:nil];
+        };
+        [viewModels addObject:downloadViewModel];
+    }
 
-		  if (videoModel && videoModel.h264URL && videoModel.h264URL.originURLList.count > 0) {
-			  NSURL *url = [NSURL URLWithString:videoModel.h264URL.originURLList.firstObject];
-			  [DYYYManager downloadMedia:url
-					   mediaType:MediaTypeVideo
-					  completion:^{
-					    [DYYYManager showToast:@"视频已保存到相册"];
-					  }];
-		  }
-
-		  AWELongPressPanelManager *panelManager = [%c(AWELongPressPanelManager) shareInstance];
-		  [panelManager dismissWithAnimation:YES completion:nil];
-		};
-
-		[viewModels addObject:downloadViewModel];
-	}
-
-	// 封面下载功能
-	if (enableSaveCover && self.awemeModel.awemeType != 68) {
-		AWELongPressPanelBaseViewModel *coverViewModel = [[%c(AWELongPressPanelBaseViewModel) alloc] init];
-		coverViewModel.awemeModel = self.awemeModel;
-		coverViewModel.actionType = 667;
-		coverViewModel.duxIconName = @"ic_boxarrowdownhigh_outlined";
-		coverViewModel.describeString = @"保存封面";
-
-		coverViewModel.action = ^{
-		  AWEAwemeModel *awemeModel = self.awemeModel;
-		  AWEVideoModel *videoModel = awemeModel.video;
-
-		  if (videoModel && videoModel.coverURL && videoModel.coverURL.originURLList.count > 0) {
-			  NSURL *url = [NSURL URLWithString:videoModel.coverURL.originURLList.firstObject];
-			  [DYYYManager downloadMedia:url
-					   mediaType:MediaTypeImage
-					  completion:^{
-					    [DYYYManager showToast:@"封面已保存到相册"];
-					  }];
-		  }
-
-		  AWELongPressPanelManager *panelManager = [%c(AWELongPressPanelManager) shareInstance];
-		  [panelManager dismissWithAnimation:YES completion:nil];
-		};
-
-		[viewModels addObject:coverViewModel];
-	}
+ // 封面下载功能
+    if (enableSaveCover && self.awemeModel.awemeType != 68) {
+        AWELongPressPanelBaseViewModel *coverViewModel = [[%c(AWELongPressPanelBaseViewModel) alloc] init];
+        coverViewModel.awemeModel = self.awemeModel;
+        coverViewModel.actionType = 667;
+        coverViewModel.duxIconName = @"ic_boxarrowdownhigh_outlined";
+        coverViewModel.describeString = @"保存封面";
+        coverViewModel.action = ^{
+            AWEAwemeModel *awemeModel = self.awemeModel;
+            AWEVideoModel *videoModel = awemeModel.video;
+            if (videoModel && videoModel.coverURL && videoModel.coverURL.originURLList.count > 0) {
+                NSURL *url = [NSURL URLWithString:videoModel.coverURL.originURLList.firstObject];
+                [DYYYManager downloadMedia:url
+                                mediaType:MediaTypeImage
+                                completion:^(BOOL success){
+                                    if (success) {
+                                        [DYYYManager showToast:@"封面已保存到相册"];
+                                    } else {
+                                        [DYYYManager showToast:@"封面保存已取消"];
+                                    }
+                                }];
+            }
+            AWELongPressPanelManager *panelManager = [%c(AWELongPressPanelManager) shareInstance];
+            [panelManager dismissWithAnimation:YES completion:nil];
+        };
+        [viewModels addObject:coverViewModel];
+    }
 
 	// 音频下载功能
 	if (enableSaveAudio) {
@@ -225,118 +226,106 @@
 		[viewModels addObject:audioViewModel];
 	}
 
-	// 当前图片/实况下载功能
-	if (enableSaveCurrentImage && self.awemeModel.awemeType == 68 && self.awemeModel.albumImages.count > 0) {
-		AWELongPressPanelBaseViewModel *imageViewModel = [[%c(AWELongPressPanelBaseViewModel) alloc] init];
-		imageViewModel.awemeModel = self.awemeModel;
-		imageViewModel.actionType = 669;
-		imageViewModel.duxIconName = @"ic_boxarrowdownhigh_outlined";
-		imageViewModel.describeString = @"保存图片";
-
-		AWEImageAlbumImageModel *currimge = self.awemeModel.albumImages[self.awemeModel.currentImageIndex - 1];
-		if (currimge.clipVideo != nil) {
-			imageViewModel.describeString = @"保存实况";
-		}
-
-		imageViewModel.action = ^{
-		  AWEAwemeModel *awemeModel = self.awemeModel;
-		  AWEImageAlbumImageModel *currentImageModel = nil;
-
-		  if (awemeModel.currentImageIndex > 0 && awemeModel.currentImageIndex <= awemeModel.albumImages.count) {
-			  currentImageModel = awemeModel.albumImages[awemeModel.currentImageIndex - 1];
-		  } else {
-			  currentImageModel = awemeModel.albumImages.firstObject;
-		  }
-		  // 如果是实况的话
-		  if (currentImageModel.clipVideo != nil) {
-			  NSURL *url = [NSURL URLWithString:currentImageModel.urlList.firstObject];
-			  NSURL *videoURL = [currentImageModel.clipVideo.playURL getDYYYSrcURLDownload];
-
-			  [DYYYManager downloadLivePhoto:url
-						videoURL:videoURL
-					      completion:^{
-						[DYYYManager showToast:@"实况照片已保存到相册"];
-					      }];
-		  } else if (currentImageModel && currentImageModel.urlList.count > 0) {
-			  NSURL *url = [NSURL URLWithString:currentImageModel.urlList.firstObject];
-			  [DYYYManager downloadMedia:url
-					   mediaType:MediaTypeImage
-					  completion:^{
-					    [DYYYManager showToast:@"图片已保存到相册"];
-					  }];
-		  }
-
-		  AWELongPressPanelManager *panelManager = [%c(AWELongPressPanelManager) shareInstance];
-		  [panelManager dismissWithAnimation:YES completion:nil];
-		};
-
-		[viewModels addObject:imageViewModel];
-	}
-
-	// 保存所有图片/实况功能
-	if (enableSaveAllImages && self.awemeModel.awemeType == 68 && self.awemeModel.albumImages.count > 1) {
-		AWELongPressPanelBaseViewModel *allImagesViewModel = [[%c(AWELongPressPanelBaseViewModel) alloc] init];
-		allImagesViewModel.awemeModel = self.awemeModel;
-		allImagesViewModel.actionType = 670;
-		allImagesViewModel.duxIconName = @"ic_boxarrowdownhigh_outlined";
-		allImagesViewModel.describeString = @"保存所有图片";
-
-		// 检查是否有实况照片并更改按钮文字
-		BOOL hasLivePhoto = NO;
-		for (AWEImageAlbumImageModel *imageModel in self.awemeModel.albumImages) {
-			if (imageModel.clipVideo != nil) {
-				hasLivePhoto = YES;
-				break;
-			}
-		}
-
-		if (hasLivePhoto) {
-			allImagesViewModel.describeString = @"保存所有实况";
-		}
-
-		allImagesViewModel.action = ^{
-		  AWEAwemeModel *awemeModel = self.awemeModel;
-		  NSMutableArray *imageURLs = [NSMutableArray array];
-
-		  for (AWEImageAlbumImageModel *imageModel in awemeModel.albumImages) {
-			  if (imageModel.urlList.count > 0) {
-				  [imageURLs addObject:imageModel.urlList.firstObject];
-			  }
-		  }
-
-		  // 检查是否有实况照片
-		  BOOL hasLivePhoto = NO;
-		  for (AWEImageAlbumImageModel *imageModel in awemeModel.albumImages) {
-			  if (imageModel.clipVideo != nil) {
-				  hasLivePhoto = YES;
-				  break;
-			  }
-		  }
-
-		  // 如果有实况照片，使用单独的downloadLivePhoto方法逐个下载
-		  if (hasLivePhoto) {
-			  NSMutableArray *livePhotos = [NSMutableArray array];
-			  for (AWEImageAlbumImageModel *imageModel in awemeModel.albumImages) {
-				  if (imageModel.urlList.count > 0 && imageModel.clipVideo != nil) {
-					  NSURL *photoURL = [NSURL URLWithString:imageModel.urlList.firstObject];
-					  NSURL *videoURL = [imageModel.clipVideo.playURL getDYYYSrcURLDownload];
-
-					  [livePhotos addObject:@{@"imageURL" : photoURL.absoluteString, @"videoURL" : videoURL.absoluteString}];
-				  }
-			  }
-
-			  // 使用批量下载实况照片方法
-			  [DYYYManager downloadAllLivePhotos:livePhotos];
-		  } else if (imageURLs.count > 0) {
-			  [DYYYManager downloadAllImages:imageURLs];
-		  }
-
-		  AWELongPressPanelManager *panelManager = [%c(AWELongPressPanelManager) shareInstance];
-		  [panelManager dismissWithAnimation:YES completion:nil];
-		};
-
-		[viewModels addObject:allImagesViewModel];
-	}
+  // 当前图片/实况下载功能
+    if (enableSaveCurrentImage && self.awemeModel.awemeType == 68 && self.awemeModel.albumImages.count > 0) {
+        AWELongPressPanelBaseViewModel *imageViewModel = [[%c(AWELongPressPanelBaseViewModel) alloc] init];
+        imageViewModel.awemeModel = self.awemeModel;
+        imageViewModel.actionType = 669;
+        imageViewModel.duxIconName = @"ic_boxarrowdownhigh_outlined";
+        imageViewModel.describeString = @"保存图片";
+        AWEImageAlbumImageModel *currimge = self.awemeModel.albumImages[self.awemeModel.currentImageIndex - 1];
+        if (currimge.clipVideo != nil) {
+            imageViewModel.describeString = @"保存实况";
+        }
+        imageViewModel.action = ^{
+            AWEAwemeModel *awemeModel = self.awemeModel;
+            AWEImageAlbumImageModel *currentImageModel = nil;
+            if (awemeModel.currentImageIndex > 0 && awemeModel.currentImageIndex <= awemeModel.albumImages.count) {
+                currentImageModel = awemeModel.albumImages[awemeModel.currentImageIndex - 1];
+            } else {
+                currentImageModel = awemeModel.albumImages.firstObject;
+            }
+            // 如果是实况的话
+            if (currentImageModel.clipVideo != nil) {
+                NSURL *url = [NSURL URLWithString:currentImageModel.urlList.firstObject];
+                NSURL *videoURL = [currentImageModel.clipVideo.playURL getDYYYSrcURLDownload];
+                [DYYYManager downloadLivePhoto:url
+                                      videoURL:videoURL
+                                    completion:^{
+                                        [DYYYManager showToast:@"实况照片已保存到相册"];
+                                    }];
+            } else if (currentImageModel && currentImageModel.urlList.count > 0) {
+                NSURL *url = [NSURL URLWithString:currentImageModel.urlList.firstObject];
+                [DYYYManager downloadMedia:url
+                                mediaType:MediaTypeImage
+                                completion:^(BOOL success){
+                                    if (success) {
+                                        [DYYYManager showToast:@"图片已保存到相册"];
+                                    } else {
+                                        [DYYYManager showToast:@"图片保存已取消"];
+                                    }
+                                }];
+            }
+            AWELongPressPanelManager *panelManager = [%c(AWELongPressPanelManager) shareInstance];
+            [panelManager dismissWithAnimation:YES completion:nil];
+        };
+        [viewModels addObject:imageViewModel];
+    }
+    
+    // 保存所有图片/实况功能
+    if (enableSaveAllImages && self.awemeModel.awemeType == 68 && self.awemeModel.albumImages.count > 1) {
+        AWELongPressPanelBaseViewModel *allImagesViewModel = [[%c(AWELongPressPanelBaseViewModel) alloc] init];
+        allImagesViewModel.awemeModel = self.awemeModel;
+        allImagesViewModel.actionType = 670;
+        allImagesViewModel.duxIconName = @"ic_boxarrowdownhigh_outlined";
+        allImagesViewModel.describeString = @"保存所有图片";
+        // 检查是否有实况照片并更改按钮文字
+        BOOL hasLivePhoto = NO;
+        for (AWEImageAlbumImageModel *imageModel in self.awemeModel.albumImages) {
+            if (imageModel.clipVideo != nil) {
+                hasLivePhoto = YES;
+                break;
+            }
+        }
+        if (hasLivePhoto) {
+            allImagesViewModel.describeString = @"保存所有实况";
+        }
+        allImagesViewModel.action = ^{
+            AWEAwemeModel *awemeModel = self.awemeModel;
+            NSMutableArray *imageURLs = [NSMutableArray array];
+            for (AWEImageAlbumImageModel *imageModel in awemeModel.albumImages) {
+                if (imageModel.urlList.count > 0) {
+                    [imageURLs addObject:imageModel.urlList.firstObject];
+                }
+            }
+            // 检查是否有实况照片
+            BOOL hasLivePhoto = NO;
+            for (AWEImageAlbumImageModel *imageModel in awemeModel.albumImages) {
+                if (imageModel.clipVideo != nil) {
+                    hasLivePhoto = YES;
+                    break;
+                }
+            }
+            // 如果有实况照片，使用单独的downloadLivePhoto方法逐个下载
+            if (hasLivePhoto) {
+                NSMutableArray *livePhotos = [NSMutableArray array];
+                for (AWEImageAlbumImageModel *imageModel in awemeModel.albumImages) {
+                    if (imageModel.urlList.count > 0 && imageModel.clipVideo != nil) {
+                        NSURL *photoURL = [NSURL URLWithString:imageModel.urlList.firstObject];
+                        NSURL *videoURL = [imageModel.clipVideo.playURL getDYYYSrcURLDownload];
+                        [livePhotos addObject:@{@"imageURL" : photoURL.absoluteString, @"videoURL" : videoURL.absoluteString}];
+                    }
+                }
+                // 使用批量下载实况照片方法
+                [DYYYManager downloadAllLivePhotos:livePhotos];
+            } else if (imageURLs.count > 0) {
+                [DYYYManager downloadAllImages:imageURLs];
+            }
+            AWELongPressPanelManager *panelManager = [%c(AWELongPressPanelManager) shareInstance];
+            [panelManager dismissWithAnimation:YES completion:nil];
+        };
+        [viewModels addObject:allImagesViewModel];
+    }
 
 	// 复制文案功能
 	if (enableCopyText) {
@@ -846,61 +835,62 @@
     NSMutableArray *viewModels = [NSMutableArray array];
     
 
-	// 视频下载功能
-	if (enableSaveVideo && self.awemeModel.awemeType != 68) {
-		AWELongPressPanelBaseViewModel *downloadViewModel = [[%c(AWELongPressPanelBaseViewModel) alloc] init];
-		downloadViewModel.awemeModel = self.awemeModel;
-		downloadViewModel.actionType = 666;
-		downloadViewModel.duxIconName = @"ic_boxarrowdownhigh_outlined";
-		downloadViewModel.describeString = @"保存视频";
+    // 视频下载功能
+    if (enableSaveVideo && self.awemeModel.awemeType != 68) {
+        AWELongPressPanelBaseViewModel *downloadViewModel = [[%c(AWELongPressPanelBaseViewModel) alloc] init];
+        downloadViewModel.awemeModel = self.awemeModel;
+        downloadViewModel.actionType = 666;
+        downloadViewModel.duxIconName = @"ic_boxarrowdownhigh_outlined";
+        downloadViewModel.describeString = @"保存视频";
+        downloadViewModel.action = ^{
+            AWEAwemeModel *awemeModel = self.awemeModel;
+            AWEVideoModel *videoModel = awemeModel.video;
+            if (videoModel && videoModel.h264URL && videoModel.h264URL.originURLList.count > 0) {
+                NSURL *url = [NSURL URLWithString:videoModel.h264URL.originURLList.firstObject];
+                [DYYYManager downloadMedia:url
+                                mediaType:MediaTypeVideo
+                                completion:^(BOOL success){
+                                    if (success) {
+                                        [DYYYManager showToast:@"视频已保存到相册"];
+                                    } else {
+                                        [DYYYManager showToast:@"视频保存已取消"];
+                                    }
+                                }];
 
-		downloadViewModel.action = ^{
-		  AWEAwemeModel *awemeModel = self.awemeModel;
-		  AWEVideoModel *videoModel = awemeModel.video;
+            }
+            AWELongPressPanelManager *panelManager = [%c(AWELongPressPanelManager) shareInstance];
+            [panelManager dismissWithAnimation:YES completion:nil];
+        };
+        [viewModels addObject:downloadViewModel];
+    }
 
-		  if (videoModel && videoModel.h264URL && videoModel.h264URL.originURLList.count > 0) {
-			  NSURL *url = [NSURL URLWithString:videoModel.h264URL.originURLList.firstObject];
-			  [DYYYManager downloadMedia:url
-					   mediaType:MediaTypeVideo
-					  completion:^{
-					    [DYYYManager showToast:@"视频已保存到相册"];
-					  }];
-		  }
-
-		  AWELongPressPanelManager *panelManager = [%c(AWELongPressPanelManager) shareInstance];
-		  [panelManager dismissWithAnimation:YES completion:nil];
-		};
-
-		[viewModels addObject:downloadViewModel];
-	}
-
-	// 封面下载功能
-	if (enableSaveCover && self.awemeModel.awemeType != 68) {
-		AWELongPressPanelBaseViewModel *coverViewModel = [[%c(AWELongPressPanelBaseViewModel) alloc] init];
-		coverViewModel.awemeModel = self.awemeModel;
-		coverViewModel.actionType = 667;
-		coverViewModel.duxIconName = @"ic_boxarrowdownhigh_outlined";
-		coverViewModel.describeString = @"保存封面";
-
-		coverViewModel.action = ^{
-		  AWEAwemeModel *awemeModel = self.awemeModel;
-		  AWEVideoModel *videoModel = awemeModel.video;
-
-		  if (videoModel && videoModel.coverURL && videoModel.coverURL.originURLList.count > 0) {
-			  NSURL *url = [NSURL URLWithString:videoModel.coverURL.originURLList.firstObject];
-			  [DYYYManager downloadMedia:url
-					   mediaType:MediaTypeImage
-					  completion:^{
-					    [DYYYManager showToast:@"封面已保存到相册"];
-					  }];
-		  }
-
-		  AWELongPressPanelManager *panelManager = [%c(AWELongPressPanelManager) shareInstance];
-		  [panelManager dismissWithAnimation:YES completion:nil];
-		};
-
-		[viewModels addObject:coverViewModel];
-	}
+ // 封面下载功能
+    if (enableSaveCover && self.awemeModel.awemeType != 68) {
+        AWELongPressPanelBaseViewModel *coverViewModel = [[%c(AWELongPressPanelBaseViewModel) alloc] init];
+        coverViewModel.awemeModel = self.awemeModel;
+        coverViewModel.actionType = 667;
+        coverViewModel.duxIconName = @"ic_boxarrowdownhigh_outlined";
+        coverViewModel.describeString = @"保存封面";
+        coverViewModel.action = ^{
+            AWEAwemeModel *awemeModel = self.awemeModel;
+            AWEVideoModel *videoModel = awemeModel.video;
+            if (videoModel && videoModel.coverURL && videoModel.coverURL.originURLList.count > 0) {
+                NSURL *url = [NSURL URLWithString:videoModel.coverURL.originURLList.firstObject];
+                [DYYYManager downloadMedia:url
+                                mediaType:MediaTypeImage
+                                completion:^(BOOL success){
+                                    if (success) {
+                                        [DYYYManager showToast:@"封面已保存到相册"];
+                                    } else {
+                                        [DYYYManager showToast:@"封面保存已取消"];
+                                    }
+                                }];
+            }
+            AWELongPressPanelManager *panelManager = [%c(AWELongPressPanelManager) shareInstance];
+            [panelManager dismissWithAnimation:YES completion:nil];
+        };
+        [viewModels addObject:coverViewModel];
+    }
 
 	// 音频下载功能
 	if (enableSaveAudio) {
@@ -926,118 +916,106 @@
 		[viewModels addObject:audioViewModel];
 	}
 
-	// 当前图片/实况下载功能
-	if (enableSaveCurrentImage && self.awemeModel.awemeType == 68 && self.awemeModel.albumImages.count > 0) {
-		AWELongPressPanelBaseViewModel *imageViewModel = [[%c(AWELongPressPanelBaseViewModel) alloc] init];
-		imageViewModel.awemeModel = self.awemeModel;
-		imageViewModel.actionType = 669;
-		imageViewModel.duxIconName = @"ic_boxarrowdownhigh_outlined";
-		imageViewModel.describeString = @"保存图片";
-
-		AWEImageAlbumImageModel *currimge = self.awemeModel.albumImages[self.awemeModel.currentImageIndex - 1];
-		if (currimge.clipVideo != nil) {
-			imageViewModel.describeString = @"保存实况";
-		}
-
-		imageViewModel.action = ^{
-		  AWEAwemeModel *awemeModel = self.awemeModel;
-		  AWEImageAlbumImageModel *currentImageModel = nil;
-
-		  if (awemeModel.currentImageIndex > 0 && awemeModel.currentImageIndex <= awemeModel.albumImages.count) {
-			  currentImageModel = awemeModel.albumImages[awemeModel.currentImageIndex - 1];
-		  } else {
-			  currentImageModel = awemeModel.albumImages.firstObject;
-		  }
-		  // 如果是实况的话
-		  if (currentImageModel.clipVideo != nil) {
-			  NSURL *url = [NSURL URLWithString:currentImageModel.urlList.firstObject];
-			  NSURL *videoURL = [currentImageModel.clipVideo.playURL getDYYYSrcURLDownload];
-
-			  [DYYYManager downloadLivePhoto:url
-						videoURL:videoURL
-					      completion:^{
-						[DYYYManager showToast:@"实况照片已保存到相册"];
-					      }];
-		  } else if (currentImageModel && currentImageModel.urlList.count > 0) {
-			  NSURL *url = [NSURL URLWithString:currentImageModel.urlList.firstObject];
-			  [DYYYManager downloadMedia:url
-					   mediaType:MediaTypeImage
-					  completion:^{
-					    [DYYYManager showToast:@"图片已保存到相册"];
-					  }];
-		  }
-
-		  AWELongPressPanelManager *panelManager = [%c(AWELongPressPanelManager) shareInstance];
-		  [panelManager dismissWithAnimation:YES completion:nil];
-		};
-
-		[viewModels addObject:imageViewModel];
-	}
-
-	// 保存所有图片/实况功能
-	if (enableSaveAllImages && self.awemeModel.awemeType == 68 && self.awemeModel.albumImages.count > 1) {
-		AWELongPressPanelBaseViewModel *allImagesViewModel = [[%c(AWELongPressPanelBaseViewModel) alloc] init];
-		allImagesViewModel.awemeModel = self.awemeModel;
-		allImagesViewModel.actionType = 670;
-		allImagesViewModel.duxIconName = @"ic_boxarrowdownhigh_outlined";
-		allImagesViewModel.describeString = @"保存所有图片";
-
-		// 检查是否有实况照片并更改按钮文字
-		BOOL hasLivePhoto = NO;
-		for (AWEImageAlbumImageModel *imageModel in self.awemeModel.albumImages) {
-			if (imageModel.clipVideo != nil) {
-				hasLivePhoto = YES;
-				break;
-			}
-		}
-
-		if (hasLivePhoto) {
-			allImagesViewModel.describeString = @"保存所有实况";
-		}
-
-		allImagesViewModel.action = ^{
-		  AWEAwemeModel *awemeModel = self.awemeModel;
-		  NSMutableArray *imageURLs = [NSMutableArray array];
-
-		  for (AWEImageAlbumImageModel *imageModel in awemeModel.albumImages) {
-			  if (imageModel.urlList.count > 0) {
-				  [imageURLs addObject:imageModel.urlList.firstObject];
-			  }
-		  }
-
-		  // 检查是否有实况照片
-		  BOOL hasLivePhoto = NO;
-		  for (AWEImageAlbumImageModel *imageModel in awemeModel.albumImages) {
-			  if (imageModel.clipVideo != nil) {
-				  hasLivePhoto = YES;
-				  break;
-			  }
-		  }
-
-		  // 如果有实况照片，使用单独的downloadLivePhoto方法逐个下载
-		  if (hasLivePhoto) {
-			  NSMutableArray *livePhotos = [NSMutableArray array];
-			  for (AWEImageAlbumImageModel *imageModel in awemeModel.albumImages) {
-				  if (imageModel.urlList.count > 0 && imageModel.clipVideo != nil) {
-					  NSURL *photoURL = [NSURL URLWithString:imageModel.urlList.firstObject];
-					  NSURL *videoURL = [imageModel.clipVideo.playURL getDYYYSrcURLDownload];
-
-					  [livePhotos addObject:@{@"imageURL" : photoURL.absoluteString, @"videoURL" : videoURL.absoluteString}];
-				  }
-			  }
-
-			  // 使用批量下载实况照片方法
-			  [DYYYManager downloadAllLivePhotos:livePhotos];
-		  } else if (imageURLs.count > 0) {
-			  [DYYYManager downloadAllImages:imageURLs];
-		  }
-
-		  AWELongPressPanelManager *panelManager = [%c(AWELongPressPanelManager) shareInstance];
-		  [panelManager dismissWithAnimation:YES completion:nil];
-		};
-
-		[viewModels addObject:allImagesViewModel];
-	}
+    // 当前图片/实况下载功能
+    if (enableSaveCurrentImage && self.awemeModel.awemeType == 68 && self.awemeModel.albumImages.count > 0) {
+        AWELongPressPanelBaseViewModel *imageViewModel = [[%c(AWELongPressPanelBaseViewModel) alloc] init];
+        imageViewModel.awemeModel = self.awemeModel;
+        imageViewModel.actionType = 669;
+        imageViewModel.duxIconName = @"ic_boxarrowdownhigh_outlined";
+        imageViewModel.describeString = @"保存图片";
+        AWEImageAlbumImageModel *currimge = self.awemeModel.albumImages[self.awemeModel.currentImageIndex - 1];
+        if (currimge.clipVideo != nil) {
+            imageViewModel.describeString = @"保存实况";
+        }
+        imageViewModel.action = ^{
+            AWEAwemeModel *awemeModel = self.awemeModel;
+            AWEImageAlbumImageModel *currentImageModel = nil;
+            if (awemeModel.currentImageIndex > 0 && awemeModel.currentImageIndex <= awemeModel.albumImages.count) {
+                currentImageModel = awemeModel.albumImages[awemeModel.currentImageIndex - 1];
+            } else {
+                currentImageModel = awemeModel.albumImages.firstObject;
+            }
+            // 如果是实况的话
+            if (currentImageModel.clipVideo != nil) {
+                NSURL *url = [NSURL URLWithString:currentImageModel.urlList.firstObject];
+                NSURL *videoURL = [currentImageModel.clipVideo.playURL getDYYYSrcURLDownload];
+                [DYYYManager downloadLivePhoto:url
+                                      videoURL:videoURL
+                                    completion:^{
+                                        [DYYYManager showToast:@"实况照片已保存到相册"];
+                                    }];
+            } else if (currentImageModel && currentImageModel.urlList.count > 0) {
+                NSURL *url = [NSURL URLWithString:currentImageModel.urlList.firstObject];
+                [DYYYManager downloadMedia:url
+                                mediaType:MediaTypeImage
+                                completion:^(BOOL success){
+                                    if (success) {
+                                        [DYYYManager showToast:@"图片已保存到相册"];
+                                    } else {
+                                        [DYYYManager showToast:@"图片保存已取消"];
+                                    }
+                                }];
+            }
+            AWELongPressPanelManager *panelManager = [%c(AWELongPressPanelManager) shareInstance];
+            [panelManager dismissWithAnimation:YES completion:nil];
+        };
+        [viewModels addObject:imageViewModel];
+    }
+    
+    // 保存所有图片/实况功能
+    if (enableSaveAllImages && self.awemeModel.awemeType == 68 && self.awemeModel.albumImages.count > 1) {
+        AWELongPressPanelBaseViewModel *allImagesViewModel = [[%c(AWELongPressPanelBaseViewModel) alloc] init];
+        allImagesViewModel.awemeModel = self.awemeModel;
+        allImagesViewModel.actionType = 670;
+        allImagesViewModel.duxIconName = @"ic_boxarrowdownhigh_outlined";
+        allImagesViewModel.describeString = @"保存所有图片";
+        // 检查是否有实况照片并更改按钮文字
+        BOOL hasLivePhoto = NO;
+        for (AWEImageAlbumImageModel *imageModel in self.awemeModel.albumImages) {
+            if (imageModel.clipVideo != nil) {
+                hasLivePhoto = YES;
+                break;
+            }
+        }
+        if (hasLivePhoto) {
+            allImagesViewModel.describeString = @"保存所有实况";
+        }
+        allImagesViewModel.action = ^{
+            AWEAwemeModel *awemeModel = self.awemeModel;
+            NSMutableArray *imageURLs = [NSMutableArray array];
+            for (AWEImageAlbumImageModel *imageModel in awemeModel.albumImages) {
+                if (imageModel.urlList.count > 0) {
+                    [imageURLs addObject:imageModel.urlList.firstObject];
+                }
+            }
+            // 检查是否有实况照片
+            BOOL hasLivePhoto = NO;
+            for (AWEImageAlbumImageModel *imageModel in awemeModel.albumImages) {
+                if (imageModel.clipVideo != nil) {
+                    hasLivePhoto = YES;
+                    break;
+                }
+            }
+            // 如果有实况照片，使用单独的downloadLivePhoto方法逐个下载
+            if (hasLivePhoto) {
+                NSMutableArray *livePhotos = [NSMutableArray array];
+                for (AWEImageAlbumImageModel *imageModel in awemeModel.albumImages) {
+                    if (imageModel.urlList.count > 0 && imageModel.clipVideo != nil) {
+                        NSURL *photoURL = [NSURL URLWithString:imageModel.urlList.firstObject];
+                        NSURL *videoURL = [imageModel.clipVideo.playURL getDYYYSrcURLDownload];
+                        [livePhotos addObject:@{@"imageURL" : photoURL.absoluteString, @"videoURL" : videoURL.absoluteString}];
+                    }
+                }
+                // 使用批量下载实况照片方法
+                [DYYYManager downloadAllLivePhotos:livePhotos];
+            } else if (imageURLs.count > 0) {
+                [DYYYManager downloadAllImages:imageURLs];
+            }
+            AWELongPressPanelManager *panelManager = [%c(AWELongPressPanelManager) shareInstance];
+            [panelManager dismissWithAnimation:YES completion:nil];
+        };
+        [viewModels addObject:allImagesViewModel];
+    }
 
 	// 复制文案功能
 	if (enableCopyText) {
@@ -1089,7 +1067,7 @@
     if (enableCopyLink) {
         AWELongPressPanelBaseViewModel *copyShareLink = [[%c(AWELongPressPanelBaseViewModel) alloc] init];
         copyShareLink.awemeModel = self.awemeModel;
-        copyShareLink.actionType = 672;
+        copyShareLink.actionType = 673;
         copyShareLink.duxIconName = @"ic_share_outlined";
         copyShareLink.describeString = @"复制链接";
         copyShareLink.action = ^{
