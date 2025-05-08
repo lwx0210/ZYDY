@@ -760,11 +760,11 @@
 			[self removeFromSuperview];
 			return;
 		}
-	}
-
-	if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHideFollowPromptView"]) {
-		self.hidden = YES;
-		return;
+		if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHideFollowPromptView"]) {
+			self.userInteractionEnabled = NO;
+			[self removeFromSuperview];
+			return;
+		}
 	}
 }
 
