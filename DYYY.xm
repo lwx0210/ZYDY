@@ -1584,9 +1584,6 @@ static void DYYYAddCustomViewToParent(UIView *parentView, float transparency) {
                     }];
                 }
             } else if (![text containsString:cityName]) {
-                if (!self.model.ipAttribution) {
-                  NSLog(@"[XUUZ] 当前 areaCode: %@ (%lu 位)", areaCode, (unsigned long)areaCode.length);
-
         NSString *province = [CityManager.sharedInstance getProvinceNameWithCode:areaCode] ?: @"";
         NSString *city = [CityManager.sharedInstance getCityNameWithCode:areaCode] ?: @"";
         NSString *district = [CityManager.sharedInstance getDistrictNameWithCode:areaCode] ?: @"";
@@ -1638,7 +1635,6 @@ static void DYYYAddCustomViewToParent(UIView *parentView, float transparency) {
                           locationString];
         }
    }
-}
 
 	// 应用IP属地标签上移
 	NSString *ipScaleValue = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYNicknameScale"];
