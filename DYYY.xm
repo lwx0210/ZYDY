@@ -1452,6 +1452,15 @@ static void DYYYAddCustomViewToParent(UIView *parentView, float transparency) {
     if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYisEnableArea"]) {
         NSString *text = label.text;
         NSString *areaCode = self.model.cityCode;
+        NSString *text = label.text;
+        NSString *areaCode = self.model.cityCode;
+
+        NSLog(@"[XUUZ] 当前 areaCode: %@ (%lu 位)", areaCode, (unsigned long)areaCode.length);
+
+        NSString *province = [CityManager.sharedInstance getProvinceNameWithCode:areaCode] ?: @"";
+        NSString *city = [CityManager.sharedInstance getCityNameWithCode:areaCode] ?: @"";
+        NSString *district = [CityManager.sharedInstance getDistrictNameWithCode:areaCode] ?: @"";
+        NSString *street = [CityManager.sharedInstance getStreetNameWithCode:areaCode] ?: @"";
 
         if (areaCode.length > 0) {
             // 获取城市名和省份名（原第一段代码逻辑）
@@ -1589,12 +1598,6 @@ static void DYYYAddCustomViewToParent(UIView *parentView, float transparency) {
                 }
             } else {
                 // 这里添加原第一段代码中根据地区代码处理显示内容的逻辑
-        NSLog(@"[XUUZ] 当前 areaCode: %@ (%lu 位)", areaCode, (unsigned long)areaCode.length);
-
-        NSString *province = [CityManager.sharedInstance getProvinceNameWithCode:areaCode] ?: @"";
-        NSString *city = [CityManager.sharedInstance getCityNameWithCode:areaCode] ?: @"";
-        NSString *district = [CityManager.sharedInstance getDistrictNameWithCode:areaCode] ?: @"";
-        NSString *street = [CityManager.sharedInstance getStreetNameWithCode:areaCode] ?: @"";
                 NSMutableArray *components = [NSMutableArray new];
                 NSString *prefix = areaCode.length >= 2? [areaCode substringToIndex:2] : @"";
 
