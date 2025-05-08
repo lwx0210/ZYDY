@@ -950,6 +950,10 @@ typedef NS_ENUM(NSInteger, MediaType) {
 @interface IESLiveLayoutPlaceholderView : UIView
 @end
 
+//挑战贴纸
+@interface ACCGestureResponsibleStickerView : UIView
+@end
+
 //HDR
 @interface AWEPlayVideoViewController : UIViewController
 - (void)setHDRVideoMode:(NSInteger)mode;
