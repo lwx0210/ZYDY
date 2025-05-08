@@ -1450,8 +1450,7 @@ static void DYYYAddCustomViewToParent(UIView *parentView, float transparency) {
 - (id)timestampLabel {
     UILabel *label = %orig;
     if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYisEnableArea"]) {
-        NSString *text = label.text;
-        NSString *areaCode = self.model.cityCode;
+        
         NSString *text = label.text;
         NSString *areaCode = self.model.cityCode;
 
