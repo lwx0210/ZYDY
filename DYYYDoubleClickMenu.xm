@@ -74,8 +74,12 @@
 						      NSURL *url = [NSURL URLWithString:currentImageModel.urlList.firstObject];
 						      [DYYYManager downloadMedia:url
 								       mediaType:MediaTypeImage
-								      completion:^{
-									[DYYYManager showToast:@"图片已保存到相册"];
+								      completion:^(BOOL success) {
+									if (success) {
+										[DYYYManager showToast:@"图片已保存到相册"];
+									} else {
+										[DYYYManager showToast:@"图片保存失败"];
+									}
 								      }];
 					      }
 				      } else {
@@ -84,35 +88,40 @@
 						      NSURL *url = [NSURL URLWithString:videoModel.h264URL.originURLList.firstObject];
 						      [DYYYManager downloadMedia:url
 								       mediaType:MediaTypeVideo
-								      completion:^{
-									[DYYYManager showToast:@"视频已保存到相册"];
+								      completion:^(BOOL success) {
+									if (success) {
+										[DYYYManager showToast:@"视频已保存到相册"];
+									} else {
+										[DYYYManager showToast:@"视频保存失败"];
+									}
 								      }];
 					      }
 				      }
 				    }];
 			[actions addObject:downloadAction];
 
-        //添加保存封面选项
-   if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYDoubleSaveCover"]) {
-        if (!isImageContent) { // 仅视频内容显示保存封面选项
-            AWEUserSheetAction *saveCoverAction = [NSClassFromString(@"AWEUserSheetAction")
-                actionWithTitle:@"保存封面"
-                        imgName:nil
-                        handler:^{
-                            AWEVideoModel *videoModel = awemeModel.video;
-                            if (videoModel && videoModel.coverURL && videoModel.coverURL.originURLList.count > 0) {
-                                NSURL *coverURL = [NSURL URLWithString:videoModel.coverURL.originURLList.firstObject];
-                                [DYYYManager downloadMedia:coverURL
-                                                 mediaType:MediaTypeImage
-                                                completion:^{
-                                                    [DYYYManager showToast:@"封面已保存到相册"];
-                                                }];
-
-                            }
-                        }];
-            [actions addObject:saveCoverAction];
-        }
-}
+			// 添加保存封面选项
+			if (!isImageContent) { // 仅视频内容显示保存封面选项
+				AWEUserSheetAction *saveCoverAction = [NSClassFromString(@"AWEUserSheetAction")
+				    actionWithTitle:@"保存封面"
+					    imgName:nil
+					    handler:^{
+					      AWEVideoModel *videoModel = awemeModel.video;
+					      if (videoModel && videoModel.coverURL && videoModel.coverURL.originURLList.count > 0) {
+						      NSURL *coverURL = [NSURL URLWithString:videoModel.coverURL.originURLList.firstObject];
+						      [DYYYManager downloadMedia:coverURL
+								       mediaType:MediaTypeImage
+								      completion:^(BOOL success) {
+									if (success) {
+										[DYYYManager showToast:@"封面已保存到相册"];
+									} else {
+										[DYYYManager showToast:@"封面保存失败"];
+									}
+								      }];
+					      }
+					    }];
+				[actions addObject:saveCoverAction];
+			}
 
 			// 如果是图集，添加下载所有图片选项
 			if (isImageContent && awemeModel.albumImages.count > 1) {
@@ -150,7 +159,7 @@
 		if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYDoubleInterfaceDownload"]) {
 			NSString *apiKey = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYInterfaceDownload"];
 			if (apiKey.length > 0) {
-				AWEUserSheetAction *apiDownloadAction = [NSClassFromString(@"AWEUserSheetAction") actionWithTitle:@"接口解析"
+				AWEUserSheetAction *apiDownloadAction = [NSClassFromString(@"AWEUserSheetAction") actionWithTitle:@"接口保存"
 															  imgName:nil
 															  handler:^{
 															    NSString *shareLink = [awemeModel valueForKey:@"shareURL"];
@@ -190,6 +199,17 @@
 			[actions addObject:openCommentAction];
 		}
 
+		// 添加分享选项
+		if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYDoubleTapshowSharePanel"] || ![[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYDoubleTapshowSharePanel"]) {
+
+			AWEUserSheetAction *showSharePanel = [NSClassFromString(@"AWEUserSheetAction") actionWithTitle:@"分享视频"
+													       imgName:nil
+													       handler:^{
+														 [self showSharePanel]; // 执行分享操作
+													       }];
+			[actions addObject:showSharePanel];
+		}
+
 		// 添加点赞视频选项
 		if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYDoubleTapLike"] || ![[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYDoubleTapLike"]) {
 
@@ -201,16 +221,6 @@
 			[actions addObject:likeAction];
 		}
 
-			// 添加分享选项
-		if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYDoubleTapshowSharePanel"] || ![[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYDoubleTapshowSharePanel"]) {
-
-			AWEUserSheetAction *showSharePanel = [NSClassFromString(@"AWEUserSheetAction") actionWithTitle:@"分享视频"
-													       imgName:nil
-													       handler:^{
-														 [self showSharePanel]; // 执行分享操作
-													       }];
-			[actions addObject:showSharePanel];
-		}
 		// 添加长按面板
 		if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYDoubleTapshowDislikeOnVideo"] || ![[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYDoubleTapshowDislikeOnVideo"]) {
 
