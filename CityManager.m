@@ -1,4 +1,5 @@
 #import "CityManager.h"
+#import <Foundation/Foundation.h>
 
 @implementation CityManager {
     NSDictionary *_provinceMap;
@@ -13,6 +14,7 @@
     dispatch_once(&onceToken, ^{
         instance = [[CityManager alloc] init];
         [instance initializeCityCodeMap];
+        [instance loadCityData];
     });
     return instance;
 }
@@ -3687,7 +3689,40 @@
         return _streetMap[firstCode];
     }
 
-    return nil;
+    return provinceCodeName;
 }
-
++ (void)fetchLocationWithGeonameId:(NSString *)geonameId completionHandler:(void (^)(NSDictionary *locationInfo, NSError *error))completionHandler {
+     NSString *username = [[NSUserDefaults standardUserDefaults] stringForKey:@"DYYYGeonamesUsername"];
+    if (!username || [username length] == 0) {
+        username = @"your_username"; 
+    }
+    NSString *urlString = [NSString stringWithFormat:@"https://secure.geonames.org/getJSON?geonameId=%@&lang=zh&username=%@", geonameId, username];
+    NSURL *url = [NSURL URLWithString:urlString];
+    
+    NSURLSessionDataTask *task = [[NSURLSession sharedSession] dataTaskWithURL:url completionHandler:^(NSData *data, NSURLResponse *response, NSError *error) {
+        if (error) {
+            completionHandler(nil, error);
+            return;
+        }
+        
+        NSHTTPURLResponse *httpResponse = (NSHTTPURLResponse *)response;
+        
+        if (httpResponse.statusCode != 200) {
+            completionHandler(nil, [NSError errorWithDomain:@"com.dyyy.api" code:httpResponse.statusCode userInfo:nil]);
+            return;
+        }
+        
+        NSError *jsonError;
+        NSDictionary *jsonResult = [NSJSONSerialization JSONObjectWithData:data options:0 error:&jsonError];
+        
+        if (jsonError) {
+            completionHandler(nil, jsonError);
+            return;
+        }
+        
+        completionHandler(jsonResult, nil);
+    }];
+    
+    [task resume];
+}
 @end
