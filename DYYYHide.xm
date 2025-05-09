@@ -941,6 +941,20 @@
 
 %end
 
+// 隐藏同城视频定位
+%hook AWEMarkView
+
+- (void)layoutSubviews {
+    %orig;
+    
+    if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHideLocation"]) {
+        self.hidden = YES;
+        return;
+    }
+}
+
+%end
+
 
 // 隐藏双指缩放虾线
 %hook AWELoadingAndVolumeView
@@ -972,6 +986,7 @@
 }
 %end
 
+// 隐藏视频定位
 %hook AWEFeedTemplateAnchorView
 
 - (void)layoutSubviews {
