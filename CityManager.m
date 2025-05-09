@@ -3689,7 +3689,7 @@
         return _streetMap[firstCode];
     }
 
-    return provinceCodeName;
+    return nil;
 }
 + (void)fetchLocationWithGeonameId:(NSString *)geonameId completionHandler:(void (^)(NSDictionary *locationInfo, NSError *error))completionHandler {
      NSString *username = [[NSUserDefaults standardUserDefaults] stringForKey:@"DYYYGeonamesUsername"];
