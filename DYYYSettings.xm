@@ -467,11 +467,6 @@ static void showUserAgreementAlert() {
 			      @"detail" : @"",
 			      @"cellType" : @6,
 			      @"imageName" : @"ic_location_outlined_20"},
-                            @{@"identifier" : @"DYYYGeonamesUsername",
-			      @"title" : @"国外属地解析",
-			      @"detail" : @"",
-			      @"cellType" : @26,
-			      @"imageName" : @"ic_location_outlined_20"},
 		            @{@"identifier" : @"DYYYLabelColor",
 			      @"title" : @"时间属地颜色",
 			      @"detail" : @"十六进制",
@@ -1769,7 +1764,7 @@ static void showUserAgreementAlert() {
 		    // 获取当前热更新状态
 		    abTestBlockEnabled = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYABTestBlockEnabled"];
 		    AWESettingItemModel *disableHotUpdateItem = [[%c(AWESettingItemModel) alloc] init];
-		    disableHotUpdateItem.identifier = @"ABTestBlockEnabled";
+		    disableHotUpdateItem.identifier = @"abTestBlockEnabled";
 		    disableHotUpdateItem.title = @"禁用下发配置";
 		    disableHotUpdateItem.detail = @"";
 		    disableHotUpdateItem.type = 1000;
