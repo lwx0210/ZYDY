@@ -1186,7 +1186,7 @@ if (cityCode.length > 0) {
 		}
 	}
 	return label;
-}
+
 
 + (BOOL)shouldActiveWithData:(id)arg1 context:(id)arg2 {
 	return [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYisEnableArea"];
