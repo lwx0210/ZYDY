@@ -951,7 +951,7 @@ typedef NS_ENUM(NSInteger, MediaType) {
 @property (nonatomic, assign, getter=isHidden) BOOL hidden;
 @end
 
-//隐藏章节进度
+//章节进度
 @interface AWEDemaciaChapterProgressSlider : UIView
 @end
 
@@ -976,7 +976,7 @@ typedef NS_ENUM(NSInteger, MediaType) {
 @end
 @interface BmfFilterSDR2HDR : NSObject
 - (VideoFrame *)process:(VideoFrame *)frame;
-@endend
+@end
 
 //Ab接口
 @interface AWEABTestManager : NSObject
