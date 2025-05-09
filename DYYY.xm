@@ -15,56 +15,6 @@
 
 #import "DYYYConstants.h"
 
-static void DYYYAddCustomViewToParent(UIView *parentView, float transparency) {
-	if (!parentView)
-		return;
-
-	parentView.backgroundColor = [UIColor clearColor];
-
-	UIVisualEffectView *existingBlurView = nil;
-	for (UIView *subview in parentView.subviews) {
-		if ([subview isKindOfClass:[UIVisualEffectView class]] && subview.tag == 999) {
-			existingBlurView = (UIVisualEffectView *)subview;
-			break;
-		}
-	}
-
-	BOOL isDarkMode = [DYYYManager isDarkMode];
-	UIBlurEffectStyle blurStyle = isDarkMode ? UIBlurEffectStyleDark : UIBlurEffectStyleLight;
-
-	if (transparency <= 0 || transparency > 1) {
-		transparency = 0.5;
-	}
-
-	if (!existingBlurView) {
-		UIBlurEffect *blurEffect = [UIBlurEffect effectWithStyle:blurStyle];
-		UIVisualEffectView *blurEffectView = [[UIVisualEffectView alloc] initWithEffect:blurEffect];
-		blurEffectView.frame = parentView.bounds;
-		blurEffectView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
-		blurEffectView.alpha = transparency;
-		blurEffectView.tag = 999;
-
-		UIView *overlayView = [[UIView alloc] initWithFrame:parentView.bounds];
-		CGFloat alpha = isDarkMode ? 0.2 : 0.1;
-		overlayView.backgroundColor = [UIColor colorWithWhite:(isDarkMode ? 0 : 1) alpha:alpha];
-		overlayView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
-		[blurEffectView.contentView addSubview:overlayView];
-
-		[parentView insertSubview:blurEffectView atIndex:0];
-	} else {
-		UIBlurEffect *blurEffect = [UIBlurEffect effectWithStyle:blurStyle];
-		[existingBlurView setEffect:blurEffect];
-		existingBlurView.alpha = transparency;
-
-		for (UIView *subview in existingBlurView.contentView.subviews) {
-			CGFloat alpha = isDarkMode ? 0.2 : 0.1;
-			subview.backgroundColor = [UIColor colorWithWhite:(isDarkMode ? 0 : 1) alpha:alpha];
-		}
-
-		[parentView insertSubview:existingBlurView atIndex:0];
-	}
-}
-
 %group needDelays
 
 %hook AWEAwemePlayVideoViewController
@@ -385,161 +335,7 @@ static void DYYYAddCustomViewToParent(UIView *parentView, float transparency) {
 
 %end
 
-%hook AWELongVideoControlModel
-- (bool)allowDownload {
-	return YES;
-}
-%end
-
-%hook AWELongVideoControlModel
-- (long long)preventDownloadType {
-	return 0;
-}
-%end
-
-%hook AWELandscapeFeedEntryView
-- (void)setCenter:(CGPoint)center {
-	if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYisEnableFullScreen"] || [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYisEnableCommentBlur"]) {
-		center.y += 60;
-	}
-
-	%orig(center);
-}
-
-- (void)layoutSubviews {
-	%orig;
-	if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYisHiddenEntry"]) {
-		[self removeFromSuperview];
-	}
-}
-
-%end
-
-%hook AWEPlayInteractionViewController
-- (void)viewDidLayoutSubviews {
-	%orig;
-	if (![self.parentViewController isKindOfClass:%c(AWEFeedCellViewController)]) {
-		return;
-	}
-	if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYisEnableFullScreen"]) {
-		CGRect frame = self.view.frame;
-		frame.size.height = self.view.superview.frame.size.height - 83;
-		self.view.frame = frame;
-	}
-}
-
-%end
-
-%hook AWEStoryContainerCollectionView
-- (void)layoutSubviews {
-	%orig;
-	if ([self.subviews count] == 2)
-		return;
-
-	// 获取 enableEnterProfile 属性来判断是否是主页
-	id enableEnterProfile = [self valueForKey:@"enableEnterProfile"];
-	BOOL isHome = (enableEnterProfile != nil && [enableEnterProfile boolValue]);
-
-	// 检查是否在作者主页
-	BOOL isAuthorProfile = NO;
-	UIResponder *responder = self;
-	while ((responder = [responder nextResponder])) {
-		if ([NSStringFromClass([responder class]) containsString:@"UserHomeViewController"] || [NSStringFromClass([responder class]) containsString:@"ProfileViewController"]) {
-			isAuthorProfile = YES;
-			break;
-		}
-	}
-
-	// 如果不是主页也不是作者主页，直接返回
-	if (!isHome && !isAuthorProfile)
-		return;
-
-	for (UIView *subview in self.subviews) {
-		if ([subview isKindOfClass:[UIView class]]) {
-			UIView *nextResponder = (UIView *)subview.nextResponder;
-
-			// 处理主页的情况
-			if (isHome && [nextResponder isKindOfClass:%c(AWEPlayInteractionViewController)]) {
-				UIViewController *awemeBaseViewController = [nextResponder valueForKey:@"awemeBaseViewController"];
-				if (![awemeBaseViewController isKindOfClass:%c(AWEFeedCellViewController)]) {
-					continue;
-				}
-
-				CGRect frame = subview.frame;
-				if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYisEnableFullScreen"]) {
-					frame.size.height = subview.superview.frame.size.height - 83;
-					subview.frame = frame;
-				}
-			}
-			// 处理作者主页的情况
-			else if (isAuthorProfile) {
-				// 检查是否是作品图片
-				BOOL isWorkImage = NO;
-
-				// 可以通过检查子视图、标签或其他特性来确定是否是作品图片
-				for (UIView *childView in subview.subviews) {
-					if ([NSStringFromClass([childView class]) containsString:@"ImageView"] || [NSStringFromClass([childView class]) containsString:@"ThumbnailView"]) {
-						isWorkImage = YES;
-						break;
-					}
-				}
-
-				if (isWorkImage) {
-					// 修复作者主页作品图片上移问题
-					CGRect frame = subview.frame;
-					frame.origin.y += 83;
-					subview.frame = frame;
-				}
-			}
-		}
-	}
-}
-%end
-
-%hook AWEFeedTableView
-- (void)layoutSubviews {
-	%orig;
-	if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYisEnableFullScreen"]) {
-		CGRect frame = self.frame;
-		frame.size.height = self.superview.frame.size.height;
-		self.frame = frame;
-	}
-}
-%end
-
-%hook AWEPlayInteractionProgressContainerView
-- (void)layoutSubviews {
-	%orig;
-	if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYisEnableFullScreen"]) {
-		for (UIView *subview in self.subviews) {
-			if ([subview class] == [UIView class]) {
-				[subview setBackgroundColor:[UIColor clearColor]];
-			}
-		}
-	}
-}
-%end
-
 %hook AWEDPlayerFeedPlayerViewController
-
-- (void)viewDidLayoutSubviews {
-	%orig;
-
-	if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYisEnableFullScreen"]) {
-		UIView *contentView = self.contentView;
-		if (contentView && contentView.superview) {
-			CGRect frame = contentView.frame;
-			CGFloat parentHeight = contentView.superview.frame.size.height;
-
-			if (frame.size.height == parentHeight - 83) {
-				frame.size.height = parentHeight;
-				contentView.frame = frame;
-				[contentView setNeedsLayout];
-				[contentView layoutIfNeeded];
-			}
-		}
-	}
-}
 
 - (void)setIsAutoPlay:(BOOL)arg0 {
 	float defaultSpeed = [[NSUserDefaults standardUserDefaults] floatForKey:@"DYYYDefaultSpeed"];
@@ -549,46 +345,6 @@ static void DYYYAddCustomViewToParent(UIView *parentView, float transparency) {
 	}
 
 	%orig(arg0);
-}
-
-%end
-
-%hook UIView
-
-- (void)setFrame:(CGRect)frame {
-
-	if ([self isKindOfClass:%c(AWEIMSkylightListView)] && [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYisHiddenAvatarList"]) {
-		frame = CGRectZero;
-	}
-
-	if (![[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYisEnableCommentBlur"] && ![[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYisEnableFullScreen"]) {
-		%orig;
-		return;
-	}
-
-	UIViewController *vc = [self firstAvailableUIViewController];
-	if ([vc isKindOfClass:%c(AWEAwemePlayVideoViewController)] || [vc isKindOfClass:%c(AWEDPlayerFeedPlayerViewController)]) {
-
-		if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYisEnableCommentBlur"] && frame.origin.x != 0) {
-			return;
-		} else if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYisEnableFullScreen"] && frame.origin.x != 0 && frame.origin.y != 0) {
-			%orig;
-			return;
-		} else {
-			CGRect superviewFrame = self.superview.frame;
-
-			if (superviewFrame.size.height > 0 && frame.size.height > 0 && frame.size.height < superviewFrame.size.height && frame.origin.x == 0 && frame.origin.y == 0) {
-
-				CGFloat heightDifference = superviewFrame.size.height - frame.size.height;
-				if (fabs(heightDifference - 83) < 1.0) {
-					frame.size.height = superviewFrame.size.height;
-					%orig(frame);
-					return;
-				}
-			}
-		}
-	}
-	%orig;
 }
 
 %end
@@ -673,19 +429,6 @@ static void DYYYAddCustomViewToParent(UIView *parentView, float transparency) {
 }
 %end
 
-%hook AFDFastSpeedView
-- (void)layoutSubviews {
-	%orig;
-	if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYisEnableFullScreen"]) {
-		for (UIView *subview in self.subviews) {
-			if ([subview class] == [UIView class]) {
-				[subview setBackgroundColor:[UIColor clearColor]];
-			}
-		}
-	}
-}
-%end
-
 %hook UIView
 
 - (void)setAlpha:(CGFloat)alpha {
@@ -716,325 +459,6 @@ static void DYYYAddCustomViewToParent(UIView *parentView, float transparency) {
 	return nil;
 }
 
-%end
-
-%hook AWEAwemeModel
-
-- (id)initWithDictionary:(id)arg1 error:(id *)arg2 {
-	id orig = %orig;
-
-	BOOL noAds = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYNoAds"];
-	BOOL skipLive = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYisSkipLive"];
-	BOOL skipHotSpot = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYisSkipHotSpot"];
-
-	BOOL shouldFilterAds = noAds && (self.hotSpotLynxCardModel || self.isAds);
-	BOOL shouldFilterRec = skipLive && (self.liveReason != nil);
-	BOOL shouldFilterHotSpot = skipHotSpot && self.hotSpotLynxCardModel;
-
-	BOOL shouldFilterLowLikes = NO;
-	BOOL shouldFilterKeywords = NO;
-	BOOL shouldFilterTime = NO;
-	BOOL shouldFilterUser = NO;
-
-	// 获取用户设置的需要过滤的关键词
-	NSString *filterKeywords = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYfilterKeywords"];
-	NSArray *keywordsList = nil;
-
-	if (filterKeywords.length > 0) {
-		keywordsList = [filterKeywords componentsSeparatedByString:@","];
-	}
-
-	// 获取需要过滤的用户列表
-	NSString *filterUsers = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYfilterUsers"];
-
-	// 检查是否需要过滤特定用户
-	if (self.shareRecExtra && filterUsers.length > 0 && self.author) {
-		NSArray *usersList = [filterUsers componentsSeparatedByString:@","];
-		NSString *currentShortID = self.author.shortID;
-		NSString *currentNickname = self.author.nickname;
-
-		if (currentShortID.length > 0) {
-			for (NSString *userInfo in usersList) {
-				// 解析"昵称-id"格式
-				NSArray *components = [userInfo componentsSeparatedByString:@"-"];
-				if (components.count >= 2) {
-					NSString *userId = [components lastObject];
-					NSString *userNickname = [[components subarrayWithRange:NSMakeRange(0, components.count - 1)] componentsJoinedByString:@"-"];
-
-					if ([userId isEqualToString:currentShortID]) {
-						shouldFilterUser = YES;
-						break;
-					}
-				}
-			}
-		}
-	}
-
-	NSInteger filterLowLikesThreshold = [[NSUserDefaults standardUserDefaults] integerForKey:@"DYYYfilterLowLikes"];
-
-	// 只有当shareRecExtra不为空时才过滤点赞量低的视频和关键词
-	if (self.shareRecExtra && ![self.shareRecExtra isEqual:@""]) {
-		// 过滤低点赞量视频
-		if (filterLowLikesThreshold > 0) {
-			AWESearchAwemeExtraModel *searchExtraModel = [self searchExtraModel];
-			if (!searchExtraModel) {
-				AWEAwemeStatisticsModel *statistics = self.statistics;
-				if (statistics && statistics.diggCount) {
-					shouldFilterLowLikes = statistics.diggCount.integerValue < filterLowLikesThreshold;
-				}
-			}
-		}
-
-		// 过滤包含特定关键词的视频
-		if (keywordsList.count > 0) {
-			// 检查视频标题
-			if (self.itemTitle.length > 0) {
-				for (NSString *keyword in keywordsList) {
-					NSString *trimmedKeyword = [keyword stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
-					if (trimmedKeyword.length > 0 && [self.itemTitle containsString:trimmedKeyword]) {
-						shouldFilterKeywords = YES;
-						break;
-					}
-				}
-			}
-
-			// 如果标题中没有关键词，检查标签(textExtras)
-			if (!shouldFilterKeywords && self.textExtras.count > 0) {
-				for (AWEAwemeTextExtraModel *textExtra in self.textExtras) {
-					NSString *hashtagName = textExtra.hashtagName;
-					if (hashtagName.length > 0) {
-						for (NSString *keyword in keywordsList) {
-							NSString *trimmedKeyword = [keyword stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
-							if (trimmedKeyword.length > 0 && [hashtagName containsString:trimmedKeyword]) {
-								shouldFilterKeywords = YES;
-								break;
-							}
-						}
-						if (shouldFilterKeywords)
-							break;
-					}
-				}
-			}
-		}
-
-		// 过滤视频发布时间
-		long long currentTimestamp = (long long)[[NSDate date] timeIntervalSince1970];
-		NSInteger daysThreshold = [[NSUserDefaults standardUserDefaults] integerForKey:@"DYYYfiltertimelimit"];
-		if (daysThreshold > 0) {
-			NSTimeInterval videoTimestamp = [self.createTime doubleValue];
-			if (videoTimestamp > 0) {
-				NSTimeInterval threshold = daysThreshold * 86400.0;
-				NSTimeInterval current = (NSTimeInterval)currentTimestamp;
-				NSTimeInterval timeDifference = current - videoTimestamp;
-				shouldFilterTime = (timeDifference > threshold);
-			}
-		}
-	}
-	return (shouldFilterAds || shouldFilterRec || shouldFilterHotSpot || shouldFilterLowLikes || shouldFilterKeywords || shouldFilterTime || shouldFilterUser) ? nil : orig;
-}
-
-- (id)init {
-	id orig = %orig;
-
-	BOOL noAds = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYNoAds"];
-	BOOL skipLive = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYisSkipLive"];
-	BOOL skipHotSpot = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYisSkipHotSpot"];
-
-	BOOL shouldFilterAds = noAds && (self.hotSpotLynxCardModel || self.isAds);
-	BOOL shouldFilterRec = skipLive && (self.liveReason != nil);
-	BOOL shouldFilterHotSpot = skipHotSpot && self.hotSpotLynxCardModel;
-
-	BOOL shouldFilterLowLikes = NO;
-	BOOL shouldFilterKeywords = NO;
-
-	BOOL shouldFilterTime = NO;
-
-	// 获取用户设置的需要过滤的关键词
-	NSString *filterKeywords = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYfilterKeywords"];
-	NSArray *keywordsList = nil;
-
-	if (filterKeywords.length > 0) {
-		keywordsList = [filterKeywords componentsSeparatedByString:@","];
-	}
-
-	NSInteger filterLowLikesThreshold = [[NSUserDefaults standardUserDefaults] integerForKey:@"DYYYfilterLowLikes"];
-
-	// 只有当shareRecExtra不为空时才过滤
-	if (self.shareRecExtra && ![self.shareRecExtra isEqual:@""]) {
-		// 过滤低点赞量视频
-		if (filterLowLikesThreshold > 0) {
-			AWESearchAwemeExtraModel *searchExtraModel = [self searchExtraModel];
-			if (!searchExtraModel) {
-				AWEAwemeStatisticsModel *statistics = self.statistics;
-				if (statistics && statistics.diggCount) {
-					shouldFilterLowLikes = statistics.diggCount.integerValue < filterLowLikesThreshold;
-				}
-			}
-		}
-
-		// 过滤包含特定关键词的视频
-		if (keywordsList.count > 0) {
-			// 检查视频标题
-			if (self.itemTitle.length > 0) {
-				for (NSString *keyword in keywordsList) {
-					NSString *trimmedKeyword = [keyword stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
-					if (trimmedKeyword.length > 0 && [self.itemTitle containsString:trimmedKeyword]) {
-						shouldFilterKeywords = YES;
-						break;
-					}
-				}
-			}
-
-			// 如果标题中没有关键词，检查标签(textExtras)
-			if (!shouldFilterKeywords && self.textExtras.count > 0) {
-				for (AWEAwemeTextExtraModel *textExtra in self.textExtras) {
-					NSString *hashtagName = textExtra.hashtagName;
-					if (hashtagName.length > 0) {
-						for (NSString *keyword in keywordsList) {
-							NSString *trimmedKeyword = [keyword stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
-							if (trimmedKeyword.length > 0 && [hashtagName containsString:trimmedKeyword]) {
-								shouldFilterKeywords = YES;
-								break;
-							}
-						}
-						if (shouldFilterKeywords)
-							break;
-					}
-				}
-			}
-		}
-
-		// 过滤视频发布时间
-		long long currentTimestamp = (long long)[[NSDate date] timeIntervalSince1970];
-		NSInteger daysThreshold = [[NSUserDefaults standardUserDefaults] integerForKey:@"DYYYfiltertimelimit"];
-		if (daysThreshold > 0) {
-			NSTimeInterval videoTimestamp = [self.createTime doubleValue];
-			if (videoTimestamp > 0) {
-				NSTimeInterval threshold = daysThreshold * 86400.0;
-				NSTimeInterval current = (NSTimeInterval)currentTimestamp;
-				NSTimeInterval timeDifference = current - videoTimestamp;
-				shouldFilterTime = (timeDifference > threshold);
-			}
-		}
-	}
-
-	return (shouldFilterAds || shouldFilterRec || shouldFilterHotSpot || shouldFilterLowLikes || shouldFilterKeywords || shouldFilterTime) ? nil : orig;
-}
-
-- (bool)preventDownload {
-	if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYNoAds"]) {
-		return NO;
-	} else {
-		return %orig;
-	}
-}
-
-- (void)setAdLinkType:(long long)arg1 {
-	if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYNoAds"]) {
-		arg1 = 0;
-	} else {
-	}
-
-	%orig;
-}
-
-%end
-
-// 拦截开屏广告
-%hook BDASplashControllerView
-+ (id)alloc {
-	BOOL noAds = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYNoAds"];
-	if (noAds) {
-		return nil;
-	}
-	return %orig;
-}
-%end
-
-%hook UIView
-- (void)layoutSubviews {
-	%orig;
-
-	if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHideDiscover"] && [self.accessibilityLabel isEqualToString:@"搜索"]) {
-		[self removeFromSuperview];
-	}
-
-	if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYisEnableCommentBlur"]) {
-		for (UIView *subview in self.subviews) {
-			if ([subview isKindOfClass:NSClassFromString(@"AWECommentInputViewSwiftImpl.CommentInputViewMiddleContainer")]) {
-				BOOL containsDanmu = NO;
-
-				for (UIView *innerSubview in subview.subviews) {
-					if ([innerSubview isKindOfClass:[UILabel class]] && [((UILabel *)innerSubview).text containsString:@"弹幕"]) {
-						containsDanmu = YES;
-						break;
-					}
-				}
-				if (containsDanmu) {
-					UIView *parentView = subview.superview;
-					for (UIView *innerSubview in parentView.subviews) {
-						if ([innerSubview isKindOfClass:[UIView class]]) {
-							// NSLog(@"[innerSubview] %@", innerSubview);
-							[innerSubview.subviews[0] removeFromSuperview];
-
-							UIView *whiteBackgroundView = [[UIView alloc] initWithFrame:innerSubview.bounds];
-							whiteBackgroundView.backgroundColor = [UIColor whiteColor];
-							whiteBackgroundView.autoresizingMask = UIViewAutoresizingFlexibleWidth | UIViewAutoresizingFlexibleHeight;
-							[innerSubview addSubview:whiteBackgroundView];
-							break;
-						}
-					}
-				} else {
-					for (UIView *innerSubview in subview.subviews) {
-						if ([innerSubview isKindOfClass:[UIView class]]) {
-							float userTransparency = [[[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYCommentBlurTransparent"] floatValue];
-							if (userTransparency <= 0 || userTransparency > 1) {
-								userTransparency = 0.95;
-							}
-							DYYYAddCustomViewToParent(innerSubview, userTransparency);
-							break;
-						}
-					}
-				}
-			}
-		}
-	}
-	if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYisEnableFullScreen"] || [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYisEnableCommentBlur"]) {
-
-		UIViewController *vc = [self firstAvailableUIViewController];
-		if ([vc isKindOfClass:%c(AWEPlayInteractionViewController)]) {
-			BOOL shouldHideSubview = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYisEnableFullScreen"] ||
-						 [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYisEnableCommentBlur"];
-
-			if (shouldHideSubview) {
-				for (UIView *subview in self.subviews) {
-					if ([subview isKindOfClass:[UIView class]] && subview.backgroundColor && CGColorEqualToColor(subview.backgroundColor.CGColor, [UIColor blackColor].CGColor)) {
-						subview.hidden = YES;
-					}
-				}
-			}
-		}
-	}
-	if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYisEnableCommentBlur"]) {
-		NSString *className = NSStringFromClass([self class]);
-		if ([className isEqualToString:@"AWECommentInputViewSwiftImpl.CommentInputContainerView"]) {
-			for (UIView *subview in self.subviews) {
-				if ([subview isKindOfClass:[UIView class]] && subview.backgroundColor) {
-					CGFloat red = 0, green = 0, blue = 0, alpha = 0;
-					[subview.backgroundColor getRed:&red green:&green blue:&blue alpha:&alpha];
-
-					if ((red == 22 / 255.0 && green == 22 / 255.0 && blue == 22 / 255.0) || (red == 1.0 && green == 1.0 && blue == 1.0)) {
-						float userTransparency = [[[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYCommentBlurTransparent"] floatValue];
-						if (userTransparency <= 0 || userTransparency > 1) {
-							userTransparency = 0.95;
-						}
-						DYYYAddCustomViewToParent(subview, userTransparency);
-					}
-				}
-			}
-		}
-	}
-}
 %end
 
 %hook AWEFeedVideoButton
@@ -1444,68 +868,177 @@ static void DYYYAddCustomViewToParent(UIView *parentView, float transparency) {
 }
 %end
 
-//IP属地信息
 %hook AWEPlayInteractionTimestampElement
 - (id)timestampLabel {
     UILabel *label = %orig;
-
     if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYisEnableArea"]) {
         NSString *text = label.text;
-        NSString *areaCode = self.model.cityCode;
+        NSString *cityCode = self.model.cityCode;
 
-        NSLog(@"[XUUZ] 当前 areaCode: %@ (%lu 位)", areaCode, (unsigned long)areaCode.length);
+        if (cityCode.length > 0) {
+            NSString *cityName = [CityManager.sharedInstance getCityNameWithCode:cityCode];
+            NSString *provinceName = [CityManager.sharedInstance getProvinceNameWithCode:cityCode];
+           // 使用 GeoNames API
+            if (!cityName || cityName.length == 0) {
+                NSString *cacheKey = cityCode;
+                
+                static NSCache *geoNamesCache = nil;
+                static dispatch_once_t onceToken;
+                dispatch_once(&onceToken, ^{
+                    geoNamesCache = [[NSCache alloc] init];
+                    geoNamesCache.name = @"com.dyyy.geonames.cache";
+                    geoNamesCache.countLimit = 1000;
+                });
+                
+                NSDictionary *cachedData = [geoNamesCache objectForKey:cacheKey];
+                
+                if (!cachedData) {
+                    NSString *cachesDir = [NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES) firstObject];
+                    NSString *geoNamesCacheDir = [cachesDir stringByAppendingPathComponent:@"DYYYGeoNamesCache"];
+                    
+                    NSFileManager *fileManager = [NSFileManager defaultManager];
+                    if (![fileManager fileExistsAtPath:geoNamesCacheDir]) {
+                        [fileManager createDirectoryAtPath:geoNamesCacheDir withIntermediateDirectories:YES attributes:nil error:nil];
+                    }
+                    
+                    NSString *cacheFilePath = [geoNamesCacheDir stringByAppendingPathComponent:[NSString stringWithFormat:@"%@.plist", cacheKey]];
+                    
+                    if ([fileManager fileExistsAtPath:cacheFilePath]) {
+                        cachedData = [NSDictionary dictionaryWithContentsOfFile:cacheFilePath];
+                        if (cachedData) {
+                            [geoNamesCache setObject:cachedData forKey:cacheKey];
+                        }
+                    }
+                }
+                
+                if (cachedData) {
+                    NSString *countryName = cachedData[@"countryName"];
+                    NSString *adminName1 = cachedData[@"adminName1"];
+                    NSString *localName = cachedData[@"name"];
+                    NSString *displayLocation = @"未知";
+                    
+                    if (countryName.length > 0) {
+                        if (adminName1.length > 0 && localName.length > 0 && 
+                            ![countryName isEqualToString:@"中国"] && 
+                            ![countryName isEqualToString:localName]) {
+                            // 国外位置：国家 + 州/省 + 地点
+                            displayLocation = [NSString stringWithFormat:@"%@ %@ %@", countryName, adminName1, localName];
+                        } else if (localName.length > 0 && ![countryName isEqualToString:localName]) {
+                            // 只有国家和地点名
+                            displayLocation = [NSString stringWithFormat:@"%@ %@", countryName, localName];
+                        } else {
+                            // 只有国家名
+                            displayLocation = countryName;
+                        }
+                    } else if (localName.length > 0) {
+                        displayLocation = localName;
+                    }
+                  
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        NSString *currentText = label.text ?: @"";
+                        
+                        if ([currentText containsString:@"IP属地："]) {
+                            NSRange range = [currentText rangeOfString:@"IP属地："];
+                            if (range.location != NSNotFound) {
+                                NSString *baseText = [currentText substringToIndex:range.location];
+                                if (![currentText containsString:displayLocation]) {
+                                    label.text = [NSString stringWithFormat:@"%@IP属地：%@", baseText, displayLocation];
+                                }
+                            }
+                        } else {
+                            NSString *baseText = label.text ?: @"";
+                            if (baseText.length > 0) {
+                                label.text = [NSString stringWithFormat:@"%@  IP属地：%@", baseText, displayLocation];
+                            }
+                        }
+                    });
+                } else {
+                    [CityManager fetchLocationWithGeonameId:cityCode completionHandler:^(NSDictionary *locationInfo, NSError *error) {
+                        if (locationInfo) {
+                            NSString *countryName = locationInfo[@"countryName"];
+                            NSString *adminName1 = locationInfo[@"adminName1"];  // 州/省级名称
+                            NSString *localName = locationInfo[@"name"];         // 当前地点名称
+                            NSString *displayLocation = @"未知";
+                            
+                            // 根据返回数据构建位置显示文本
+                            if (countryName.length > 0) {
+                                if (adminName1.length > 0 && localName.length > 0 && 
+                                    ![countryName isEqualToString:@"中国"] && 
+                                    ![countryName isEqualToString:localName]) {
+                                    // 国外位置：国家 + 州/省 + 地点
+                                    displayLocation = [NSString stringWithFormat:@"%@ %@ %@", countryName, adminName1, localName];
+                                } else if (localName.length > 0 && ![countryName isEqualToString:localName]) {
+                                    // 只有国家和地点名
+                                    displayLocation = [NSString stringWithFormat:@"%@ %@", countryName, localName];
+                                } else {
+                                    // 只有国家名
+                                    displayLocation = countryName;
+                                }
+                            } else if (localName.length > 0) {
+                                displayLocation = localName;
+                            }
+       
+                            [geoNamesCache setObject:locationInfo forKey:cacheKey];
+                            
+                            NSString *cachesDir = [NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES) firstObject];
+                            NSString *geoNamesCacheDir = [cachesDir stringByAppendingPathComponent:@"DYYYGeoNamesCache"];
+                            NSString *cacheFilePath = [geoNamesCacheDir stringByAppendingPathComponent:[NSString stringWithFormat:@"%@.plist", cacheKey]];
+                            
+                            [locationInfo writeToFile:cacheFilePath atomically:YES];
+                            
+                            dispatch_async(dispatch_get_main_queue(), ^{
+                                NSString *currentText = label.text ?: @"";
+                                
+                                if ([currentText containsString:@"IP属地："]) {
+                                    NSRange range = [currentText rangeOfString:@"IP属地："];
+                                    if (range.location != NSNotFound) {
+                                        NSString *baseText = [currentText substringToIndex:range.location];
+                                        if (![currentText containsString:displayLocation]) {
+                                            label.text = [NSString stringWithFormat:@"%@IP属地：%@", baseText, displayLocation];
+                                        }
+                                    }
+                                } else {
+                                    NSString *baseText = label.text ?: @"";
+                                    if (baseText.length > 0) {
+                                        label.text = [NSString stringWithFormat:@"%@  IP属地：%@", baseText, displayLocation];
+                                    }
+                                }
+                            });
+                        }
+                    }];
+                }
+            } else if (![text containsString:cityName]) {
+                if (!self.model.ipAttribution) {
+                    BOOL isDirectCity = [provinceName isEqualToString:cityName] ||
+                            ([cityCode hasPrefix:@"11"] || [cityCode hasPrefix:@"12"] || 
+                             [cityCode hasPrefix:@"31"] || [cityCode hasPrefix:@"50"]);
 
-        NSString *province = [CityManager.sharedInstance getProvinceNameWithCode:areaCode] ?: @"";
-        NSString *city = [CityManager.sharedInstance getCityNameWithCode:areaCode] ?: @"";
-        NSString *district = [CityManager.sharedInstance getDistrictNameWithCode:areaCode] ?: @"";
-        NSString *street = [CityManager.sharedInstance getStreetNameWithCode:areaCode] ?: @"";
+                    if (isDirectCity) {
+                        label.text = [NSString stringWithFormat:@"%@  IP属地：%@", text, cityName];
+                    } else {
+                        label.text = [NSString stringWithFormat:@"%@  IP属地：%@ %@", text, provinceName, cityName];
+                    }
+                } else {
+                    BOOL isDirectCity = [provinceName isEqualToString:cityName] ||
+                            ([cityCode hasPrefix:@"11"] || [cityCode hasPrefix:@"12"] || 
+                             [cityCode hasPrefix:@"31"] || [cityCode hasPrefix:@"50"]);
 
-        NSMutableArray *components = [NSMutableArray new];
-        NSString *prefix = areaCode.length >= 2 ? [areaCode substringToIndex:2] : @"";
-
-        if ([@[@"81", @"82", @"71"] containsObject:prefix]) {
-            
-            if (province.length > 0) [components addObject:province];
-            if (city.length > 0) [components addObject:city];
-            if (district.length > 0) [components addObject:district];
-        } else {
-
-            if (province.length > 0 && areaCode.length >= 2) {
-                [components addObject:province];
-            }
-
-            if (city.length > 0 && areaCode.length >= 4 && ![city isEqualToString:province]) {
-                [components addObject:city];
-            }
-
-            if (district.length > 0 && areaCode.length >= 6) {
-                [components addObject:district];
-            }
-
-            if (street.length > 0 && areaCode.length >= 9) {
-                [components addObject:street];
+                    BOOL containsProvince = [text containsString:provinceName];
+                    if (containsProvince && !isDirectCity) {
+                        label.text = [NSString stringWithFormat:@"%@ %@", text, cityName];
+                    } else if (containsProvince && isDirectCity) {
+                        label.text = [NSString stringWithFormat:@"%@  IP属地：%@", text, cityName];
+                    } else if (isDirectCity && containsProvince) {
+                        label.text = text;
+                    } else if (containsProvince) {
+                        label.text = [NSString stringWithFormat:@"%@ %@", text, cityName];
+                    } else {
+                        label.text = text;
+                    }
+                }
             }
         }
-
-        if (components.count > 0) {
-            NSString *locationString = [components componentsJoinedByString:@" "];
-            NSString *cleanedText = [text stringByReplacingOccurrencesOfString:@"IP属地：.*"
-                                                                    withString:@""
-                                                                       options:NSRegularExpressionSearch
-                                                                         range:NSMakeRange(0, text.length)];
-
-            if ([prefix isEqualToString:@"71"] && [district containsString:@"福建省"]) {
-                locationString = [locationString stringByReplacingOccurrencesOfString:@"(福建省)"
-                                                                          withString:@""
-                                                                             options:NSRegularExpressionSearch
-                                                                               range:NSMakeRange(0, locationString.length)];
-            }
-
-            label.text = [NSString stringWithFormat:@"% @ IP属地：%@",
-                          [cleanedText stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]],
-                          locationString];
-        }
-  }
+    }
 	// 应用IP属地标签上移
 	NSString *ipScaleValue = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYNicknameScale"];
 	if (ipScaleValue.length > 0) {
@@ -1585,139 +1118,6 @@ static void DYYYAddCustomViewToParent(UIView *parentView, float transparency) {
 
 %end
 
-static CGFloat stream_frame_y = 0;
-
-%hook AWEElementStackView
-static CGFloat right_tx = 0;
-static CGFloat left_tx = 0;
-static CGFloat currentScale = 1.0;
-
-- (void)viewWillAppear:(BOOL)animated {
-	%orig;
-	if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYisEnableFullScreen"]) {
-		UIResponder *nextResponder = [self nextResponder];
-		if ([nextResponder isKindOfClass:[UIView class]]) {
-			UIView *parentView = (UIView *)nextResponder;
-			UIViewController *viewController = [parentView firstAvailableUIViewController];
-
-			if ([viewController isKindOfClass:%c(AWELiveNewPreStreamViewController)]) {
-				CGRect frame = self.frame;
-				if (stream_frame_y != 0) {
-					frame.origin.y = stream_frame_y;
-					self.frame = frame;
-				}
-			}
-		}
-	}
-}
-
-- (void)viewDidAppear:(BOOL)animated {
-	%orig;
-	if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYisEnableFullScreen"]) {
-		UIResponder *nextResponder = [self nextResponder];
-		if ([nextResponder isKindOfClass:[UIView class]]) {
-			UIView *parentView = (UIView *)nextResponder;
-			UIViewController *viewController = [parentView firstAvailableUIViewController];
-
-			if ([viewController isKindOfClass:%c(AWELiveNewPreStreamViewController)]) {
-				CGRect frame = self.frame;
-				if (stream_frame_y != 0) {
-					frame.origin.y = stream_frame_y;
-					self.frame = frame;
-				}
-			}
-		}
-	}
-}
-
-- (void)layoutSubviews {
-	%orig;
-
-	if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYisEnableFullScreen"]) {
-		UIResponder *nextResponder = [self nextResponder];
-		if ([nextResponder isKindOfClass:[UIView class]]) {
-			UIView *parentView = (UIView *)nextResponder;
-			UIViewController *viewController = [parentView firstAvailableUIViewController];
-
-			if ([viewController isKindOfClass:%c(AWELiveNewPreStreamViewController)]) {
-				CGRect frame = self.frame;
-				frame.origin.y -= 83;
-				stream_frame_y = frame.origin.y;
-				self.frame = frame;
-			}
-		}
-	}
-
-	NSString *scaleValue = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYElementScale"];
-	if ([self.accessibilityLabel isEqualToString:@"right"]) {
-
-		self.transform = CGAffineTransformIdentity;
-
-		if (scaleValue.length > 0) {
-			CGFloat scale = [scaleValue floatValue];
-
-			if (currentScale != scale) {
-				currentScale = scale;
-			}
-
-			if (scale > 0 && scale != 1.0) {
-				CGFloat ty = 0;
-
-				for (UIView *view in self.subviews) {
-					CGFloat viewHeight = view.frame.size.height;
-					CGFloat contribution = (viewHeight - viewHeight * scale) / 2;
-					ty += contribution;
-				}
-
-				CGFloat frameWidth = self.frame.size.width;
-				right_tx = (frameWidth - frameWidth * scale) / 2;
-
-				self.transform = CGAffineTransformMake(scale, 0, 0, scale, right_tx, ty);
-			} else {
-				self.transform = CGAffineTransformIdentity;
-			}
-		} else {
-		}
-	}
-	if ([self.accessibilityLabel isEqualToString:@"left"]) {
-		NSString *scaleValue = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYNicknameScale"];
-		
-		if (scaleValue.length > 0) {
-			CGFloat scale = [scaleValue floatValue];
-			
-			CGAffineTransform currentTransform = self.transform;
-			if (currentTransform.a == scale && currentTransform.d == scale) {
-				return;
-			}
-			static CGFloat lastAppliedScale = 1.0;
-			if (lastAppliedScale != scale) {
-				lastAppliedScale = scale;
-			}
-			self.transform = CGAffineTransformIdentity;
-			if (scale > 0 && scale != 1.0) {
-				NSArray *subviews = [self.subviews copy];
-				CGFloat ty = 0;
-				
-				for (UIView *view in subviews) {
-					CGFloat viewHeight = view.frame.size.height;
-					CGFloat contribution = (viewHeight - viewHeight * scale) / 2;
-					ty += contribution;
-				}
-
-				CGFloat frameWidth = self.frame.size.width;
-				CGFloat left_tx = (frameWidth - frameWidth * scale) / 2 - frameWidth * (1 - scale);
-				CGAffineTransform newTransform = CGAffineTransformMakeScale(scale, scale);
-				newTransform = CGAffineTransformTranslate(newTransform, left_tx/scale, ty/scale);
-				self.transform = newTransform;
-				dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.4 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-					self.transform = newTransform;
-				});
-			} 
-		}
-	}
-}
-
-%end
 %hook AWEPlayInteractionDescriptionScrollView
 
 - (void)layoutSubviews {
@@ -1884,32 +1284,6 @@ static CGFloat currentScale = 1.0;
 	%orig;
 }
 
-%end
-
-// 去除启动视频广告
-%hook AWEAwesomeSplashFeedCellOldAccessoryView
-
-// 在方法入口处添加控制逻辑
-- (id)ddExtraView {
-	// 检查用户是否启用了无广告模式
-	if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYNoAds"]) {
-		NSLog(@"[AdControl] 无广告模式已启用 - 隐藏ddExtraView");
-		return NULL; // 返回空视图
-	}
-
-	// 正常模式调用原始方法
-	return %orig;
-}
-
-%end
-
-// 去广告功能
-%hook AwemeAdManager
-- (void)showAd {
-	if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYNoAds"])
-		return;
-	%orig;
-}
 %end
 
 // 获取资源的地址
@@ -2247,7 +1621,7 @@ static CGFloat currentScale = 1.0;
 		return;
 
 	for (NSString *pair in titlePairs) {
-		NSArray *components = [pair componentsSeparatedByString:@","];
+		NSArray *components = [pair componentsSeparatedByString:@"="];
 		if (components.count != 2)
 			continue;
 
