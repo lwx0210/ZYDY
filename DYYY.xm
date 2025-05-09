@@ -921,265 +921,141 @@
 - (id)timestampLabel {
     UILabel *label = %orig;
 
-// 优化点1：提取重复代码，用于设置标签文本
-void setLabelText(UILabel *label, NSString *baseText, NSString *displayLocation) {
-    if ([baseText containsString:@"IP属地："]) {
-        NSRange range = [baseText rangeOfString:@"IP属地："];
-        if (range.location != NSNotFound) {
-            NSString *prefixText = [baseText substringToIndex:range.location];
-            if (![baseText containsString:displayLocation]) {
-                label.text = [NSString stringWithFormat:@"%@IP属地：%@", prefixText, displayLocation];
-            }
-        }
-    } else {
-        if (baseText.length > 0) {
-            label.text = [NSString stringWithFormat:@"%@  IP属地：%@", baseText, displayLocation];
-        }
-    }
-}
-
- AWEPlayInteractionTimestampElement
-// 重写 timestampLabel 方法
-- (UILabel *)timestampLabel {
-    UILabel *label = [super timestampLabel]; // 调用原始方法获取标签
-    
-    // 优化点2：增加空值检查
-    if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYisEnableArea"] && self.model) {
+    if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYisEnableArea"]) {
         NSString *text = label.text;
         NSString *areaCode = self.model.cityCode;
-        NSString *cityCode = self.model.cityCode;
-        
-        if (cityCode.length > 0) {
-            NSString *cityName = [[CityManager sharedInstance] getCityNameWithCode:cityCode];
-            NSString *provinceName = [[CityManager sharedInstance] getProvinceNameWithCode:cityCode];
+
+        NSLog(@"[XUUZ] 当前 areaCode: %@ (%lu 位)", areaCode, (unsigned long)areaCode.length);
+
+        NSString *province = [CityManager.sharedInstance getProvinceNameWithCode:areaCode] ?: @"";
+        NSString *city = [CityManager.sharedInstance getCityNameWithCode:areaCode] ?: @"";
+        NSString *district = [CityManager.sharedInstance getDistrictNameWithCode:areaCode] ?: @"";
+        NSString *street = [CityManager.sharedInstance getStreetNameWithCode:areaCode] ?: @"";
+
+        NSMutableArray *components = [NSMutableArray new];
+        NSString *prefix = areaCode.length >= 2 ? [areaCode substringToIndex:2] : @"";
+
+        if ([@[@"81", @"82", @"71"] containsObject:prefix]) {
             
-            // 使用 GeoNames API
-            NSCache *geoNamesCache = [[NSCache alloc] init];
-            geoNamesCache.name = @"com.dyyy.geonames.cache";
-            geoNamesCache.countLimit = 1000;
-            
-            NSString *cacheKey = cityCode;
-            NSDictionary *cachedData = [geoNamesCache objectForKey:cacheKey];
-            
-            if (!cachedData) {
-                NSString *cachesDir = [NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES) firstObject];
-                NSString *geoNamesCacheDir = [cachesDir stringByAppendingPathComponent:@"DYYYGeoNamesCache"];
-                
-                NSFileManager *fileManager = [NSFileManager defaultManager];
-                if (![fileManager fileExistsAtPath:geoNamesCacheDir]) {
-                    NSError *error;
-                    if (![fileManager createDirectoryAtPath:geoNamesCacheDir withIntermediateDirectories:YES attributes:nil error:&error]) {
-                        NSLog(@"创建缓存目录失败: %@", error);
-                    }
-                }
-                
-                NSString *cacheFilePath = [geoNamesCacheDir stringByAppendingPathComponent:[NSString stringWithFormat:@"%@.plist", cacheKey]];
-                
-                if ([fileManager fileExistsAtPath:cacheFilePath]) {
-                    cachedData = [NSDictionary dictionaryWithContentsOfFile:cacheFilePath];
-                    if (cachedData) {
-                        [geoNamesCache setObject:cachedData forKey:cacheKey];
-                    }
-                }
-            }
-            
-            if (cachedData) {
-                NSString *countryName = cachedData[@"countryName"];
-                NSString *adminName1 = cachedData[@"adminName1"];
-                NSString *localName = cachedData[@"name"];
-                NSString *displayLocation = @"未知";
-                
-                if (countryName.length > 0) {
-                    if (adminName1.length > 0 && localName.length > 0 && 
-                        ![countryName isEqualToString:@"中国"] && 
-                        ![countryName isEqualToString:localName]) {
-                        // 国外位置：国家 + 州/省 + 地点
-                        displayLocation = [NSString stringWithFormat:@"%@ %@ %@", countryName, adminName1, localName];
-                    } else if (localName.length > 0 && ![countryName isEqualToString:localName]) {
-                        // 只有国家和地点名
-                        displayLocation = [NSString stringWithFormat:@"%@ %@", countryName, localName];
-                    } else {
-                        // 只有国家名
-                        displayLocation = countryName;
-                    }
-                } else if (localName.length > 0) {
-                    displayLocation = localName;
-                }
-                
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    setLabelText(label, text, displayLocation);
-                });
-            } else {
-                [[CityManager sharedInstance] fetchLocationWithGeonameId:cityCode completionHandler:^(NSDictionary *locationInfo, NSError *error) {
-                    if (locationInfo) {
-                        NSString *countryName = locationInfo[@"countryName"];
-                        NSString *adminName1 = locationInfo[@"adminName1"];  // 州/省级名称
-                        NSString *localName = locationInfo[@"name"];         // 当前地点名称
-                        NSString *displayLocation = @"未知";
-                        
-                        if (countryName.length > 0) {
-                            if (adminName1.length > 0 && localName.length > 0 && 
-                                ![countryName isEqualToString:@"中国"] && 
-                                ![countryName isEqualToString:localName]) {
-                                displayLocation = [NSString stringWithFormat:@"%@ %@ %@", countryName, adminName1, localName];
-                            } else if (localName.length > 0 && ![countryName isEqualToString:localName]) {
-                                displayLocation = [NSString stringWithFormat:@"%@ %@", countryName, localName];
-                            } else {
-                                displayLocation = countryName;
-                            }
-                        } else if (localName.length > 0) {
-                            displayLocation = localName;
-                        }
-                        
-                        [geoNamesCache setObject:locationInfo forKey:cacheKey];
-                        
-                        NSString *cachesDir = [NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES) firstObject];
-                        NSString *geoNamesCacheDir = [cachesDir stringByAppendingPathComponent:@"DYYYGeoNamesCache"];
-                        NSString *cacheFilePath = [geoNamesCacheDir stringByAppendingPathComponent:[NSString stringWithFormat:@"%@.plist", cacheKey]];
-                        
-                        [locationInfo writeToFile:cacheFilePath atomically:YES];
-                        
-                        dispatch_async(dispatch_get_main_queue(), ^{
-                            setLabelText(label, text, displayLocation);
-                        });
-                    }
-                }];
-            }
+            if (province.length > 0) [components addObject:province];
+            if (city.length > 0) [components addObject:city];
+            if (district.length > 0) [components addObject:district];
         } else {
-            if (![text containsString:[CityManager sharedInstance] getCityNameWithCode:areaCode]) {
-                NSLog(@"[XUUZ] 当前 areaCode: %@ (%lu 位)", areaCode, (unsigned long)areaCode.length);
-                
-                NSString *province = [[CityManager sharedInstance] getProvinceNameWithCode:areaCode] ?: @"";
-                NSString *city = [[CityManager sharedInstance] getCityNameWithCode:areaCode] ?: @"";
-                NSString *district = [[CityManager sharedInstance] getDistrictNameWithCode:areaCode] ?: @"";
-                NSString *street = [[CityManager sharedInstance] getStreetNameWithCode:areaCode] ?: @"";
-                
-                NSMutableArray *components = [NSMutableArray new];
-                NSString *prefix = areaCode.length >= 2 ? [areaCode substringToIndex:2] : @"";
-                
-                if ([@[@"81", @"82", @"71"] containsObject:prefix]) {
-                    if (province.length > 0) [components addObject:province];
-                    if (city.length > 0) [components addObject:city];
-                    if (district.length > 0) [components addObject:district];
-                } else {
-                    if (province.length > 0 && areaCode.length >= 2) {
-                        [components addObject:province];
-                    }
-                    
-                    if (city.length > 0 && areaCode.length >= 4 && ![city isEqualToString:province]) {
-                        [components addObject:city];
-                    }
-                    
-                    if (district.length > 0 && areaCode.length >= 6) {
-                        [components addObject:district];
-                    }
-                    
-                    if (street.length > 0 && areaCode.length >= 9) {
-                        [components addObject:street];
-                    }
-                }
-                
-                if (components.count > 0) {
-                    NSString *locationString = [components componentsJoinedByString:@" "];
-                    NSString *cleanedText = [text stringByReplacingOccurrencesOfString:@"IP属地：.*"
-                                                                            withString:@""
-                                                                               options:NSRegularExpressionSearch
-                                                                                 range:NSMakeRange(0, text.length)];
-                    
-                    if ([prefix isEqualToString:@"71"] && [district containsString:@"福建省"]) {
-                        locationString = [locationString stringByReplacingOccurrencesOfString:@"(福建省)"
-                                                                                  withString:@""
-                                                                                     options:NSRegularExpressionSearch
-                                                                                       range:NSMakeRange(0, locationString.length)];
-                    }
-                    
-                    setLabelText(label, cleanedText, locationString);
-                }
+
+            if (province.length > 0 && areaCode.length >= 2) {
+                [components addObject:province];
+            }
+
+            if (city.length > 0 && areaCode.length >= 4 && ![city isEqualToString:province]) {
+                [components addObject:city];
+            }
+
+            if (district.length > 0 && areaCode.length >= 6) {
+                [components addObject:district];
+            }
+
+            if (street.length > 0 && areaCode.length >= 9) {
+                [components addObject:street];
             }
         }
-    }
-    
-    // IP 属地标签上移
-    NSString *ipScaleValue = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYNicknameScale"];
-    if (ipScaleValue.length > 0) {
-        UIFont *originalFont = label.font;
-        CGRect originalFrame = label.frame;
-        CGFloat offset = [[NSUserDefaults standardUserDefaults] floatForKey:@"DYYYIPLabelVerticalOffset"];
-        if (offset > 0) {
-            CGAffineTransform translationTransform = CGAffineTransformMakeTranslation(0, -offset);
-            label.transform = translationTransform;
-        } else {
-            CGAffineTransform translationTransform = CGAffineTransformMakeTranslation(0, -3);
-            label.transform = translationTransform;
-        }
-        
-        label.font = originalFont;
-    }
-    
-    // 标签颜色设置
-    if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYEnabsuijiyanse"]) {
-        UIColor *color1 = [UIColor colorWithRed:(CGFloat)arc4random_uniform(256) / 255.0
-                                          green:(CGFloat)arc4random_uniform(256) / 255.0
-                                           blue:(CGFloat)arc4random_uniform(256) / 255.0
-                                          alpha:1.0];
-        UIColor *color2 = [UIColor colorWithRed:(CGFloat)arc4random_uniform(256) / 255.0
-                                          green:(CGFloat)arc4random_uniform(256) / 255.0
-                                           blue:(CGFloat)arc4random_uniform(256) / 255.0
-                                          alpha:1.0];
-        UIColor *color3 = [UIColor colorWithRed:(CGFloat)arc4random_uniform(256) / 255.0
-                                          green:(CGFloat)arc4random_uniform(256) / 255.0
-                                           blue:(CGFloat)arc4random_uniform(256) / 255.0
-                                          alpha:1.0];
-        
-        NSMutableAttributedString *attributedText = [[NSMutableAttributedString alloc] initWithString:label.text];
-        CFIndex length = [attributedText length];
-        for (CFIndex i = 0; i < length; i++) {
-            CGFloat progress = (CGFloat)i / (length == 0? 1 : length - 1);
-            
-            UIColor *startColor;
-            UIColor *endColor;
-            CGFloat subProgress;
-            
-            if (progress < 0.5) {
-                startColor = color1;
-                endColor = color2;
-                subProgress = progress * 2;
-            } else {
-                startColor = color2;
-                endColor = color3;
-                subProgress = (progress - 0.5) * 2;
+
+        if (components.count > 0) {
+            NSString *locationString = [components componentsJoinedByString:@" "];
+            NSString *cleanedText = [text stringByReplacingOccurrencesOfString:@"IP属地：.*"
+                                                                    withString:@""
+                                                                       options:NSRegularExpressionSearch
+                                                                         range:NSMakeRange(0, text.length)];
+
+            if ([prefix isEqualToString:@"71"] && [district containsString:@"福建省"]) {
+                locationString = [locationString stringByReplacingOccurrencesOfString:@"(福建省)"
+                                                                          withString:@""
+                                                                             options:NSRegularExpressionSearch
+                                                                               range:NSMakeRange(0, locationString.length)];
             }
-            
-            CGFloat startRed, startGreen, startBlue, startAlpha;
-            CGFloat endRed, endGreen, endBlue, endAlpha;
-            [startColor getRed:&startRed green:&startGreen blue:&startBlue alpha:&startAlpha];
-            [endColor getRed:&endRed green:&endGreen blue:&endBlue alpha:&endAlpha];
-            
-            CGFloat red = startRed + (endRed - startRed) * subProgress;
-            CGFloat green = startGreen + (endGreen - startGreen) * subProgress;
-            CGFloat blue = startBlue + (endBlue - startBlue) * subProgress;
-            CGFloat alpha = startAlpha + (endAlpha - startAlpha) * subProgress;
-            
-            UIColor *currentColor = [UIColor colorWithRed:red green:green blue:blue alpha:alpha];
-            [attributedText addAttribute:NSForegroundColorAttributeName value:currentColor range:NSMakeRange(i, 1)];
+
+            label.text = [NSString stringWithFormat:@"% @ IP属地：%@",
+                          [cleanedText stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]],
+                          locationString];
         }
-        
-        label.attributedText = attributedText;
-    } else {
-        NSString *labelColor = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYLabelColor"];
-        if (labelColor.length > 0) {
-            label.textColor = [DYYYManager colorWithHexString:labelColor];
-        }
-    }
-    
-    return label;
+  }
+	// 应用IP属地标签上移
+	NSString *ipScaleValue = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYNicknameScale"];
+	if (ipScaleValue.length > 0) {
+		UIFont *originalFont = label.font;
+		CGRect originalFrame = label.frame;
+		CGFloat offset = [[NSUserDefaults standardUserDefaults] floatForKey:@"DYYYIPLabelVerticalOffset"];
+		if (offset > 0) {
+			CGAffineTransform translationTransform = CGAffineTransformMakeTranslation(0, -offset);
+			label.transform = translationTransform;
+		} else {
+			CGAffineTransform translationTransform = CGAffineTransformMakeTranslation(0, -3);
+			label.transform = translationTransform;
+		}
+
+		label.font = originalFont;
+	}
+	if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYEnabsuijiyanse"]) {
+		UIColor *color1 = [UIColor colorWithRed:(CGFloat)arc4random_uniform(256) / 255.0
+						  green:(CGFloat)arc4random_uniform(256) / 255.0
+						   blue:(CGFloat)arc4random_uniform(256) / 255.0
+						  alpha:1.0];
+		UIColor *color2 = [UIColor colorWithRed:(CGFloat)arc4random_uniform(256) / 255.0
+						  green:(CGFloat)arc4random_uniform(256) / 255.0
+						   blue:(CGFloat)arc4random_uniform(256) / 255.0
+						  alpha:1.0];
+		UIColor *color3 = [UIColor colorWithRed:(CGFloat)arc4random_uniform(256) / 255.0
+						  green:(CGFloat)arc4random_uniform(256) / 255.0
+						   blue:(CGFloat)arc4random_uniform(256) / 255.0
+						  alpha:1.0];
+
+		NSMutableAttributedString *attributedText = [[NSMutableAttributedString alloc] initWithString:label.text];
+		CFIndex length = [attributedText length];
+		for (CFIndex i = 0; i < length; i++) {
+			CGFloat progress = (CGFloat)i / (length == 0 ? 1 : length - 1);
+
+			UIColor *startColor;
+			UIColor *endColor;
+			CGFloat subProgress;
+
+			if (progress < 0.5) {
+				startColor = color1;
+				endColor = color2;
+				subProgress = progress * 2;
+			} else {
+				startColor = color2;
+				endColor = color3;
+				subProgress = (progress - 0.5) * 2;
+			}
+
+			CGFloat startRed, startGreen, startBlue, startAlpha;
+			CGFloat endRed, endGreen, endBlue, endAlpha;
+			[startColor getRed:&startRed green:&startGreen blue:&startBlue alpha:&startAlpha];
+			[endColor getRed:&endRed green:&endGreen blue:&endBlue alpha:&endAlpha];
+
+			CGFloat red = startRed + (endRed - startRed) * subProgress;
+			CGFloat green = startGreen + (endGreen - startGreen) * subProgress;
+			CGFloat blue = startBlue + (endBlue - startBlue) * subProgress;
+			CGFloat alpha = startAlpha + (endAlpha - startAlpha) * subProgress;
+
+			UIColor *currentColor = [UIColor colorWithRed:red green:green blue:blue alpha:alpha];
+			[attributedText addAttribute:NSForegroundColorAttributeName value:currentColor range:NSMakeRange(i, 1)];
+		}
+
+		label.attributedText = attributedText;
+	} else {
+		NSString *labelColor = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYLabelColor"];
+		if (labelColor.length > 0) {
+			label.textColor = [DYYYManager colorWithHexString:labelColor];
+		}
+	}
+	return label;
 }
 
 + (BOOL)shouldActiveWithData:(id)arg1 context:(id)arg2 {
-    return [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYisEnableArea"];
+	return [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYisEnableArea"];
 }
 
-@end
+%end
 
 %hook AWEPlayInteractionDescriptionScrollView
 
