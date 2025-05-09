@@ -1999,6 +1999,11 @@ static void showUserAgreementAlert() {
 			      @"detail" : @"",
 			      @"cellType" : @6,
 			      @"imageName" : @"ic_gearsimplify_outlined_20"},
+                            @{@"identifier" : @"DYYYPanelcells",
+			      @"title" : @"启用新面板单元格",
+			      @"detail" : @"",
+			      @"cellType" : @6,
+			      @"imageName" : @"ic_gearsimplify_outlined_20"},
 			    @{@"identifier" : @"DYYYEnableSaveAvatar",
 			      @"title" : @"启用保存他人头像",
 			      @"detail" : @"",
@@ -2019,12 +2024,11 @@ static void showUserAgreementAlert() {
 			      @"detail" : @"",
 			      @"cellType" : @6,
 			      @"imageName" : @"ic_comment_outlined_20"},
-			    @{
-				    @"identifier" : @"DYYYEnableDoubleOpenAlertController",
-				    @"title" : @"启用双击打开菜单",
-				    @"detail" : @"",
-				    @"cellType" : @26,
-				    @"imageName" : @"ic_xiaoxihuazhonghua_outlined_20"
+			    @{@"identifier" : @"DYYYEnableDoubleOpenAlertController",
+			      @"title" : @"启用双击打开菜单",
+			      @"detail" : @"",
+			      @"cellType" : @26,
+			      @"imageName" : @"ic_xiaoxihuazhonghua_outlined_20"
 			    }
 		    ];
 
