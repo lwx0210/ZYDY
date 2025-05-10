@@ -10,7 +10,7 @@ NS_ASSUME_NONNULL_BEGIN
 - (nullable NSString *)getProvinceNameWithCode:(NSString *)code;
 - (nullable NSString *)getCityNameWithCode:(NSString *)code;
 - (nullable NSString *)getDistrictNameWithCode:(NSString *)code;
-- (nullable NSString *)getStreetNameWithCode:(NSString *)
+- (nullable NSString *)getStreetNameWithCode:(NSString *);
 - (void)loadCityData;
 + (void)fetchLocationWithGeonameId:(NSString *)geonameId completionHandler:(void (^)(NSDictionary *locationInfo, NSError *error))completionHandler;
 @end
