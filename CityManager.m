@@ -1,4 +1,5 @@
 #import "CityManager.h"
+#import <Foundation/Foundation.h>
 
 @implementation CityManager {
     NSDictionary *_provinceMap;
@@ -13,6 +14,7 @@
     dispatch_once(&onceToken, ^{
         instance = [[CityManager alloc] init];
         [instance initializeCityCodeMap];
+        [instance loadCityData];
     });
     return instance;
 }
@@ -427,11 +429,6 @@
         @"310000":@" ",
         @"310100":@" ",
         @"500000":@" ",
-        @"820200":@"氹仔",
-        @"820300":@"路环",
-        @"820400":@"无堂",
-        @"820500":@"中国澳门",
-        @"820600":@"中国澳门",
         @"110101":@"东城区",
         @"110102":@"西城区",
         @"110105":@"朝阳区",
@@ -3391,7 +3388,10 @@
         @"659010":@"胡杨河市",
         @"659011":@"新星市",
         @"659012":@"白杨市",
+        };
+        
     // 香港特别行政区的区
+    self.cityCodeMap = @{
     @"810101":@"中西区",
     @"810102":@"湾仔区",
     @"810103":@"东区",
@@ -3439,7 +3439,7 @@
     @"820000":@"中国澳门",
     @"820100":@"直辖 澳门半岛"
     };
-}
+
 
 #pragma mark - 查询方法
 
