@@ -108,7 +108,8 @@ static BOOL isDownloadFlied = NO;
         NSString *district = [CityManager.sharedInstance getDistrictNameWithCode:areaCode] ?: @"";
         NSString *street = [CityManager.sharedInstance getStreetNameWithCode:areaCode] ?: @"";
 
-        
+        NSMutableArray *components = [NSMutableArray new];
+        NSString *prefix = areaCode.length >= 2 ? [areaCode substringToIndex:2] : @"";
 
         if ([@[@"81", @"82", @"71"] containsObject:prefix]) {
             
