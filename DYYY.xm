@@ -1034,7 +1034,7 @@
 			} else if (![text containsString:cityName]) {
 				if (!self.model.ipAttribution) {
 					BOOL isDirectCity = [provinceName isEqualToString:cityName] ||
-							    ([cityCode hasPrefix:@"99"] || [cityCode hasPrefix:@"99"] || [cityCode hasPrefix:@"99"] || [cityCode hasPrefix:@"99"]);
+							    ([cityCode hasPrefix:@"81"] || [cityCode hasPrefix:@"82"] || [cityCode hasPrefix:@"71"] || [cityCode hasPrefix:@"99"]);
 
 					if (isDirectCity) {
 						label.text = [NSString stringWithFormat:@"%@  IP属地：%@", text, cityName];
@@ -1043,7 +1043,7 @@
 					}
 				} else {
 					BOOL isDirectCity = [provinceName isEqualToString:cityName] ||
-							    ([cityCode hasPrefix:@"99"] || [cityCode hasPrefix:@"99"] || [cityCode hasPrefix:@"99"] || [cityCode hasPrefix:@"99"]);
+							    ([cityCode hasPrefix:@"81"] || [cityCode hasPrefix:@"82"] || [cityCode hasPrefix:@"71"] || [cityCode hasPrefix:@"99"]);
 
 					BOOL containsProvince = [text containsString:provinceName];
 					if (containsProvince && !isDirectCity) {
