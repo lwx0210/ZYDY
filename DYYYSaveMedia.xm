@@ -1,14 +1,6 @@
-#import <UIKit/UIKit.h>
-#import <objc/runtime.h>
-
 #import "AwemeHeaders.h"
 #import "DYYYManager.h"
 #import "CityManager.h"
-
-#import "DYYYBottomAlertView.h"
-#import "DYYYManager.h"
-
-#import "DYYYConstants.h"
 
 %hook AWECommentMediaDownloadConfigLivePhoto
 
