@@ -1043,27 +1043,6 @@
 			}
 		}
 	}
-           if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYisEnableAreaLinebreak"]) {
-           if (components.count > 0) {
-            NSString *locationString = [components componentsJoinedByString:@" "];
-            // 移除原有IP属地文本
-            NSString *cleanedText = [originalText stringByReplacingOccurrencesOfString:@"IP属地：.*"
-                                                                            withString:@""
-                                                                               options:NSRegularExpressionSearch
-                                                                                 range:NSMakeRange(0, originalText.length)];
-            // 添加换行符將IP属地放在下方
-            label.numberOfLines = 0; // 允许多行显示
-            label.text = [NSString stringWithFormat:@"%@\nIP属地：%@",
-                          [cleanedText stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]],
-                          locationString];
-        }
-    }
-
-    NSString *labelColor = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYLabelColor"];
-    if (labelColor.length > 0) {
-        label.textColor = [DYYYManager colorWithHexString:labelColor];
-    }
-}
 	// 应用IP属地标签上移
 	NSString *ipScaleValue = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYNicknameScale"];
 	if (ipScaleValue.length > 0) {
@@ -1135,6 +1114,7 @@
 		}
 	}
 	return label;
+}
 
 + (BOOL)shouldActiveWithData:(id)arg1 context:(id)arg2 {
 	return [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYisEnableArea"];
