@@ -262,6 +262,14 @@ typedef NS_ENUM(NSInteger, MediaType) {
 @property (retain, nonatomic) AWEAwemeModel * model;
 @end
 
+//主页全屏
+@interface AWEAwemeDetailTableView : UIView
+@end
+
+@interface AWEAwemeDetailTableViewCell : UIView
+@end
+
+
 @interface AWEPlayInteractionProgressController : AWEPlayInteractionNewBaseController
 - (UIViewController *)findViewController:(UIViewController *)vc ofClass:(Class)targetClass;
 @property (retain, nonatomic) id progressSlider;
