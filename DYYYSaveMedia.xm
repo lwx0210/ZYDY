@@ -5,6 +5,11 @@
 #import "DYYYManager.h"
 #import "CityManager.h"
 
+#import "DYYYBottomAlertView.h"
+#import "DYYYManager.h"
+
+#import "DYYYConstants.h"
+
 %hook AWECommentMediaDownloadConfigLivePhoto
 
 bool commentLivePhotoNotWaterMark = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYCommentLivePhotoNotWaterMark"];
