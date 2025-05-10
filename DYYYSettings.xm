@@ -469,7 +469,7 @@ static void showUserAgreementAlert() {
 			      @"imageName" : @"ic_location_outlined_20"},
                             @{@"identifier" : @"DYYYGeonamesUsername",
 			      @"title" : @"国外属地解析",
-			      @"detail" : @"",
+			      @"detail" : @"此处填写用户名,不填默认",
 			      @"cellType" : @26,
 			      @"imageName" : @"ic_location_outlined_20"},
 		            @{@"identifier" : @"DYYYLabelColor",
