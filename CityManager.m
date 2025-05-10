@@ -12,6 +12,7 @@
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
         instance = [[CityManager alloc] init];
+        [instance loadCityData];
         [instance initializeCityCodeMap];
     });
     return instance;
