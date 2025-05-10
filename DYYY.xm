@@ -1069,8 +1069,8 @@
                     }
                 } else {
                     BOOL isDirectCity = [provinceName isEqualToString:cityName] ||
-                            ([cityCode hasPrefix:@"11"] || [cityCode hasPrefix:@"12"] || 
-                             [cityCode hasPrefix:@"31"] || [cityCode hasPrefix:@"50"]);
+                            ([cityCode hasPrefix:@"99"] || [cityCode hasPrefix:@"99"] || 
+                             [cityCode hasPrefix:@"99"] || [cityCode hasPrefix:@"99"]);
 
                     BOOL containsProvince = [text containsString:provinceName];
                     if (containsProvince && !isDirectCity) {
