@@ -15,7 +15,19 @@
 
 #import "DYYYConstants.h"
 
-%group needDelays
+%hook AWEDPlayerFeedPlayerViewController
+
+- (void)setIsAutoPlay:(BOOL)arg0 {
+	float defaultSpeed = [[NSUserDefaults standardUserDefaults] floatForKey:@"DYYYDefaultSpeed"];
+
+	if (defaultSpeed > 0 && defaultSpeed != 1) {
+		[self setVideoControllerPlaybackRate:defaultSpeed];
+	}
+
+	%orig(arg0);
+}
+
+%end
 
 %hook AWEAwemePlayVideoViewController
 
@@ -49,6 +61,23 @@
 }
 
 %end
+
+%hook AWEPlayInteractionUserAvatarFollowController
+- (void)onFollowViewClicked:(UITapGestureRecognizer *)gesture {
+	if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYfollowTips"]) {
+
+		dispatch_async(dispatch_get_main_queue(), ^{
+		  [DYYYBottomAlertView showAlertWithTitle:@"关注确认"
+						  message:@"是否确认关注？"
+					     cancelAction:nil
+					    confirmAction:^{
+					      %orig(gesture);
+					    }];
+		});
+	} else {
+		%orig;
+	}
+}
 
 %end
 
@@ -175,6 +204,46 @@
         }
     }
 }
+%end
+
+// 设置修改顶栏标题
+%hook AWEHPTopTabItemTextContentView
+
+- (void)layoutSubviews {
+	%orig;
+
+	NSString *topTitleConfig = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYModifyTopTabText"];
+	if (topTitleConfig.length == 0)
+		return;
+
+	NSArray *titlePairs = [topTitleConfig componentsSeparatedByString:@"#"];
+
+	NSString *accessibilityLabel = nil;
+	if ([self.superview respondsToSelector:@selector(accessibilityLabel)]) {
+		accessibilityLabel = self.superview.accessibilityLabel;
+	}
+	if (accessibilityLabel.length == 0)
+		return;
+
+	for (NSString *pair in titlePairs) {
+		NSArray *components = [pair componentsSeparatedByString:@"="];
+		if (components.count != 2)
+			continue;
+
+		NSString *originalTitle = components[0];
+		NSString *newTitle = components[1];
+
+		if ([accessibilityLabel isEqualToString:originalTitle]) {
+			if ([self respondsToSelector:@selector(setContentText:)]) {
+				[self setContentText:newTitle];
+			} else {
+				[self setValue:newTitle forKey:@"contentText"];
+			}
+			break;
+		}
+	}
+}
+
 %end
 
 %hook AWEDanmakuContentLabel
@@ -332,20 +401,6 @@
 	[button.superview.window.rootViewController dismissViewControllerAnimated:YES completion:nil];
 }
 %end
-
-%end
-
-%hook AWEDPlayerFeedPlayerViewController
-
-- (void)setIsAutoPlay:(BOOL)arg0 {
-	float defaultSpeed = [[NSUserDefaults standardUserDefaults] floatForKey:@"DYYYDefaultSpeed"];
-
-	if (defaultSpeed > 0 && defaultSpeed != 1) {
-		[self setVideoControllerPlaybackRate:defaultSpeed];
-	}
-
-	%orig(arg0);
-}
 
 %end
 
@@ -545,16 +600,6 @@
 	} else {
 		%orig;
 	}
-}
-
-// 确保即使进度条隐藏也可以拖动
-- (BOOL)pointInside:(CGPoint)point withEvent:(UIEvent *)event {
-	// 如果隐藏视频进度但显示进度时长，扩大判断区域以便于用户交互
-	if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHideVideoProgress"] && [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYisShowScheduleDisplay"]) {
-		CGRect expandedBounds = CGRectInset(self.bounds, -20, -20);
-		return CGRectContainsPoint(expandedBounds, point);
-	}
-	return %orig;
 }
 
 // MARK: 视频显示进度条以及视频进度秒数
@@ -760,44 +805,48 @@
 
 %new
 - (void)applyCustomProgressStyle {
-	NSString *scheduleStyle = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYScheduleStyle"];
+    NSString *scheduleStyle = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYScheduleStyle"];
 
-	if ([scheduleStyle isEqualToString:@"进度条两侧左右"]) {
-		// 获取父视图宽度，以便计算新的宽度
-		CGFloat parentWidth = self.superview.bounds.size.width;
-		CGRect frame = self.frame;
-
-		// 计算宽度百分比和边距
-		CGFloat widthPercent = 0.80;
-		NSString *widthPercentValue = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYProgressBarWidthPercent"];
-		if (widthPercentValue.length > 0) {
-			CGFloat customPercent = [widthPercentValue floatValue];
-			if (customPercent > 0 && customPercent <= 1.0) {
-				widthPercent = customPercent;
-			}
-		}
-
-		// 调整进度条宽度和位置
-		CGFloat newWidth = parentWidth * widthPercent;
-		CGFloat centerX = frame.origin.x + frame.size.width / 2;
-
-		frame.size.width = newWidth;
-		frame.origin.x = centerX - newWidth / 2;
-
-		self.frame = frame;
-
-		// 调整进度条子视图的位置和大小，隐藏UIView类型的子视图
-		for (UIView *subview in self.subviews) {
-			if ([subview class] == [UIView class]) {
-				subview.hidden = YES;
-			} else {
-				// 对其他类型的子视图调整宽度
-				CGRect subFrame = subview.frame;
-				subFrame.size.width = newWidth;
-				subview.frame = subFrame;
-			}
-		}
-	}
+    if ([scheduleStyle isEqualToString:@"进度条两侧左右"]) {
+        UIView *parentView = self.superview;
+        if (!parentView) return;
+        
+        CGSize parentSize = parentView.bounds.size;
+        
+        // 计算宽度百分比
+        CGFloat widthPercent = 0.80;
+        NSString *widthPercentValue = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYProgressBarWidthPercent"];
+        if (widthPercentValue.length > 0) {
+            CGFloat customPercent = [widthPercentValue floatValue];
+            if (customPercent > 0 && customPercent <= 1.0) {
+                widthPercent = customPercent;
+            }
+        }
+        
+        CGFloat newWidth = parentSize.width * widthPercent;
+        
+        CGFloat newX = (parentSize.width - newWidth) / 2.0;
+        
+        CGFloat originalY = self.frame.origin.y;
+        CGFloat originalHeight = self.frame.size.height;
+        
+        self.frame = CGRectMake(newX, originalY, newWidth, originalHeight);
+        
+        for (UIView *subview in self.subviews) {
+            if ([subview class] == [UIView class]) {
+                subview.hidden = YES;
+            } else {
+                CGRect subFrame = subview.frame;
+                CGFloat subviewCenterX = subFrame.origin.x + (subFrame.size.width / 2.0);
+                CGFloat subviewRelativePosition = subviewCenterX / self.bounds.size.width;
+                
+                CGFloat newSubX = (subviewRelativePosition * newWidth) - (subFrame.size.width / 2.0);
+                
+                subview.frame = CGRectMake(newSubX, subFrame.origin.y, 
+                                          subFrame.size.width, subFrame.size.height);
+            }
+        }
+    }
 }
 %end
 
@@ -868,68 +917,177 @@
 }
 %end
 
-//IP属地信息
 %hook AWEPlayInteractionTimestampElement
 - (id)timestampLabel {
     UILabel *label = %orig;
-
     if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYisEnableArea"]) {
         NSString *text = label.text;
-        NSString *areaCode = self.model.cityCode;
+        NSString *cityCode = self.model.cityCode;
 
-        NSLog(@"[XUUZ] 当前 areaCode: %@ (%lu 位)", areaCode, (unsigned long)areaCode.length);
+        if (cityCode.length > 0) {
+            NSString *cityName = [CityManager.sharedInstance getCityNameWithCode:cityCode];
+            NSString *provinceName = [CityManager.sharedInstance getProvinceNameWithCode:cityCode];
+           // 使用 GeoNames API
+            if (!cityName || cityName.length == 0) {
+                NSString *cacheKey = cityCode;
+                
+                static NSCache *geoNamesCache = nil;
+                static dispatch_once_t onceToken;
+                dispatch_once(&onceToken, ^{
+                    geoNamesCache = [[NSCache alloc] init];
+                    geoNamesCache.name = @"com.dyyy.geonames.cache";
+                    geoNamesCache.countLimit = 1000;
+                });
+                
+                NSDictionary *cachedData = [geoNamesCache objectForKey:cacheKey];
+                
+                if (!cachedData) {
+                    NSString *cachesDir = [NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES) firstObject];
+                    NSString *geoNamesCacheDir = [cachesDir stringByAppendingPathComponent:@"DYYYGeoNamesCache"];
+                    
+                    NSFileManager *fileManager = [NSFileManager defaultManager];
+                    if (![fileManager fileExistsAtPath:geoNamesCacheDir]) {
+                        [fileManager createDirectoryAtPath:geoNamesCacheDir withIntermediateDirectories:YES attributes:nil error:nil];
+                    }
+                    
+                    NSString *cacheFilePath = [geoNamesCacheDir stringByAppendingPathComponent:[NSString stringWithFormat:@"%@.plist", cacheKey]];
+                    
+                    if ([fileManager fileExistsAtPath:cacheFilePath]) {
+                        cachedData = [NSDictionary dictionaryWithContentsOfFile:cacheFilePath];
+                        if (cachedData) {
+                            [geoNamesCache setObject:cachedData forKey:cacheKey];
+                        }
+                    }
+                }
+                
+                if (cachedData) {
+                    NSString *countryName = cachedData[@"countryName"];
+                    NSString *adminName1 = cachedData[@"adminName1"];
+                    NSString *localName = cachedData[@"name"];
+                    NSString *displayLocation = @"未知";
+                    
+                    if (countryName.length > 0) {
+                        if (adminName1.length > 0 && localName.length > 0 && 
+                            ![countryName isEqualToString:@"中国"] && 
+                            ![countryName isEqualToString:localName]) {
+                            // 国外位置：国家 + 州/省 + 地点
+                            displayLocation = [NSString stringWithFormat:@"%@ %@ %@", countryName, adminName1, localName];
+                        } else if (localName.length > 0 && ![countryName isEqualToString:localName]) {
+                            // 只有国家和地点名
+                            displayLocation = [NSString stringWithFormat:@"%@ %@", countryName, localName];
+                        } else {
+                            // 只有国家名
+                            displayLocation = countryName;
+                        }
+                    } else if (localName.length > 0) {
+                        displayLocation = localName;
+                    }
+                  
+                    dispatch_async(dispatch_get_main_queue(), ^{
+                        NSString *currentText = label.text ?: @"";
+                        
+                        if ([currentText containsString:@"IP属地："]) {
+                            NSRange range = [currentText rangeOfString:@"IP属地："];
+                            if (range.location != NSNotFound) {
+                                NSString *baseText = [currentText substringToIndex:range.location];
+                                if (![currentText containsString:displayLocation]) {
+                                    label.text = [NSString stringWithFormat:@"%@IP属地：%@", baseText, displayLocation];
+                                }
+                            }
+                        } else {
+                            NSString *baseText = label.text ?: @"";
+                            if (baseText.length > 0) {
+                                label.text = [NSString stringWithFormat:@"%@  IP属地：%@", baseText, displayLocation];
+                            }
+                        }
+                    });
+                } else {
+                    [CityManager fetchLocationWithGeonameId:cityCode completionHandler:^(NSDictionary *locationInfo, NSError *error) {
+                        if (locationInfo) {
+                            NSString *countryName = locationInfo[@"countryName"];
+                            NSString *adminName1 = locationInfo[@"adminName1"];  // 州/省级名称
+                            NSString *localName = locationInfo[@"name"];         // 当前地点名称
+                            NSString *displayLocation = @"未知";
+                            
+                            // 根据返回数据构建位置显示文本
+                            if (countryName.length > 0) {
+                                if (adminName1.length > 0 && localName.length > 0 && 
+                                    ![countryName isEqualToString:@"中国"] && 
+                                    ![countryName isEqualToString:localName]) {
+                                    // 国外位置：国家 + 州/省 + 地点
+                                    displayLocation = [NSString stringWithFormat:@"%@ %@ %@", countryName, adminName1, localName];
+                                } else if (localName.length > 0 && ![countryName isEqualToString:localName]) {
+                                    // 只有国家和地点名
+                                    displayLocation = [NSString stringWithFormat:@"%@ %@", countryName, localName];
+                                } else {
+                                    // 只有国家名
+                                    displayLocation = countryName;
+                                }
+                            } else if (localName.length > 0) {
+                                displayLocation = localName;
+                            }
+       
+                            [geoNamesCache setObject:locationInfo forKey:cacheKey];
+                            
+                            NSString *cachesDir = [NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES) firstObject];
+                            NSString *geoNamesCacheDir = [cachesDir stringByAppendingPathComponent:@"DYYYGeoNamesCache"];
+                            NSString *cacheFilePath = [geoNamesCacheDir stringByAppendingPathComponent:[NSString stringWithFormat:@"%@.plist", cacheKey]];
+                            
+                            [locationInfo writeToFile:cacheFilePath atomically:YES];
+                            
+                            dispatch_async(dispatch_get_main_queue(), ^{
+                                NSString *currentText = label.text ?: @"";
+                                
+                                if ([currentText containsString:@"IP属地："]) {
+                                    NSRange range = [currentText rangeOfString:@"IP属地："];
+                                    if (range.location != NSNotFound) {
+                                        NSString *baseText = [currentText substringToIndex:range.location];
+                                        if (![currentText containsString:displayLocation]) {
+                                            label.text = [NSString stringWithFormat:@"%@IP属地：%@", baseText, displayLocation];
+                                        }
+                                    }
+                                } else {
+                                    NSString *baseText = label.text ?: @"";
+                                    if (baseText.length > 0) {
+                                        label.text = [NSString stringWithFormat:@"%@  IP属地：%@", baseText, displayLocation];
+                                    }
+                                }
+                            });
+                        }
+                    }];
+                }
+            } else if (![text containsString:cityName]) {
+                if (!self.model.ipAttribution) {
+                    BOOL isDirectCity = [provinceName isEqualToString:cityName] ||
+                            ([cityCode hasPrefix:@"11"] || [cityCode hasPrefix:@"12"] || 
+                             [cityCode hasPrefix:@"31"] || [cityCode hasPrefix:@"50"]);
 
-        NSString *province = [CityManager.sharedInstance getProvinceNameWithCode:areaCode] ?: @"";
-        NSString *city = [CityManager.sharedInstance getCityNameWithCode:areaCode] ?: @"";
-        NSString *district = [CityManager.sharedInstance getDistrictNameWithCode:areaCode] ?: @"";
-        NSString *street = [CityManager.sharedInstance getStreetNameWithCode:areaCode] ?: @"";
+                    if (isDirectCity) {
+                        label.text = [NSString stringWithFormat:@"%@  IP属地：%@", text, cityName];
+                    } else {
+                        label.text = [NSString stringWithFormat:@"%@  IP属地：%@ %@", text, provinceName, cityName];
+                    }
+                } else {
+                    BOOL isDirectCity = [provinceName isEqualToString:cityName] ||
+                            ([cityCode hasPrefix:@"11"] || [cityCode hasPrefix:@"12"] || 
+                             [cityCode hasPrefix:@"31"] || [cityCode hasPrefix:@"50"]);
 
-        NSMutableArray *components = [NSMutableArray new];
-        NSString *prefix = areaCode.length >= 2 ? [areaCode substringToIndex:2] : @"";
-
-        if ([@[@"81", @"82", @"71"] containsObject:prefix]) {
-            
-            if (province.length > 0) [components addObject:province];
-            if (city.length > 0) [components addObject:city];
-            if (district.length > 0) [components addObject:district];
-        } else {
-
-            if (province.length > 0 && areaCode.length >= 2) {
-                [components addObject:province];
-            }
-
-            if (city.length > 0 && areaCode.length >= 4 && ![city isEqualToString:province]) {
-                [components addObject:city];
-            }
-
-            if (district.length > 0 && areaCode.length >= 6) {
-                [components addObject:district];
-            }
-
-            if (street.length > 0 && areaCode.length >= 9) {
-                [components addObject:street];
+                    BOOL containsProvince = [text containsString:provinceName];
+                    if (containsProvince && !isDirectCity) {
+                        label.text = [NSString stringWithFormat:@"%@ %@", text, cityName];
+                    } else if (containsProvince && isDirectCity) {
+                        label.text = [NSString stringWithFormat:@"%@  IP属地：%@", text, cityName];
+                    } else if (isDirectCity && containsProvince) {
+                        label.text = text;
+                    } else if (containsProvince) {
+                        label.text = [NSString stringWithFormat:@"%@ %@", text, cityName];
+                    } else {
+                        label.text = text;
+                    }
+                }
             }
         }
-
-        if (components.count > 0) {
-            NSString *locationString = [components componentsJoinedByString:@" "];
-            NSString *cleanedText = [text stringByReplacingOccurrencesOfString:@"IP属地：.*"
-                                                                    withString:@""
-                                                                       options:NSRegularExpressionSearch
-                                                                         range:NSMakeRange(0, text.length)];
-
-            if ([prefix isEqualToString:@"71"] && [district containsString:@"福建省"]) {
-                locationString = [locationString stringByReplacingOccurrencesOfString:@"(福建省)"
-                                                                          withString:@""
-                                                                             options:NSRegularExpressionSearch
-                                                                               range:NSMakeRange(0, locationString.length)];
-            }
-
-            label.text = [NSString stringWithFormat:@"% @ IP属地：%@",
-                          [cleanedText stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceCharacterSet]],
-                          locationString];
-        }
-  }
+    }
 	// 应用IP属地标签上移
 	NSString *ipScaleValue = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYNicknameScale"];
 	if (ipScaleValue.length > 0) {
@@ -1284,7 +1442,7 @@
 	containerView.backgroundColor = [UIColor clearColor];
 
 	float userRadius = [[[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYNotificationCornerRadius"] floatValue];
-	if (userRadius < 0 || userRadius > 50) {
+	if (!userRadius || userRadius < 0 || userRadius > 50) {
 		userRadius = 12;
 	}
 
@@ -1425,119 +1583,48 @@
 }
 %end
 
-%hook AWEFeedABSettings
-+ (BOOL)enableHDRBrightnessOpt {
-    if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYDisableHDR"]) {
-        return NO; // 关闭HDR亮度优化
-    }
-    return %orig;
-}
-+ (BOOL)hdrAutomaticIdentification {
-    if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYDisableHDR"]) {
-        return NO; // 关闭HDR自动识别
-    }
-    return %orig;
-}
-%end
-%hook BDSimPlayerMediaViewController
-- (void)setEnableHDR:(BOOL)enable {
-    if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYDisableHDR"]) {
-        %orig(NO); 
-    } else {
-        %orig;
-    }
-}
-- (void)setEnablePlayHDRMode {
-    if (![[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYDisableHDR"]) {
-        %orig; 
-    }
-}
-%end
-%hook AWEVideoPlayerConfiguration
-+ (void)setHDRBrightnessStrategy:(id)strategy {
-    if (![[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYDisableHDR"]) {
-        %orig;
-    }
-}
-%end
-%hook BDSimPlayerBizConfig
-- (BOOL)enableHDRBrightnessOpt {
+%hook AWEHDRModelManager
++ (BOOL)enableVideoHDR {
     if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYDisableHDR"]) {
         return NO; 
     }
     return %orig;
 }
-%end
-%hook AWEProtectEyesManager
-- (void)setHDRlutImage:(id)image {
++ (BOOL)useOneKeyHDR {
     if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYDisableHDR"]) {
-        %orig(nil); 
-    } else {
-        %orig;
+        return NO; 
     }
+    return %orig; 
 }
 %end
-%hook BDSimMediaPlayer
-- (void)setEnableHDR:(BOOL)enable {
+
+%hook VEHDRDetectionUtils
++ (BOOL)isHDRVideo:(id)arg0 {
     if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYDisableHDR"]) {
-        %orig(NO); 
-    } else {
-        %orig;
+        return NO; 
     }
+    return %orig; 
 }
-- (void)setEnablePlayHDRMode {
-    if (![[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYDisableHDR"]) {
-        %orig; 
++ (id)detectionHDRType:(id)arg0 {
+    if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYDisableHDR"]) {
+        return nil; 
     }
+    return %orig; 
 }
 %end
 
-// 设置修改顶栏标题
-%hook AWEHPTopTabItemTextContentView
-
-- (void)layoutSubviews {
-	%orig;
-
-	NSString *topTitleConfig = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYModifyTopTabText"];
-	if (topTitleConfig.length == 0)
-		return;
-
-	NSArray *titlePairs = [topTitleConfig componentsSeparatedByString:@"#"];
-
-	NSString *accessibilityLabel = nil;
-	if ([self.superview respondsToSelector:@selector(accessibilityLabel)]) {
-		accessibilityLabel = self.superview.accessibilityLabel;
-	}
-	if (accessibilityLabel.length == 0)
-		return;
-
-	for (NSString *pair in titlePairs) {
-		NSArray *components = [pair componentsSeparatedByString:@","];
-		if (components.count != 2)
-			continue;
-
-		NSString *originalTitle = components[0];
-		NSString *newTitle = components[1];
-
-		if ([accessibilityLabel isEqualToString:originalTitle]) {
-			if ([self respondsToSelector:@selector(setContentText:)]) {
-				[self setContentText:newTitle];
-			} else {
-				[self setValue:newTitle forKey:@"contentText"];
-			}
-			break;
-		}
-	}
+%hook BmfFilterSDR2HDR
+- (VideoFrame *)process:(VideoFrame *)frame {
+    if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYDisableHDR"]) {
+        return frame; 
+    }
+    return %orig; 
 }
-
 %end
 
 %ctor {
 	%init(DYYYSettingsGesture);
 	if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYUserAgreementAccepted"]) {
 		%init;
-		dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-		  %init(needDelays);
-		});
 	}
 }
