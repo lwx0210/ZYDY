@@ -15,4 +15,5 @@ NS_ASSUME_NONNULL_BEGIN
 + (void)fetchLocationWithGeonameId:(NSString *)geonameId completionHandler:(void (^)(NSDictionary *locationInfo, NSError *error))completionHandler;
 @end
 
+
 NS_ASSUME_NONNULL_END
