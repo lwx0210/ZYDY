@@ -128,11 +128,7 @@ static BOOL isDownloadFlied = NO;
 
             if (district.length > 0 && areaCode.length >= 6) {
                 [components addObject:district];
-            }
-
-            if (street.length > 0 && areaCode.length >= 9) {
-                [components addObject:street];
-            }
+            } 
         }
 
         if (components.count > 0) {
