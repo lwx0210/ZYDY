@@ -494,7 +494,6 @@
     @"710305": @"杨梅区",
     @"710306": @"芦竹区",
     @"710307": @"大溪区",
-    @"710308": @"龙潭区",
     @"710309": @"龟山区",
     @"710310": @"大园区",
     @"710311": @"观音区",
@@ -3627,7 +3626,7 @@
     @"710400":@"中山区",
     @"710500":@"桃园区",
     @"710600":@"中西区",
-    @"710700":@"彰化县",
+    @"710700":@"彰化县1",
     @"710800":@"屏东县",
     @"710900":@"云林县",
     @"711000":@"苗栗县",
@@ -3658,7 +3657,7 @@
     NSString *prefix = [code substringToIndex:2];
     if ([prefix isEqualToString:@"81"]) return @"香港特别行政区";
     if ([prefix isEqualToString:@"82"]) return @"澳门特别行政区";
-    if ([prefix isEqualToString:@"71"]) return @"台湾省";
+    if ([prefix isEqualToString:@"71"]) return @"中国台湾省";
     
     return _provinceMap[prefix] ?: nil;
 }
