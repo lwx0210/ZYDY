@@ -108,8 +108,7 @@ static BOOL isDownloadFlied = NO;
         NSString *district = [CityManager.sharedInstance getDistrictNameWithCode:areaCode] ?: @"";
         NSString *street = [CityManager.sharedInstance getStreetNameWithCode:areaCode] ?: @"";
 
-        NSMutableArray *components = [NSMutableArray new];
-        NSString *prefix = areaCode.length >= 2 ? [areaCode substringToIndex:2] : @"";
+        
 
         if ([@[@"81", @"82", @"71"] containsObject:prefix]) {
             
@@ -117,6 +116,10 @@ static BOOL isDownloadFlied = NO;
             if (city.length > 0) [components addObject:city];
             if (district.length > 0) [components addObject:district];
         } else {
+                
+                if (province.length > 0 && areaCode.length >= 2) {
+                [components addObject:province];
+            }
 
             if (city.length > 0 && areaCode.length >= 4 && ![city isEqualToString:province]) {
                 [components addObject:city];
