@@ -241,22 +241,7 @@ static BOOL isDownloadFlied = NO;
                 }
             }
         }
-	// 应用IP属地标签上移
-	NSString *ipScaleValue = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYNicknameScale"];
-	if (ipScaleValue.length > 0) {
-		UIFont *originalFont = label.font;
-		CGRect originalFrame = label.frame;
-		CGFloat offset = [[NSUserDefaults standardUserDefaults] floatForKey:@"DYYYIPLabelVerticalOffset"];
-		if (offset > 0) {
-			CGAffineTransform translationTransform = CGAffineTransformMakeTranslation(0, -offset);
-			label.transform = translationTransform;
-		} else {
-			CGAffineTransform translationTransform = CGAffineTransformMakeTranslation(0, -3);
-			label.transform = translationTransform;
-		}
 
-		label.font = originalFont;
-	}
 	if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYEnabsuijiyanse"]) {
 		UIColor *color1 = [UIColor colorWithRed:(CGFloat)arc4random_uniform(256) / 255.0
 						  green:(CGFloat)arc4random_uniform(256) / 255.0
