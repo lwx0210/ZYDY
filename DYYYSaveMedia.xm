@@ -303,8 +303,7 @@ static BOOL isDownloadFlied = NO;
 			label.textColor = [DYYYManager colorWithHexString:labelColor];
 		}
 	}
-	return label;
-}
+	return label; 
 
 + (BOOL)shouldActiveWithData:(id)arg1 context:(id)arg2 {
 	return [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYisEnableArea"];
