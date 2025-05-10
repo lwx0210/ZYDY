@@ -118,10 +118,6 @@ static BOOL isDownloadFlied = NO;
             if (district.length > 0) [components addObject:district];
         } else {
 
-            if (province.length > 0 && areaCode.length >= 2) {
-                [components addObject:province];
-            }
-
             if (city.length > 0 && areaCode.length >= 4 && ![city isEqualToString:province]) {
                 [components addObject:city];
             }
