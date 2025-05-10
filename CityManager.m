@@ -12,7 +12,6 @@
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
         instance = [[CityManager alloc] init];
-        [instance loadCityData];
         [instance initializeCityCodeMap];
     });
     return instance;
@@ -418,18 +417,6 @@
         @"7108": @"新竹市",
         @"7109": @"嘉义市"
     };
-
-self.cityCodeMap = @{
-        @"110000":@"北京",
-        @"110100":@"北京",
-        @"120000":@"天津",
-        @"120100":@"天津",
-        @"310000":@"上海",
-        @"310100":@"上海",
-        @"500000":@"重庆",
-        @"500100":@"重庆",
-        };
-        
     
     // 县级数据
     _districtMap = @{
