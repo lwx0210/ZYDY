@@ -113,7 +113,7 @@ static void DYYYAddCustomViewToParent(UIView *parentView, float transparency) {
 			}
 		}
 	}
-	if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYisEnableCommentBlur"]) {
+	if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYisEnableFullScreen"] || [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYisEnableCommentBlur"]) {
 		NSString *className = NSStringFromClass([self class]);
 		if ([className isEqualToString:@"AWECommentInputViewSwiftImpl.CommentInputContainerView"]) {
 			for (UIView *subview in self.subviews) {
@@ -189,11 +189,25 @@ static void DYYYAddCustomViewToParent(UIView *parentView, float transparency) {
 
 %end
 
+%hook AWEPlayInteractionViewController
+- (void)viewDidLayoutSubviews {
+	%orig;
+	if (![self.parentViewController isKindOfClass:%c(AWEFeedCellViewController)] && ![self.parentViewController isKindOfClass:%c(AWEAwemeDetailCellViewController)]) {
+		return;
+	}
+	if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYisEnableFullScreen"]) {
+		CGRect frame = self.view.frame;
+		frame.size.height = self.view.superview.frame.size.height - 83;
+		self.view.frame = frame;
+	}
+}
+
+%end
+
 %hook AWEDPlayerFeedPlayerViewController
 
 - (void)viewDidLayoutSubviews {
 	%orig;
-
 	if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYisEnableFullScreen"]) {
 		UIView *contentView = self.contentView;
 		if (contentView && contentView.superview) {
@@ -203,8 +217,6 @@ static void DYYYAddCustomViewToParent(UIView *parentView, float transparency) {
 			if (frame.size.height == parentHeight - 83) {
 				frame.size.height = parentHeight;
 				contentView.frame = frame;
-				[contentView setNeedsLayout];
-				[contentView layoutIfNeeded];
 			}
 		}
 	}
@@ -213,6 +225,17 @@ static void DYYYAddCustomViewToParent(UIView *parentView, float transparency) {
 %end
 
 %hook AWEFeedTableView
+- (void)layoutSubviews {
+	%orig;
+	if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYisEnableFullScreen"]) {
+		CGRect frame = self.frame;
+		frame.size.height = self.superview.frame.size.height;
+		self.frame = frame;
+	}
+}
+%end
+
+%hook AWEAwemeDetailTableView
 - (void)layoutSubviews {
 	%orig;
 	if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYisEnableFullScreen"]) {
@@ -236,7 +259,17 @@ static void DYYYAddCustomViewToParent(UIView *parentView, float transparency) {
 }
 %end
 
+%hook AWEAwemeDetailTableViewController
 
+- (void)setCurrentCellOriginY:(double)originY {
+    // 在原始y坐标上增加83像素
+    double newOriginY = originY + 83;
+    
+    // 调用原始方法，传入修改后的值
+    %orig(newOriginY);
+}
+
+%end
 
 %hook AWEElementStackView
 static CGFloat stream_frame_y = 0;
@@ -391,13 +424,6 @@ static CGAffineTransform lockedLeftTransform;
     }
 }
 
-- (void)animateTransform:(CGAffineTransform)transform duration:(double)duration {
-    if ([self.accessibilityLabel isEqualToString:@"left"] && leftTransformLocked) {
-        return;
-    }
-    %orig;
-}
-
 %end
 
 
@@ -486,16 +512,109 @@ static CGAffineTransform lockedLeftTransform;
 
 %end
 
-%hook AWEPlayInteractionViewController
-- (void)viewDidLayoutSubviews {
-	%orig;
-	if (![self.parentViewController isKindOfClass:%c(AWEFeedCellViewController)]) {
-		return;
+%hook AWENormalModeTabBar
+
+- (void)setHidden:(BOOL)hidden {
+	%orig(hidden);
+
+	BOOL hideBottomBg = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYisHiddenBottomBg"];
+
+	// 如果开启了隐藏底部背景，则直接隐藏背景视图，不进行其他判断
+	if (hideBottomBg) {
+		UIView *backgroundView = nil;
+		for (UIView *subview in self.subviews) {
+			if ([subview class] == [UIView class]) {
+				BOOL hasImageView = NO;
+				for (UIView *childView in subview.subviews) {
+					if ([childView isKindOfClass:[UIImageView class]]) {
+						hasImageView = YES;
+						break;
+					}
+				}
+				if (hasImageView) {
+					backgroundView = subview;
+					backgroundView.hidden = YES;
+					break;
+				}
+			}
+		}
+	} else {
+		Class generalButtonClass = %c(AWENormalModeTabBarGeneralButton);
+
+		for (UIView *subview in self.subviews) {
+			if ([subview isKindOfClass:generalButtonClass]) {
+				AWENormalModeTabBarGeneralButton *button = (AWENormalModeTabBarGeneralButton *)subview;
+				if ([button.accessibilityLabel isEqualToString:@"首页"] && [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYDisableHomeRefresh"] && button.status == 2) {
+					if (button.gestureRecognizers && button.gestureRecognizers.count > 0) {
+						button.userInteractionEnabled = NO;
+					}
+				} else if ([button.accessibilityLabel isEqualToString:@"首页"] && [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYDisableHomeRefresh"] && button.status == 1) {
+					if (button.gestureRecognizers && button.gestureRecognizers.count > 0) {
+						button.userInteractionEnabled = YES;
+					}
+				}
+			}
+		}
+
+		// 仅对全屏模式处理背景显示逻辑
+		if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYisEnableFullScreen"]) {
+			UIView *backgroundView = nil;
+			BOOL hideFriendsButton = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHideFriendsButton"];
+			BOOL isHomeSelected = NO;
+			BOOL isFriendsSelected = NO;
+
+			for (UIView *subview in self.subviews) {
+				if ([subview class] == [UIView class]) {
+					BOOL hasImageView = NO;
+					for (UIView *childView in subview.subviews) {
+						if ([childView isKindOfClass:[UIImageView class]]) {
+							hasImageView = YES;
+							break;
+						}
+					}
+					if (hasImageView) {
+						backgroundView = subview;
+						break;
+					}
+				}
+			}
+
+			// 查找当前选中的按钮
+			for (UIView *subview in self.subviews) {
+				if ([subview isKindOfClass:generalButtonClass]) {
+					AWENormalModeTabBarGeneralButton *button = (AWENormalModeTabBarGeneralButton *)subview;
+					// status == 2 表示按钮处于选中状态
+					if (button.status == 2) {
+						if ([button.accessibilityLabel isEqualToString:@"首页"]) {
+							isHomeSelected = YES;
+						} else if ([button.accessibilityLabel containsString:@"朋友"]) {
+							isFriendsSelected = YES;
+						}
+					}
+				}
+			}
+
+			// 根据当前选中的按钮决定是否显示背景
+			if (backgroundView) {
+				BOOL shouldShowBackground = isHomeSelected || (isFriendsSelected && !hideFriendsButton);
+				backgroundView.hidden = shouldShowBackground;
+			}
+		}
 	}
+
+	// 隐藏分隔线
 	if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYisEnableFullScreen"]) {
-		CGRect frame = self.view.frame;
-		frame.size.height = self.view.superview.frame.size.height - 83;
-		self.view.frame = frame;
+		for (UIView *subview in self.subviews) {
+			if (![subview isKindOfClass:[UIView class]])
+				continue;
+			if (subview.frame.size.height <= 0.5 && subview.frame.size.width > 300) {
+				subview.hidden = YES;
+				CGRect frame = subview.frame;
+				frame.size.height = 0;
+				subview.frame = frame;
+				subview.alpha = 0;
+			}
+		}
 	}
 }
 
