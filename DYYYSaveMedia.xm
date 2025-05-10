@@ -1,6 +1,3 @@
-#import <UIKit/UIKit.h>
-#import <objc/runtime.h>
-
 #import "AwemeHeaders.h"
 #import "DYYYManager.h"
 #import "CityManager.h"
