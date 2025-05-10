@@ -302,7 +302,8 @@ typedef NS_ENUM(NSInteger, MediaType) {
 
 // 隐藏同城定位
 @interface AWEMarkView : UIView
-@end
+@property(nonatomic, readonly) UILabel *markLabel;
+@endend
 
 @interface AWEFeedTableView : UIView
 @end
