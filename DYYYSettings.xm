@@ -417,7 +417,7 @@ static void showUserAgreementAlert() {
 			      @"imageName" : @"ic_dansquare_outlined_20"},
 			    @{@"identifier" : @"DYYYdanmuColor",
 			      @"title" : @"自定弹幕颜色",
-			      @"detail" : @"16进制·随机颜色 random",
+			      @"detail" : @"16进制·随机颜色输入 random",
 			      @"cellType" : @26,
 			      @"imageName" : @"ic_dansquarenut_outlined_20"},
 		    ];
@@ -477,7 +477,7 @@ static void showUserAgreementAlert() {
 			      @"imageName" : @"ic_location_outlined_20"},
 		            @{@"identifier" : @"DYYYLabelColor",
 			      @"title" : @"属地时间颜色",
-			      @"detail" : @"16进制·随机渐变 rainbow",
+			      @"detail" : @"16进制·随机渐变输入 rainbow",
 			      @"cellType" : @26,
 			      @"imageName" : @"ic_location_outlined_20"},
 			    @{@"identifier" : @"DYYYEnabsuijiyanse",
