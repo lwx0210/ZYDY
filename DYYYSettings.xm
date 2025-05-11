@@ -603,13 +603,18 @@ static void showUserAgreementAlert() {
 			      @"detail" : @"",
 			      @"cellType" : @6,
 			      @"imageName" : @"ic_personcircleclean_outlined_20"},
-			    @{@"identifier" : @"DYYYDisableHDR",
-			      @"title" : @"关闭HDR效果",
+                            @{@"identifier" : @"DYYYEnableLiveHighestQuality",
+			      @"title" : @"直播最高画质",
+			      @"detail" : @"",
+			      @"cellType" : @6,
+			      @"imageName" : @"ic_video_outlined_20"},
+			    @{@"identifier" : @"DYYYDisableLivePCDN",
+			      @"title" : @"屏蔽PCDN功能",
 			      @"detail" : @"",
 			      @"cellType" : @6,
 			      @"imageName" : @"ic_video_outlined_20"}
 		    ];
-
+	                
 		    for (NSDictionary *dict in filterSettings) {
 			    AWESettingItemModel *item = [self createSettingItem:dict cellTapHandlers:cellTapHandlers];
 
