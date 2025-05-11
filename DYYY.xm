@@ -291,22 +291,23 @@
 }
 %end
 
-//同城标签颜色
+//直播最高清晰度
 %hook AWEMarkView
 
 - (void)layoutSubviews {
-    %orig;
+	%orig;
 
-    UIViewController *vc = [self firstAvailableUIViewController];
-    
-    if ([vc isKindOfClass:%c(AWEPlayInteractionViewController)]) {
-        if (self.markLabel) {
-            self.markLabel.textColor = [UIColor whiteColor];
-        }
-    }
+	UIViewController *vc = [self firstAvailableUIViewController];
+
+	if ([vc isKindOfClass:%c(AWEPlayInteractionViewController)]) {
+		if (self.markLabel) {
+			self.markLabel.textColor = [UIColor whiteColor];
+		}
+	}
 }
 
 %end
+
 
 
 %hook AWEDanmakuItemTextInfo
@@ -507,8 +508,7 @@
 - (void)setAlpha:(CGFloat)alpha {
 	UIViewController *vc = [self firstAvailableUIViewController];
 
-	if (([vc isKindOfClass:%c(AWEPlayInteractionViewController)] || 
-         [vc isKindOfClass:%c(AWELiveNewPreStreamViewController)]) && alpha > 0) {
+	if (([vc isKindOfClass:%c(AWEPlayInteractionViewController)] || [vc isKindOfClass:%c(AWELiveNewPreStreamViewController)]) && alpha > 0) {
 		NSString *transparentValue = [[NSUserDefaults standardUserDefaults] stringForKey:@"DYYYGlobalTransparency"];
 		if (transparentValue.length > 0) {
 			CGFloat alphaValue = transparentValue.floatValue;
@@ -569,33 +569,32 @@
 
 %new
 - (void)applyCustomProgressStyle {
-    NSString *scheduleStyle = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYScheduleStyle"];
+	NSString *scheduleStyle = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYScheduleStyle"];
 
-    if ([scheduleStyle isEqualToString:@"进度条两侧左右"]) {
-        // 获取父视图宽度，以便计算新的宽度
-        CGFloat parentWidth = self.superview.bounds.size.width;
-        
-        // 计算宽度百分比和边距
-        CGFloat widthPercent = 0.80;
-        NSString *widthPercentValue = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYProgressBarWidthPercent"];
-        if (widthPercentValue.length > 0) {
-            CGFloat customPercent = [widthPercentValue floatValue];
-            if (customPercent > 0 && customPercent <= 1.0) {
-                widthPercent = customPercent;
-            }
-        }
+	if ([scheduleStyle isEqualToString:@"进度条两侧左右"]) {
+		// 获取父视图宽度，以便计算新的宽度
+		CGFloat parentWidth = self.superview.bounds.size.width;
 
-        // 调整进度条宽度和位置
-        CGFloat newWidth = parentWidth * widthPercent;
-        CGFloat centerX = self.frame.origin.x + self.frame.size.width / 2;
-        CGFloat newX = centerX - newWidth / 2;
-        CGFloat height = self.frame.size.height;
-        CGFloat y = self.frame.origin.y;
-        
-        // 使用 CGRectMake 创建新的 frame
-        self.frame = CGRectMake(newX, y, newWidth, height);
+		// 计算宽度百分比和边距
+		CGFloat widthPercent = 0.80;
+		NSString *widthPercentValue = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYProgressBarWidthPercent"];
+		if (widthPercentValue.length > 0) {
+			CGFloat customPercent = [widthPercentValue floatValue];
+			if (customPercent > 0 && customPercent <= 1.0) {
+				widthPercent = customPercent;
+			}
+		}
 
-    }
+		// 调整进度条宽度和位置
+		CGFloat newWidth = parentWidth * widthPercent;
+		CGFloat centerX = self.frame.origin.x + self.frame.size.width / 2;
+		CGFloat newX = centerX - newWidth / 2;
+		CGFloat height = self.frame.size.height;
+		CGFloat y = self.frame.origin.y;
+
+		// 使用 CGRectMake 创建新的 frame
+		self.frame = CGRectMake(newX, y, newWidth, height);
+	}
 }
 
 // 开启视频进度条后默认显示进度条的透明度否则有部分视频不会显示进度条以及秒数
@@ -1562,20 +1561,28 @@
 %hook AWEIMPhotoPickerFunctionModel
 
 - (void)setUseShadowIcon:(BOOL)arg1 {
-    BOOL enabled = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYisAutoSelectOriginalPhoto"];
-    if (enabled) {
-        %orig(YES);
-    } else {
-        %orig(arg1);
-    }
+	BOOL enabled = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYisAutoSelectOriginalPhoto"];
+	if (enabled) {
+		%orig(YES);
+	} else {
+		%orig(arg1);
+	}
 }
 
 - (BOOL)isSelected {
-    BOOL enabled = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYisAutoSelectOriginalPhoto"];
-    if (enabled) {
-        return YES;
-    }
-    return %orig;
+	BOOL enabled = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYisAutoSelectOriginalPhoto"];
+	if (enabled) {
+		return YES;
+	}
+	return %orig;
+}
+
+%end
+
+%hook AWESharePanelStyleOptionsManager
+
++ (unsigned long long)styleOptionsOfContext:(id)context {
+	return 101;
 }
 
 %end
@@ -1584,28 +1591,42 @@
 %hook HTSLiveStreamPcdnManager
 
 + (void)start {
-    BOOL disablePCDN = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYDisableLivePCDN"];
-    if (!disablePCDN) {
-        %orig;
-    }
+	BOOL disablePCDN = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYDisableLivePCDN"];
+	if (!disablePCDN) {
+		%orig;
+	}
 }
 
 + (void)configAndStartLiveIO {
-    BOOL disablePCDN = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYDisableLivePCDN"];
-    if (!disablePCDN) {
-        %orig;
-    }
+	BOOL disablePCDN = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYDisableLivePCDN"];
+	if (!disablePCDN) {
+		%orig;
+	}
 }
 
 %end
 
-%hook BmfFilterSDR2HDR
-- (VideoFrame *)process:(VideoFrame *)frame {
-	if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYDisableHDR"]) {
-		return frame;
+// 直播默认最高清晰度功能
+%hook HTSLiveStreamQualityFragment
+
+- (void)setupStreamQuality:(id)arg1 {
+	%orig;
+
+	BOOL enableHighestQuality = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYEnableLiveHighestQuality"];
+	if (enableHighestQuality) {
+		NSArray *qualities = self.streamQualityArray;
+		if (!qualities || qualities.count == 0) {
+			qualities = [self getQualities];
+		}
+
+		if (!qualities || qualities.count == 0) {
+			return;
+		}
+		// 选择索引0作为最高清晰度
+		[self setResolutionWithIndex:0 isManual:YES beginChange:nil completion:nil];
 	}
-	return %orig;
 }
+
 %end
 
 %ctor {
