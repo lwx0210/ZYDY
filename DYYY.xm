@@ -1580,6 +1580,25 @@
 
 %end
 
+// 屏蔽直播PCDN
+%hook HTSLiveStreamPcdnManager
+
++ (void)start {
+    BOOL disablePCDN = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYDisableLivePCDN"];
+    if (!disablePCDN) {
+        %orig;
+    }
+}
+
++ (void)configAndStartLiveIO {
+    BOOL disablePCDN = [[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYDisableLivePCDN"];
+    if (!disablePCDN) {
+        %orig;
+    }
+}
+
+%end
+
 %hook BmfFilterSDR2HDR
 - (VideoFrame *)process:(VideoFrame *)frame {
 	if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYDisableHDR"]) {
