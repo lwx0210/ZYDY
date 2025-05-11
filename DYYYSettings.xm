@@ -417,7 +417,7 @@ static void showUserAgreementAlert() {
 			      @"imageName" : @"ic_dansquare_outlined_20"},
 			    @{@"identifier" : @"DYYYdanmuColor",
 			      @"title" : @"自定弹幕颜色",
-			      @"detail" : @"十六进制",
+			      @"detail" : @"16进制·随机颜色 random",
 			      @"cellType" : @26,
 			      @"imageName" : @"ic_dansquarenut_outlined_20"},
 		    ];
@@ -477,11 +477,11 @@ static void showUserAgreementAlert() {
 			      @"imageName" : @"ic_location_outlined_20"},
 		            @{@"identifier" : @"DYYYLabelColor",
 			      @"title" : @"时间属地颜色",
-			      @"detail" : @"十六进制",
+			      @"detail" : @"16进制·随机渐变 rainbow",
 			      @"cellType" : @26,
 			      @"imageName" : @"ic_location_outlined_20"},
 			    @{@"identifier" : @"DYYYEnabsuijiyanse",
-			      @"title" : @"属地随机渐变",
+			      @"title" : @"属地颜色随机",
 			      @"detail" : @"",
 			      @"cellType" : @6,
 			      @"imageName" : @"ic_location_outlined_20"}
@@ -534,11 +534,6 @@ static void showUserAgreementAlert() {
 		    // 【杂项设置】分类
 		    NSMutableArray<AWESettingItemModel *> *miscellaneousItems = [NSMutableArray array];
 		    NSArray *miscellaneousSettings = @[
-			    @{@"identifier" : @"DYYYisHideStatusbar",
-			      @"title" : @"隐藏系统顶栏",
-			      @"detail" : @"",
-			      @"cellType" : @6,
-			      @"imageName" : @"ic_eyeslash_outlined_16"},
 			    @{@"identifier" : @"DYYYisEnablePure",
 			      @"title" : @"启用首页净化",
 			      @"detail" : @"",
@@ -956,7 +951,12 @@ static void showUserAgreementAlert() {
 		    // 【视频播放界面】分类
 		    NSMutableArray<AWESettingItemModel *> *videoUiItems = [NSMutableArray array];
 		    NSArray *videoUiSettings = @[
-			    @{@"identifier" : @"DYYYHideLOTAnimationView",
+                            @{@"identifier" : @"DYYYisHideStatusbar",
+			      @"title" : @"隐藏系统顶栏",
+			      @"detail" : @"",
+			      @"cellType" : @6,
+			      @"imageName" : @"ic_eyeslash_outlined_16"},
+			     @{@"identifier" : @"DYYYHideLOTAnimationView",
 			      @"title" : @"隐藏头像加号",
 			      @"detail" : @"",
 			      @"cellType" : @6,
