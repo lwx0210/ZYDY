@@ -519,7 +519,7 @@
 
 %end
 
-//重构全局透明
+//重写全局透明方法
 %hook AWEPlayInteractionViewController
 
 - (UIView *)view {
@@ -536,31 +536,57 @@
     return originalView;
 }
 
+- (void)viewDidLoad {
+    %orig;
+    [NSTimer scheduledTimerWithTimeInterval:0.1 target:self selector:@selector(keepAlpha) userInfo:nil repeats:YES];
+}
+
+%new
+- (void)keepAlpha {
+    NSString *transparentValue = [[NSUserDefaults standardUserDefaults] stringForKey:@"DYYYGlobalTransparency"];
+    if (transparentValue.length > 0) {
+        CGFloat alphaValue = transparentValue.floatValue;
+        if (alphaValue >= 0.0 && alphaValue <= 1.0) {
+            if (self.viewIfLoaded) {
+                self.viewIfLoaded.alpha = alphaValue;
+            }
+        }
+    }
+}
+
 %end
 
-%hook AWEFeedVideoButton
-- (id)touchUpInsideBlock {
-	id r = %orig;
+//处理视频流直播文案透明度
+%hook AWEElementStackView
 
-	// 只有收藏按钮才显示确认弹窗
-	if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYcollectTips"] && [self.accessibilityLabel isEqualToString:@"收藏"]) {
-
-		dispatch_async(dispatch_get_main_queue(), ^{
-		  [DYYYBottomAlertView showAlertWithTitle:@"收藏确认"
-						  message:@"是否确认/取消收藏？"
-					     cancelAction:nil
-					    confirmAction:^{
-					      if (r && [r isKindOfClass:NSClassFromString(@"NSBlock")]) {
-						      ((void (^)(void))r)();
-					      }
-					    }];
-		});
-
-		return nil; // 阻止原始 block 立即执行
-	}
-
-	return r;
+- (void)setAlpha:(CGFloat)alpha {
+    UIViewController *vc = [self firstAvailableUIViewController];
+    
+    if ([vc isKindOfClass:%c(AWELiveNewPreStreamViewController)] && alpha > 0) {
+        NSString *transparentValue = [[NSUserDefaults standardUserDefaults] stringForKey:@"DYYYGlobalTransparency"];
+        if (transparentValue.length > 0) {
+            CGFloat alphaValue = transparentValue.floatValue;
+            if (alphaValue >= 0.0 && alphaValue <= 1.0) {
+                %orig(alphaValue);
+                return;
+            }
+        }
+    }
+    %orig;
 }
+
+%new
+- (UIViewController *)firstAvailableUIViewController {
+    UIResponder *responder = [self nextResponder];
+    while (responder != nil) {
+        if ([responder isKindOfClass:[UIViewController class]]) {
+            return (UIViewController *)responder;
+        }
+        responder = [responder nextResponder];
+    }
+    return nil;
+}
+
 %end
 
 %hook AWEFeedProgressSlider
@@ -1445,7 +1471,7 @@
 
 	float userTransparency = [[[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYCommentBlurTransparent"] floatValue];
 	if (userTransparency <= 0 || userTransparency > 1) {
-		userTransparency = 0.5;
+		userTransparency = 0.7;
 	}
 
 	blurView.alpha = userTransparency;
