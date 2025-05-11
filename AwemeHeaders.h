@@ -717,12 +717,19 @@ typedef NS_ENUM(NSInteger, MediaType) {
 
 @interface AWEPlayInteractionDescriptionLabel : UILabel
 @end
+
+//清屏隐藏弹幕
+@interface AWEVideoPlayDanmakuContainerView : UIView
+@end
+
 //关注直播
 @interface AWEConcernSkylightCapsuleView : UIView
 @end
+
 //直播发现
 @interface AWEFeedLiveTabRevisitControlView : UIView
 @end
+
 //直播 退出清屏、投屏按钮
 @interface IESLiveButton : UIView
 @end
@@ -730,6 +737,7 @@ typedef NS_ENUM(NSInteger, MediaType) {
 //直播点歌
 @interface IESLiveKTVSongIndicatorView : UIView
 @end
+
 //图片滑条
 @interface AWEStoryProgressContainerView : UIView 
 @property (nonatomic, strong, readonly) UIView *superview;
