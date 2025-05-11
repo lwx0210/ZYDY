@@ -1785,7 +1785,7 @@ static void showUserAgreementAlert() {
 			      @"cellType" : @26,
 			      @"imageName" : @"ic_memorycard_outlined_20"},
 			    @{@"identifier" : @"LoadABTestConfigFile",
-			      @"title" : @选择本地配置",
+			      @"title" : @"选择本地配置",
 			      @"detail" : @"",
 			      @"cellType" : @26,
 			      @"imageName" : @"ic_phonearrowup_outlined_20"},
