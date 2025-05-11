@@ -1013,3 +1013,13 @@ typedef NS_ENUM(NSInteger, MediaType) {
 - (id)abTestData;
 + (id)sharedManager;
 @end
+
+//直播默认最高清晰度
+@interface IESLiveRoomComponent : NSObject
+@end
+
+@interface HTSLiveStreamQualityFragment : IESLiveRoomComponent
+@property (nonatomic, strong) NSArray *streamQualityArray;
+- (NSArray *)getQualities;
+- (void)setResolutionWithIndex:(NSInteger)index isManual:(BOOL)manual beginChange:(void(^)(void))beginChangeBlock completion:(void(^)(void))completionBlock;
+@end
