@@ -1557,36 +1557,6 @@
 }
 %end
 
-%hook AWEHDRModelManager
-+ (BOOL)enableVideoHDR {
-	if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYDisableHDR"]) {
-		return NO;
-	}
-	return %orig;
-}
-+ (BOOL)useOneKeyHDR {
-	if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYDisableHDR"]) {
-		return NO;
-	}
-	return %orig;
-}
-%end
-
-%hook VEHDRDetectionUtils
-+ (BOOL)isHDRVideo:(id)arg0 {
-	if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYDisableHDR"]) {
-		return NO;
-	}
-	return %orig;
-}
-+ (id)detectionHDRType:(id)arg0 {
-	if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYDisableHDR"]) {
-		return nil;
-	}
-	return %orig;
-}
-%end
-
 // 启用自动勾选原图
 %hook AWEIMPhotoPickerFunctionModel
 
