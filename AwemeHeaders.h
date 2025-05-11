@@ -718,10 +718,6 @@ typedef NS_ENUM(NSInteger, MediaType) {
 @interface AWEPlayInteractionDescriptionLabel : UILabel
 @end
 
-@interface AWEVideoPlayDanmakuContainerView : UIView
-@end
-
-
 //清屏隐藏弹幕
 @interface AWEVideoPlayDanmakuContainerView : UIView
 @end
