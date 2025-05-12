@@ -778,7 +778,7 @@ static void showUserAgreementAlert() {
 			      @"title" : @"毛玻璃透明度",
 			      @"detail" : @"0-1小数",
 			      @"cellType" : @26,
-			      @"imageName" : @"ic_eye_outlined_20"},
+			      @"imageName" : @"ic_comment_outlined_20"},
      		            @{@"identifier" : @"DYYYisEnableSheetBlur",
 			      @"title" : @"菜单玻璃效果",
 			      @"detail" : @"",
