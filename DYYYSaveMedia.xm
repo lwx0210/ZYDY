@@ -94,7 +94,7 @@ static BOOL isDownloadFlied = NO;
 - (id)timestampLabel {
     UILabel *label = %orig;
 
-    if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYisEnableArea"]) {
+    if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYisEnableAreasd"]) {
         NSString *text = label.text;
         NSString *areaCode = self.model.cityCode;
 
