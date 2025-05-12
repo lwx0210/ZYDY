@@ -6,7 +6,7 @@
 #define DYYY_SETTINGS_NAME @"DYYY设置"
 
 // 版本信息
-#define DYYY_VERSION @"2.2-8"
-#define DYYY_VERSION_STRING @"v2.2-8"
+#define DYYY_VERSION @"2.2-9"
+#define DYYY_VERSION_STRING @"v2.2-9"
 
 #endif
