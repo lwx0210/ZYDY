@@ -769,6 +769,11 @@ static void showUserAgreementAlert() {
 			      @"detail" : @"",
 			      @"cellType" : @6,
 			      @"imageName" : @"ic_comment_outlined_20"},
+                  	    @{@"identifier" : @"DYYYNotificationCornerRadius",
+			      @"title" : @"通知圆角半径",
+			      @"detail" : @"默认12",
+			      @"cellType" : @26,
+			      @"imageName" : @"ic_comment_outlined_20"},
                             @{@"identifier" : @"DYYYCommentBlurTransparent",
 			      @"title" : @"毛玻璃透明度",
 			      @"detail" : @"0-1小数",
@@ -778,17 +783,13 @@ static void showUserAgreementAlert() {
 			      @"title" : @"菜单玻璃效果",
 			      @"detail" : @"",
 			      @"cellType" : @6,
-			      @"imageName" : @"ic_list_outlined"},
+			      @"imageName" : @"ic_eye_outlined_20"},
 			    @{@"identifier" : @"DYYYSheetBlurTransparent",
 			      @"title" : @"菜单玻璃度数",
 			      @"detail" : @"0-1小数",
 			      @"cellType" : @26,
 			      @"imageName" : @"ic_eye_outlined_20"},
-			    @{@"identifier" : @"DYYYNotificationCornerRadius",
-			      @"title" : @"通知圆角半径",
-			      @"detail" : @"默认12",
-			      @"cellType" : @26,
-			      @"imageName" : @"ic_comment_outlined_20"},
+
 		    ];
 
 		    for (NSDictionary *dict in transparencySettings) {
