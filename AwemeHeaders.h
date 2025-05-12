@@ -2,13 +2,14 @@
 #import <Photos/Photos.h>
 
 #define DYYYGetBool(key) [[NSUserDefaults standardUserDefaults] boolForKey:key]
-
+#define DYYY_IGNORE_GLOBAL_ALPHA_TAG 114514
 typedef NS_ENUM(NSInteger, MediaType) {
-    MediaTypeVideo,
-    MediaTypeImage,
-    MediaTypeAudio,
-    MediaTypeHeic
+  MediaTypeVideo,
+  MediaTypeImage,
+  MediaTypeAudio,
+  MediaTypeHeic
 };
+
 
 @interface URLModel : NSObject
 @property (nonatomic, strong) NSArray *originURLList;
@@ -1019,7 +1020,7 @@ typedef NS_ENUM(NSInteger, MediaType) {
 @end
 
 @interface HTSLiveStreamQualityFragment : IESLiveRoomComponent
-@property (nonatomic, strong) NSArray *streamQualityArray;
+@property(nonatomic, strong) NSArray *streamQualityArray;
 - (NSArray *)getQualities;
-- (void)setResolutionWithIndex:(NSInteger)index isManual:(BOOL)manual beginChange:(void(^)(void))beginChangeBlock completion:(void(^)(void))completionBlock;
+- (void)setResolutionWithIndex:(NSInteger)index isManual:(BOOL)manual beginChange:(void (^)(void))beginChangeBlock completion:(void (^)(void))completionBlock;
 @end
