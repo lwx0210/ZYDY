@@ -159,7 +159,6 @@ typedef NS_ENUM(NSInteger, DYYYSettingItemType) {
             [DYYYSettingItem itemWithTitle:@"菜单玻璃效果" key:@"DYYYisEnableSheetBlur" type:DYYYSettingItemTypeSwitch],
             [DYYYSettingItem itemWithTitle:@"菜单玻璃度数" key:@"DYYYSheetBlurTransparent" type:DYYYSettingItemTypeTextField placeholder:@"0-1小数"],       
             [DYYYSettingItem itemWithTitle:@"属地时间显示" key:@"DYYYisEnableArea" type:DYYYSettingItemTypeSwitch],
-            [DYYYSettingItem itemWithTitle:@"属地显示市区" key:@"DYYYisEnableAreasd" type:DYYYSettingItemTypeSwitch],
             [DYYYSettingItem itemWithTitle:@"属地颜色随机" key:@"DYYYEnabsuijiyanse" type:DYYYSettingItemTypeSwitch],
             [DYYYSettingItem itemWithTitle:@"属地时间颜色" key:@"DYYYLabelColor" type:DYYYSettingItemTypeTextField placeholder:@"十六进制"],
             [DYYYSettingItem itemWithTitle:@"属地国外解析" key:@"DYYYGeonamesUsername" type:DYYYSettingItemTypeTextField placeholder:@"不填默认"],
