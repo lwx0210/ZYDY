@@ -878,6 +878,19 @@
 }
 %end
 
+//尝试修复自动连播
+%hook AWEFeedIPhoneAutoPlayManager
+
+- (BOOL)getFeedIphoneAutoPlayState {
+	BOOL r = %orig;
+
+	if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYisEnableAutoPlay"]) {
+		return YES;
+	}
+	return %orig;
+}
+%end
+
 //iP属地区域
 %hook AWEPlayInteractionTimestampElement
 - (id)timestampLabel {
