@@ -1994,7 +1994,7 @@ static void showUserAgreementAlert() {
 			      @"cellType" : @6,
 			      @"imageName" : @"ic_thumbsup_outlined_20"},
 			    @{@"identifier" : @"DYYYDisableLivePCDN",
-			      @"title" : @"禁用视频直播PCDN",
+			      @"title" : @"禁用直播PCDN功能",
 			      @"detail" : @"",
 			      @"cellType" : @6,
 			      @"imageName" : @"ic_video_outlined_20"},
