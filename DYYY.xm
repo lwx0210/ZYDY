@@ -578,19 +578,18 @@
 }
 
 %new
-// 应用自定义样式，增加回退逻辑
+
 - (void)applyCustomProgressStyle {
     NSString *scheduleStyle = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYScheduleStyle"];
-    UIView *parentView = self.superview; // 先获取父视图
+    UIView *parentView = self.superview;
 
-    if (!parentView) return; // 如果没有父视图，无法进行布局
+    if (!parentView) return;
 
     if ([scheduleStyle isEqualToString:@"进度条两侧左右"]) {
         // 尝试获取标签
         UILabel *leftLabel = [parentView viewWithTag:10001];
         UILabel *rightLabel = [parentView viewWithTag:10002];
 
-        // 仅当左右标签都存在时，才执行动态宽度逻辑
         if (leftLabel && rightLabel) {
             CGFloat padding = 5.0;
             CGFloat sliderY = self.frame.origin.y;
@@ -602,9 +601,6 @@
 
             self.frame = CGRectMake(sliderX, sliderY, sliderWidth, sliderHeight);
         } else {
-            // *** 新增回退逻辑 ***
-            // 当样式是 "进度条两侧左右"，但左右标签不齐备时，应用一个默认的回退布局
-            // 例如：居中显示，宽度为父视图的 80%
             CGFloat fallbackWidthPercent = 0.80;
             CGFloat parentWidth = parentView.bounds.size.width;
             CGFloat fallbackWidth = parentWidth * fallbackWidthPercent;
@@ -619,7 +615,6 @@
     }
 }
 
-// setAlpha 方法保持不变
 - (void)setAlpha:(CGFloat)alpha {
     if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYisShowScheduleDisplay"]) {
         if ([[NSUserDefaults standardUserDefaults] boolForKey:@"DYYYHideVideoProgress"]) {
@@ -632,7 +627,9 @@
     }
 }
 
-// setLimitUpperActionArea 方法，确认标签定位逻辑
+static CGFloat leftLabelLeftMargin = -1;
+static CGFloat rightLabelRightMargin = -1;
+
 - (void)setLimitUpperActionArea:(BOOL)arg1 {
     %orig;
 
@@ -648,7 +645,7 @@
         CGRect sliderOriginalFrameInParent = [self convertRect:self.bounds toView:parentView];
         CGRect sliderFrame = self.frame;
 
-        CGFloat verticalOffset = -12.5;
+        CGFloat verticalOffset = - 12.5;
         NSString *offsetValueString = [[NSUserDefaults standardUserDefaults] objectForKey:@"DYYYTimelineVerticalPosition"];
         if (offsetValueString.length > 0) {
             CGFloat configOffset = [offsetValueString floatValue];
@@ -686,7 +683,12 @@
             else leftLabel.text = @"00:00";
 
             [leftLabel sizeToFit];
-            leftLabel.frame = CGRectMake(sliderFrame.origin.x, labelYPosition, leftLabel.frame.size.width, labelHeight);
+
+            if (leftLabelLeftMargin == -1) {
+                leftLabelLeftMargin = sliderFrame.origin.x;
+            }
+
+            leftLabel.frame = CGRectMake(leftLabelLeftMargin, labelYPosition, leftLabel.frame.size.width, labelHeight);
             [parentView addSubview:leftLabel];
         }
 
@@ -701,12 +703,16 @@
             else rightLabel.text = durationFormatted;
 
             [rightLabel sizeToFit];
-            rightLabel.frame = CGRectMake(sliderFrame.origin.x + sliderFrame.size.width - rightLabel.frame.size.width, 
-                                         labelYPosition, rightLabel.frame.size.width, labelHeight);
+
+            if (rightLabelRightMargin == -1) {
+                rightLabelRightMargin = sliderFrame.origin.x + sliderFrame.size.width - rightLabel.frame.size.width;
+            }
+
+            rightLabel.frame = CGRectMake(rightLabelRightMargin, labelYPosition, rightLabel.frame.size.width, labelHeight);
             [parentView addSubview:rightLabel];
         }
 
-        [self setNeedsLayout]; 
+        [self setNeedsLayout];
     } else {
         UIView *parentView = self.superview;
         if (parentView) {
@@ -716,6 +722,7 @@
         [self setNeedsLayout];
     }
 }
+
 %end
 
 %hook AWEPlayInteractionProgressController
