@@ -184,7 +184,7 @@
     // 创建自定义功能按钮
     NSMutableArray *viewModels = [NSMutableArray array];
     
- // 视频下载功能
+   // 视频下载功能
     if (enableSaveVideo && self.awemeModel.awemeType != 68) {
         AWELongPressPanelBaseViewModel *downloadViewModel = [[%c(AWELongPressPanelBaseViewModel) alloc] init];
         downloadViewModel.awemeModel = self.awemeModel;
@@ -194,17 +194,77 @@
         downloadViewModel.action = ^{
             AWEAwemeModel *awemeModel = self.awemeModel;
             AWEVideoModel *videoModel = awemeModel.video;
-            if (videoModel && videoModel.h264URL && videoModel.h264URL.originURLList.count > 0) {
-                NSURL *url = [NSURL URLWithString:videoModel.h264URL.originURLList.firstObject];
-                [DYYYManager downloadMedia:url
-                                mediaType:MediaTypeVideo
-                                completion:^(BOOL success){
-                                    if (success) {
-                                       } else {
-                                        [DYYYManager showToast:@"视频保存已取消"];
-                                    }
-                                }];
+            
+            if (videoModel && videoModel.bitrateRawData && videoModel.bitrateRawData.count > 0) {
+                // 查找最高质量版本
+                id highestQualityModel = nil;
+                int highestResolution = 0;
+                int highestFPS = 0;
+                int highestBitRate = 0;
+                
+                for (id model in videoModel.bitrateRawData) {
+                    // 从gear_name获取分辨率
+                    NSString *gearName = [model valueForKey:@"gear_name"];
+                    int resolution = 0;
+                    
+                    if ([gearName containsString:@"1440"]) {
+                        resolution = 1440;
+                    } else if ([gearName containsString:@"1080"]) {
+                        resolution = 1080;
+                    } else if ([gearName containsString:@"720"]) {
+                        resolution = 720;
+                    } else if ([gearName containsString:@"540"]) {
+                        resolution = 540;
+                    } else if ([gearName containsString:@"480"]) {
+                        resolution = 480;
+                    } else if ([gearName containsString:@"360"]) {
+                        resolution = 360;
+                    }
+                    
+                    // 获取帧率和比特率
+                    int fps = [[model valueForKey:@"FPS"] intValue];
+                    int bitRate = [[model valueForKey:@"bit_rate"] intValue];
+                    
+                    // 比较并选择最高质量
+                    if (resolution > highestResolution || 
+                        (resolution == highestResolution && fps > highestFPS) ||
+                        (resolution == highestResolution && fps == highestFPS && bitRate > highestBitRate)) {
+                        highestResolution = resolution;
+                        highestFPS = fps;
+                        highestBitRate = bitRate;
+                        highestQualityModel = model;
+                    }
+                }
+                
+                // 如果找不到最高质量模型，使用第一个
+                if (!highestQualityModel && videoModel.bitrateRawData.count > 0) {
+                    highestQualityModel = videoModel.bitrateRawData.firstObject;
+                }
+                
+                NSArray *urlList = nil;
+                id playAddrObj = [highestQualityModel valueForKey:@"playAddr"];
+                    
+                if ([playAddrObj isKindOfClass:%c(AWEURLModel)]) {
+                    AWEURLModel *playAddrModel = (AWEURLModel *)playAddrObj;
+                    urlList = playAddrModel.originURLList;
+                }
 
+                if (urlList && urlList.count > 0) {
+                    NSURL *url = [NSURL URLWithString:urlList.firstObject];
+                    [DYYYManager downloadMedia:url
+                                    mediaType:MediaTypeVideo
+                                    completion:^(BOOL success){
+                                    }];
+                } else {
+                    // 备用方法：直接使用h264URL
+                    if (videoModel.h264URL && videoModel.h264URL.originURLList.count > 0) {
+                        NSURL *url = [NSURL URLWithString:videoModel.h264URL.originURLList.firstObject];
+                        [DYYYManager downloadMedia:url
+                                        mediaType:MediaTypeVideo
+                                        completion:^(BOOL success){
+                                        }];
+                    } 
+                }
             }
             AWELongPressPanelManager *panelManager = [%c(AWELongPressPanelManager) shareInstance];
             [panelManager dismissWithAnimation:YES completion:nil];
@@ -969,7 +1029,7 @@
     newGroupModel.groupType = 0;
     NSMutableArray *viewModels = [NSMutableArray array];
     
- // 视频下载功能
+   // 视频下载功能
     if (enableSaveVideo && self.awemeModel.awemeType != 68) {
         AWELongPressPanelBaseViewModel *downloadViewModel = [[%c(AWELongPressPanelBaseViewModel) alloc] init];
         downloadViewModel.awemeModel = self.awemeModel;
@@ -979,17 +1039,77 @@
         downloadViewModel.action = ^{
             AWEAwemeModel *awemeModel = self.awemeModel;
             AWEVideoModel *videoModel = awemeModel.video;
-            if (videoModel && videoModel.h264URL && videoModel.h264URL.originURLList.count > 0) {
-                NSURL *url = [NSURL URLWithString:videoModel.h264URL.originURLList.firstObject];
-                [DYYYManager downloadMedia:url
-                                mediaType:MediaTypeVideo
-                                completion:^(BOOL success){
-                                    if (success) {
-                                       } else {
-                                        [DYYYManager showToast:@"视频保存已取消"];
-                                    }
-                                }];
+            
+            if (videoModel && videoModel.bitrateRawData && videoModel.bitrateRawData.count > 0) {
+                // 查找最高质量版本
+                id highestQualityModel = nil;
+                int highestResolution = 0;
+                int highestFPS = 0;
+                int highestBitRate = 0;
+                
+                for (id model in videoModel.bitrateRawData) {
+                    // 从gear_name获取分辨率
+                    NSString *gearName = [model valueForKey:@"gear_name"];
+                    int resolution = 0;
+                    
+                    if ([gearName containsString:@"1440"]) {
+                        resolution = 1440;
+                    } else if ([gearName containsString:@"1080"]) {
+                        resolution = 1080;
+                    } else if ([gearName containsString:@"720"]) {
+                        resolution = 720;
+                    } else if ([gearName containsString:@"540"]) {
+                        resolution = 540;
+                    } else if ([gearName containsString:@"480"]) {
+                        resolution = 480;
+                    } else if ([gearName containsString:@"360"]) {
+                        resolution = 360;
+                    }
+                    
+                    // 获取帧率和比特率
+                    int fps = [[model valueForKey:@"FPS"] intValue];
+                    int bitRate = [[model valueForKey:@"bit_rate"] intValue];
+                    
+                    // 比较并选择最高质量
+                    if (resolution > highestResolution || 
+                        (resolution == highestResolution && fps > highestFPS) ||
+                        (resolution == highestResolution && fps == highestFPS && bitRate > highestBitRate)) {
+                        highestResolution = resolution;
+                        highestFPS = fps;
+                        highestBitRate = bitRate;
+                        highestQualityModel = model;
+                    }
+                }
+                
+                // 如果找不到最高质量模型，使用第一个
+                if (!highestQualityModel && videoModel.bitrateRawData.count > 0) {
+                    highestQualityModel = videoModel.bitrateRawData.firstObject;
+                }
+                
+                NSArray *urlList = nil;
+                id playAddrObj = [highestQualityModel valueForKey:@"playAddr"];
+                    
+                if ([playAddrObj isKindOfClass:%c(AWEURLModel)]) {
+                    AWEURLModel *playAddrModel = (AWEURLModel *)playAddrObj;
+                    urlList = playAddrModel.originURLList;
+                }
 
+                if (urlList && urlList.count > 0) {
+                    NSURL *url = [NSURL URLWithString:urlList.firstObject];
+                    [DYYYManager downloadMedia:url
+                                    mediaType:MediaTypeVideo
+                                    completion:^(BOOL success){
+                                    }];
+                } else {
+                    // 备用方法：直接使用h264URL
+                    if (videoModel.h264URL && videoModel.h264URL.originURLList.count > 0) {
+                        NSURL *url = [NSURL URLWithString:videoModel.h264URL.originURLList.firstObject];
+                        [DYYYManager downloadMedia:url
+                                        mediaType:MediaTypeVideo
+                                        completion:^(BOOL success){
+                                        }];
+                    } 
+                }
             }
             AWELongPressPanelManager *panelManager = [%c(AWELongPressPanelManager) shareInstance];
             [panelManager dismissWithAnimation:YES completion:nil];
